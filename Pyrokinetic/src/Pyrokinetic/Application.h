@@ -2,6 +2,8 @@
 
 #include "Core.h"
 
+#include "Events/Event.h"
+
 namespace Pyrokinetic
 {
 	class PK_API Application

@@ -1,0 +1,3 @@
+[submodule "Pyrokinetic/ext/spdlog"]
+	path = Pyrokinetic/ext/spdlog
+	url = https://github.com/gabime/spdlog
