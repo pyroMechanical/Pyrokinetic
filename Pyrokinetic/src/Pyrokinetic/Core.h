@@ -10,8 +10,12 @@
 	#error OS unsupported!
 #endif
 
-#if (_MSC_VER >= 1915)
-#define no_init_all deprecated
+#ifdef PK_ENABLE_ASSERTS
+	#define PK_ASSERT(x, ...) { if(!(x)) { PK_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+	#define PK_CORE_ASSERT(x, ...) { if(!(x)) { PK_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#else
+	#define PK_ASSERT(x, ...)
+	#define PK_CORE_ASSERT(x, ...)
 #endif
 
 #define BIT(x) (1 << x)

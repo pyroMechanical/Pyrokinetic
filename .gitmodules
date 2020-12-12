@@ -1,3 +1,6 @@
 [submodule "Pyrokinetic/ext/spdlog"]
 	path = Pyrokinetic/ext/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "Pyrokinetic/ext/GLFW"]
+	path = Pyrokinetic/ext/GLFW
+	url = https://github.com/glfw/glfw

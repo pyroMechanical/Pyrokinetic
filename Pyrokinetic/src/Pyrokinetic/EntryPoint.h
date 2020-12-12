@@ -1,4 +1,5 @@
 #pragma once
+#include "pyrokinetic.h"
 
 #ifdef PK_PLATFORM_WINDOWS
 
@@ -8,8 +9,7 @@ int main(int argc, char** argv)
 {
 	Pyrokinetic::Log::Init();
 	PK_CORE_WARN("Initialized Logger");
-	int a = 42;
-	PK_INFO("Initialized Client Logger. Var = {0}", a);
+	PK_INFO("Initialized Client Logger");
 
 	auto app = Pyrokinetic::CreateApplication();
 	app->Run();

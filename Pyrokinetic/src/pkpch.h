@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Pyrokinetic/Log.h"
 
 //Platforms
 #ifdef PK_PLATFORM_WINDOWS

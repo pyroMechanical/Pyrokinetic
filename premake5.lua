@@ -9,6 +9,11 @@ workspace "Pyrokinetic"
 	}
 
 	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+	
+	IncludeDir = {}
+	IncludeDir["GLFW"] = "Pyrokinetic/ext/GLFW/include"
+	
+	include "Pyrokinetic/ext/GLFW"
 
 project "Pyrokinetic"
 	location "Pyrokinetic"
@@ -19,7 +24,7 @@ project "Pyrokinetic"
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 	
 	pchheader "pkpch.h"
-	pchsource "Pyrokinetic/src/pkpch.cpp"
+	pchsource "src/pkpch.cpp"
 
 	files
 	{
@@ -30,7 +35,14 @@ project "Pyrokinetic"
 	includedirs 
 	{
 		"%{prj.name}/src",
-		"%{prj.name}/ext/spdlog/include"
+		"%{prj.name}/ext/spdlog/include",
+		"%{IncludeDir.GLFW}"
+	}
+	
+	links
+	{
+		"GLFW",
+		"opengl32.lib"
 	}
 
 	filter "system:windows"

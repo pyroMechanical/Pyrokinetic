@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Editor", "Editor\Editor.vcxproj", "{8C1A20B0-78BC-4A86-6177-5EDA4DB8D1D6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLFW", "Pyrokinetic\ext\GLFW\GLFW.vcxproj", "{154B857C-0182-860D-AA6E-6C109684020F}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pyrokinetic", "Pyrokinetic\Pyrokinetic.vcxproj", "{9698DBFA-024E-54F0-8B42-4EC7F7F64AF4}"
 EndProject
 Global
@@ -18,6 +20,12 @@ Global
 		{8C1A20B0-78BC-4A86-6177-5EDA4DB8D1D6}.Dist|x64.Build.0 = Dist|x64
 		{8C1A20B0-78BC-4A86-6177-5EDA4DB8D1D6}.Release|x64.ActiveCfg = Release|x64
 		{8C1A20B0-78BC-4A86-6177-5EDA4DB8D1D6}.Release|x64.Build.0 = Release|x64
+		{154B857C-0182-860D-AA6E-6C109684020F}.Debug|x64.ActiveCfg = Debug|x64
+		{154B857C-0182-860D-AA6E-6C109684020F}.Debug|x64.Build.0 = Debug|x64
+		{154B857C-0182-860D-AA6E-6C109684020F}.Dist|x64.ActiveCfg = Dist|x64
+		{154B857C-0182-860D-AA6E-6C109684020F}.Dist|x64.Build.0 = Dist|x64
+		{154B857C-0182-860D-AA6E-6C109684020F}.Release|x64.ActiveCfg = Release|x64
+		{154B857C-0182-860D-AA6E-6C109684020F}.Release|x64.Build.0 = Release|x64
 		{9698DBFA-024E-54F0-8B42-4EC7F7F64AF4}.Debug|x64.ActiveCfg = Debug|x64
 		{9698DBFA-024E-54F0-8B42-4EC7F7F64AF4}.Debug|x64.Build.0 = Debug|x64
 		{9698DBFA-024E-54F0-8B42-4EC7F7F64AF4}.Dist|x64.ActiveCfg = Dist|x64
