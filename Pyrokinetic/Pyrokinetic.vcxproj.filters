@@ -4,6 +4,9 @@
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Platform\OpenGL">
+      <UniqueIdentifier>{1E7D2C1D-8A08-9AE1-9319-1DD6FF23F6E1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
     </Filter>
@@ -13,8 +16,14 @@
     <Filter Include="Pyrokinetic\Events">
       <UniqueIdentifier>{BAFFE826-A6E3-A97C-0F44-A4CFFB4694FE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Pyrokinetic\ImGui">
+      <UniqueIdentifier>{40A6D594-ACBC-D32A-F533-5F4C6189A4B2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Platform\OpenGL\imgui_impl_opengl3.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
@@ -40,6 +49,15 @@
     <ClInclude Include="src\Pyrokinetic\Events\MouseEvent.h">
       <Filter>Pyrokinetic\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Pyrokinetic\ImGui\ImGuiLayer.h">
+      <Filter>Pyrokinetic\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pyrokinetic\Layer.h">
+      <Filter>Pyrokinetic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pyrokinetic\LayerStack.h">
+      <Filter>Pyrokinetic</Filter>
+    </ClInclude>
     <ClInclude Include="src\Pyrokinetic\Log.h">
       <Filter>Pyrokinetic</Filter>
     </ClInclude>
@@ -49,10 +67,22 @@
     <ClInclude Include="src\pkpch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Platform\OpenGL\imgui_impl_opengl3.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\Pyrokinetic\Application.cpp">
+      <Filter>Pyrokinetic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Pyrokinetic\ImGui\ImGuiLayer.cpp">
+      <Filter>Pyrokinetic\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Pyrokinetic\Layer.cpp">
+      <Filter>Pyrokinetic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Pyrokinetic\LayerStack.cpp">
       <Filter>Pyrokinetic</Filter>
     </ClCompile>
     <ClCompile Include="src\Pyrokinetic\Log.cpp">

@@ -4,3 +4,6 @@
 [submodule "Pyrokinetic/ext/GLFW"]
 	path = Pyrokinetic/ext/GLFW
 	url = https://github.com/glfw/glfw
+[submodule "Pyrokinetic/ext/imgui"]
+	path = Pyrokinetic/ext/imgui
+	url = https://github.com/ocornut/imgui

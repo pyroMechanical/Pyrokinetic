@@ -12,8 +12,12 @@ workspace "Pyrokinetic"
 	
 	IncludeDir = {}
 	IncludeDir["GLFW"] = "Pyrokinetic/ext/GLFW/include"
+	IncludeDir["Glad"] = "Pyrokinetic/ext/Glad/include"
+	IncludeDir["ImGui"] = "Pyrokinetic/ext/imgui"
 	
 	include "Pyrokinetic/ext/GLFW"
+	include "Pyrokinetic/ext/Glad"
+	include "Pyrokinetic/ext/imgui"
 
 project "Pyrokinetic"
 	location "Pyrokinetic"
@@ -24,7 +28,7 @@ project "Pyrokinetic"
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 	
 	pchheader "pkpch.h"
-	pchsource "src/pkpch.cpp"
+	pchsource "Pyrokinetic/src/pkpch.cpp"
 
 	files
 	{
@@ -36,12 +40,16 @@ project "Pyrokinetic"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/ext/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}",
+		"%{IncludeDir.ImGui}"
 	}
 	
 	links
 	{
 		"GLFW",
+		"Glad",
+		"ImGui",
 		"opengl32.lib"
 	}
 
@@ -54,6 +62,7 @@ project "Pyrokinetic"
 		{
 		"PK_PLATFORM_WINDOWS",
 		"PK_BUILD_DLL",
+		"GLFW_INCLUDE_NONE"
 		}
 
 		postbuildcommands
@@ -63,14 +72,17 @@ project "Pyrokinetic"
 
 	filter "configurations:Debug"
 		defines "PK_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "PK_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "PK_DIST"
+		buildoptions "/MD"
 		symbols "On"
 
 
@@ -111,12 +123,15 @@ project "Editor"
 
 	filter "configurations:Debug"
 		defines "PK_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "PK_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "PK_DIST"
+		buildoptions "/MD"
 		symbols "On"

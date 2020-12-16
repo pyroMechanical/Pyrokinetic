@@ -11,7 +11,7 @@ namespace Pyrokinetic
 		None = 0,
 		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
 		AppTick, AppUpdate, AppRender,
-		KeyPressed, KeyReleased,
+		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 	};
 
@@ -39,6 +39,8 @@ namespace Pyrokinetic
 		virtual const char* GetName() const = 0;
 		virtual int GetCategoryFlags() const = 0;
 		virtual std::string ToString() const { return GetName(); }
+
+		bool IsHandled() { return m_Handled; }
 
 		inline bool IsInCategory(EventCategory category)
 		{
