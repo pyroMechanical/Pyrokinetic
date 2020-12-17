@@ -1,5 +1,6 @@
 workspace "Pyrokinetic"
 	architecture "x64"
+	startproject "Editor"
 
 	configurations
 	{
@@ -15,9 +16,12 @@ workspace "Pyrokinetic"
 	IncludeDir["Glad"] = "Pyrokinetic/ext/Glad/include"
 	IncludeDir["ImGui"] = "Pyrokinetic/ext/imgui"
 	
-	include "Pyrokinetic/ext/GLFW"
-	include "Pyrokinetic/ext/Glad"
-	include "Pyrokinetic/ext/imgui"
+	
+	group "Dependencies"
+		include "Pyrokinetic/ext/GLFW"
+		include "Pyrokinetic/ext/Glad"
+		include "Pyrokinetic/ext/imgui"
+	group ""
 
 project "Pyrokinetic"
 	location "Pyrokinetic"
@@ -67,22 +71,25 @@ project "Pyrokinetic"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Editor")
+			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Editor/\"")
 		}
 
 	filter "configurations:Debug"
 		defines "PK_DEBUG"
-		buildoptions "/MDd"
+		runtime "Debug"
+		staticruntime "Off"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "PK_RELEASE"
-		buildoptions "/MD"
+		runtime "Release"
+		staticruntime "Off"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "PK_DIST"
-		buildoptions "/MD"
+		runtime "Release"
+		staticruntime "Off"
 		symbols "On"
 
 
@@ -123,15 +130,18 @@ project "Editor"
 
 	filter "configurations:Debug"
 		defines "PK_DEBUG"
-		buildoptions "/MDd"
+		runtime "Debug"
+		staticruntime "Off"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "PK_RELEASE"
-		buildoptions "/MD"
+		runtime "Release"
+		staticruntime "Off"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "PK_DIST"
-		buildoptions "/MD"
+		runtime "Release"
+		staticruntime "Off"
 		symbols "On"

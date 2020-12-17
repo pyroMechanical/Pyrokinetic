@@ -65,6 +65,10 @@
       <Filter>Pyrokinetic</Filter>
     </ClInclude>
     <ClInclude Include="src\pkpch.h" />
+    <ClInclude Include="src\Pyrokinetic\Input.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
+    <ClInclude Include="src\Pyrokinetic\KeyCodes.h" />
+    <ClInclude Include="src\Pyrokinetic\MouseCodes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\imgui_impl_opengl3.cpp">
@@ -89,5 +93,6 @@
       <Filter>Pyrokinetic</Filter>
     </ClCompile>
     <ClCompile Include="src\pkpch.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
 </Project>

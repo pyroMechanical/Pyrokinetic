@@ -37,7 +37,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
+    <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
@@ -84,8 +84,7 @@
       <AdditionalIncludeDirectories>src;ext\spdlog\include;ext\GLFW\include;ext\Glad\include;ext\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/MDd %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -95,7 +94,7 @@
       <ImportLibrary>..\bin\Debug-windows-x86_64\Pyrokinetic\Pyrokinetic.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Debug-windows-x86_64\Pyrokinetic\Pyrokinetic.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-windows-x86_64\Pyrokinetic\Pyrokinetic.dll ..\bin\Debug-windows-x86_64\Editor &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-windows-x86_64\Pyrokinetic\Pyrokinetic.dll ..\bin\Debug-windows-x86_64\Editor &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Debug-windows-x86_64\Pyrokinetic\Pyrokinetic.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-windows-x86_64\Pyrokinetic\Pyrokinetic.dll "..\bin\Debug-windows-x86_64\Editor\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-windows-x86_64\Pyrokinetic\Pyrokinetic.dll "..\bin\Debug-windows-x86_64\Editor\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -110,8 +109,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -122,7 +120,7 @@
       <ImportLibrary>..\bin\Release-windows-x86_64\Pyrokinetic\Pyrokinetic.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Release-windows-x86_64\Pyrokinetic\Pyrokinetic.dll\ (xcopy /Q /E /Y /I ..\bin\Release-windows-x86_64\Pyrokinetic\Pyrokinetic.dll ..\bin\Release-windows-x86_64\Editor &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-windows-x86_64\Pyrokinetic\Pyrokinetic.dll ..\bin\Release-windows-x86_64\Editor &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Release-windows-x86_64\Pyrokinetic\Pyrokinetic.dll\ (xcopy /Q /E /Y /I ..\bin\Release-windows-x86_64\Pyrokinetic\Pyrokinetic.dll "..\bin\Release-windows-x86_64\Editor\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-windows-x86_64\Pyrokinetic\Pyrokinetic.dll "..\bin\Release-windows-x86_64\Editor\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
@@ -134,8 +132,7 @@
       <AdditionalIncludeDirectories>src;ext\spdlog\include;ext\GLFW\include;ext\Glad\include;ext\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -145,11 +142,13 @@
       <ImportLibrary>..\bin\Dist-windows-x86_64\Pyrokinetic\Pyrokinetic.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST ..\bin\Dist-windows-x86_64\Pyrokinetic\Pyrokinetic.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-windows-x86_64\Pyrokinetic\Pyrokinetic.dll ..\bin\Dist-windows-x86_64\Editor &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-windows-x86_64\Pyrokinetic\Pyrokinetic.dll ..\bin\Dist-windows-x86_64\Editor &gt; nul)</Command>
+      <Command>IF EXIST ..\bin\Dist-windows-x86_64\Pyrokinetic\Pyrokinetic.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-windows-x86_64\Pyrokinetic\Pyrokinetic.dll "..\bin\Dist-windows-x86_64\Editor\" &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-windows-x86_64\Pyrokinetic\Pyrokinetic.dll "..\bin\Dist-windows-x86_64\Editor\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Pyrokinetic\KeyCodes.h" />
     <ClInclude Include="src\Platform\OpenGL\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\Pyrokinetic.h" />
     <ClInclude Include="src\Pyrokinetic\Application.h" />
@@ -160,14 +159,17 @@
     <ClInclude Include="src\Pyrokinetic\Events\KeyEvent.h" />
     <ClInclude Include="src\Pyrokinetic\Events\MouseEvent.h" />
     <ClInclude Include="src\Pyrokinetic\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\Pyrokinetic\Input.h" />
     <ClInclude Include="src\Pyrokinetic\Layer.h" />
     <ClInclude Include="src\Pyrokinetic\LayerStack.h" />
     <ClInclude Include="src\Pyrokinetic\Log.h" />
+    <ClInclude Include="src\Pyrokinetic\MouseCodes.h" />
     <ClInclude Include="src\Pyrokinetic\Window.h" />
     <ClInclude Include="src\pkpch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\Pyrokinetic\Application.cpp" />
     <ClCompile Include="src\Pyrokinetic\ImGui\ImGuiLayer.cpp" />
@@ -192,4 +194,4 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-</Project> 
+</Project>

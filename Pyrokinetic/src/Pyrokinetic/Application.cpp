@@ -4,6 +4,8 @@
 
 #include <Glad/glad.h>
 
+#include "Input.h"
+
 namespace Pyrokinetic
 {
 
@@ -61,6 +63,7 @@ namespace Pyrokinetic
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
+
 
 			m_Window->OnUpdate();
 		}

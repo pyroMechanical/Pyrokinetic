@@ -10,6 +10,10 @@
 	#error OS unsupported!
 #endif
 
+#ifdef PK_DEBUG
+	#define PK_ENABLE_ASSERTS
+#endif
+
 #ifdef PK_ENABLE_ASSERTS
 	#define PK_ASSERT(x, ...) { if(!(x)) { PK_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
 	#define PK_CORE_ASSERT(x, ...) { if(!(x)) { PK_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }

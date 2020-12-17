@@ -62,8 +62,6 @@ namespace Pyrokinetic
 
 	void ImGuiLayer::OnUpdate()
 	{
-		
-
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
 		io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
@@ -80,7 +78,6 @@ namespace Pyrokinetic
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		
 	}
 
 	void ImGuiLayer::OnEvent(Event& event)
@@ -95,7 +92,6 @@ namespace Pyrokinetic
 		dispatcher.Dispatch<KeyTypedEvent>(PK_BIND_EVENT_FN(ImGuiLayer::OnKeyTypedEvent));
 		dispatcher.Dispatch<WindowResizeEvent>(PK_BIND_EVENT_FN(ImGuiLayer::OnWindowResizeEvent));
 	}
-
 	
 	bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent& e)
 	{
@@ -104,6 +100,7 @@ namespace Pyrokinetic
 
 		return false;
 	}	 
+
 	bool ImGuiLayer::OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e)
 	{	
 		ImGuiIO& io = ImGui::GetIO();
@@ -111,6 +108,7 @@ namespace Pyrokinetic
 
 		return false;
 	}	 
+
 	bool ImGuiLayer::OnMouseScrolledEvent(MouseScrolledEvent& e)
 	{	 
 		ImGuiIO& io = ImGui::GetIO();
@@ -119,6 +117,7 @@ namespace Pyrokinetic
 
 		return false;
 	}	 
+
 	bool ImGuiLayer::OnMouseMovedEvent(MouseMovedEvent& e)
 	{	
 		ImGuiIO& io = ImGui::GetIO();
@@ -126,6 +125,7 @@ namespace Pyrokinetic
 
 		return false;
 	}	 
+
 	bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent& e)
 	{	
 		ImGuiIO& io = ImGui::GetIO();
@@ -137,6 +137,7 @@ namespace Pyrokinetic
 		io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 		return false;
 	}	 
+
 	bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e) 
 	{
 		ImGuiIO& io = ImGui::GetIO();
@@ -154,6 +155,7 @@ namespace Pyrokinetic
 
 		return false;
 	}
+
 	bool ImGuiLayer::OnWindowResizeEvent(WindowResizeEvent& e) 
 	{
 
