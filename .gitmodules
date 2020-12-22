@@ -7,3 +7,9 @@
 [submodule "Pyrokinetic/ext/imgui"]
 	path = Pyrokinetic/ext/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "glm"]
+	path = glm
+	url = https://github.com/g-truc/glm
+[submodule "Pyrokinetic/ext/glm"]
+	path = Pyrokinetic/ext/glm
+	url = https://github.com/g-truc/glm
