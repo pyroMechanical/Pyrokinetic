@@ -4,7 +4,7 @@
 
 namespace Pyrokinetic
 {
-	class PK_API KeyEvent : public Event
+	class KeyEvent : public Event
 	{
 	public:
 		inline int GetKeyCode() const { return m_KeyCode; }
@@ -17,7 +17,7 @@ namespace Pyrokinetic
 		int m_KeyCode;
 	};
 
-	class PK_API KeyPressedEvent : public KeyEvent
+	class KeyPressedEvent : public KeyEvent
 	{
 	public:
 		KeyPressedEvent(int keycode, int repeatCount)
@@ -37,7 +37,7 @@ namespace Pyrokinetic
 		int m_RepeatCount;
 	};
 
-	class PK_API KeyReleasedEvent : public KeyEvent
+	class KeyReleasedEvent : public KeyEvent
 	{
 	public:
 		KeyReleasedEvent(int keycode)
@@ -54,7 +54,7 @@ namespace Pyrokinetic
 	};
 
 
-	class PK_API KeyTypedEvent : public KeyEvent
+	class KeyTypedEvent : public KeyEvent
 	{
 	public:
 		KeyTypedEvent(int keycode)

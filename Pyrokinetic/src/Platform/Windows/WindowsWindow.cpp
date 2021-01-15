@@ -5,7 +5,8 @@
 #include "Pyrokinetic/Events/MouseEvent.h"
 #include "Pyrokinetic/Events/ApplicationEvent.h"
 
-#include <glad/glad.h>
+#include "Platform/OpenGL/OpenGLContext.h"
+
 
 
 namespace Pyrokinetic
@@ -24,37 +25,45 @@ namespace Pyrokinetic
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
+		PROFILE_FUNCTION();
+
 		Init(props);
 	}
 
 	WindowsWindow::~WindowsWindow()
 	{
+		PROFILE_FUNCTION();
+
 		Shutdown();
 	}
 
 	void WindowsWindow::Init(const WindowProps& props)
 	{
+		PROFILE_FUNCTION();
+
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
+
+		
 
 		PK_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInitialized)
 		{
-			// TODO: glfwTerminate on system shutdown
+			PROFILE_SCOPE("GLFW init");
 			int success = glfwInit();
 			PK_CORE_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
-
-
 		}
+		{
+			PROFILE_SCOPE("GLFW window creation");
+			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		}
+		m_Context = CreateScope<OpenGLContext>(m_Window);
+		m_Context->Init();
 
-		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_Window);
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		PK_CORE_ASSERT(status, "Failed to initialize Glad!");
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 
@@ -149,22 +158,27 @@ namespace Pyrokinetic
 			MouseMovedEvent event((float)xPosition, (float)yPosition);
 			data.EventCallback(event);
 		});
-
 	}
 
 	void WindowsWindow::Shutdown()
 	{
+		PROFILE_FUNCTION();
+
 		glfwDestroyWindow(m_Window);
 	}
 
 	void WindowsWindow::OnUpdate()
 	{
+		PROFILE_FUNCTION();
+
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
+		m_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
 	{
+		PROFILE_FUNCTION();
+
 		if (enabled)
 			glfwSwapInterval(1);
 		else
@@ -177,5 +191,4 @@ namespace Pyrokinetic
 	{
 		return m_Data.VSync;
 	}
-
 }

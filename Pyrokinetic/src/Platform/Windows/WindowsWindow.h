@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Pyrokinetic/Window.h"
+#include "Pyrokinetic/Core/Window.h"
 #include <GLFW/glfw3.h>
+
+#include "Pyrokinetic/Rendering/GraphicsContext.h"
 
 namespace Pyrokinetic
 {
@@ -27,6 +29,8 @@ namespace Pyrokinetic
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
+
+		Scope<GraphicsContext> m_Context;
 
 		struct WindowData
 		{

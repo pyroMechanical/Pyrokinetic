@@ -12,10 +12,11 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "Pyrokinetic/Log.h"
-
+#include "Pyrokinetic/Core/Log.h"
+#ifdef PK_DEBUG
+#include "Pyrokinetic/Profiling/Instrumentor.h"
+#endif
 //Platforms
 #ifdef PK_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif
-

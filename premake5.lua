@@ -12,21 +12,27 @@ workspace "Pyrokinetic"
 	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 	
 	IncludeDir = {}
-	IncludeDir["GLFW"] = "Pyrokinetic/ext/GLFW/include"
-	IncludeDir["Glad"] = "Pyrokinetic/ext/Glad/include"
+	IncludeDir["GLFW"] =  "Pyrokinetic/ext/GLFW/include"
+	IncludeDir["Glad"] =  "Pyrokinetic/ext/Glad/include"
 	IncludeDir["ImGui"] = "Pyrokinetic/ext/imgui"
+	IncludeDir["ImPlot"] = "Pyrokinetic/ext/implot"
+	IncludeDir["glm"] = "Pyrokinetic/ext/glm"
+	IncludeDir["stb_image"] = "Pyrokinetic/ext/stb_image"
 	
 	
 	group "Dependencies"
 		include "Pyrokinetic/ext/GLFW"
 		include "Pyrokinetic/ext/Glad"
 		include "Pyrokinetic/ext/imgui"
+		include "Pyrokinetic/ext/implot"
 	group ""
 
 project "Pyrokinetic"
 	location "Pyrokinetic"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -37,7 +43,16 @@ project "Pyrokinetic"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/ext/stb_image/**.cpp",
+		"%{prj.name}/ext/stb_image/**.h",
+		"%{prj.name}/ext/glm/glm/**.hpp",
+		"%{prj.name}/ext/glm/glm/**.inl"
+	}
+	
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	includedirs 
@@ -46,7 +61,10 @@ project "Pyrokinetic"
 		"%{prj.name}/ext/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.ImPlot}",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb_image}"
 	}
 	
 	links
@@ -54,49 +72,40 @@ project "Pyrokinetic"
 		"GLFW",
 		"Glad",
 		"ImGui",
-		"opengl32.lib"
+		"ImPlot",
+		"opengl32.lib",
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines
 		{
-		"PK_PLATFORM_WINDOWS",
-		"PK_BUILD_DLL",
 		"GLFW_INCLUDE_NONE"
-		}
-
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Editor/\"")
 		}
 
 	filter "configurations:Debug"
 		defines "PK_DEBUG"
 		runtime "Debug"
-		staticruntime "Off"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "PK_RELEASE"
 		runtime "Release"
-		staticruntime "Off"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "PK_DIST"
 		runtime "Release"
-		staticruntime "Off"
-		symbols "On"
+		symbols "on"
 
 
 project "Editor"
 	location "Editor"
 	kind "ConsoleApp"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 	
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -110,7 +119,10 @@ project "Editor"
 	includedirs
 	{
 		"Pyrokinetic/src",
-		"Pyrokinetic/ext/spdlog/include"
+		"Pyrokinetic/ext/spdlog/include",
+		"Pyrokinetic/ext/imgui",
+		"Pyrokinetic/ext/implot",
+		"%{IncludeDir.glm}"
 	}
 
 	links
@@ -119,29 +131,19 @@ project "Editor"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
-
-		defines
-		{
-		"PK_PLATFORM_WINDOWS"
-		}
 
 	filter "configurations:Debug"
 		defines "PK_DEBUG"
 		runtime "Debug"
-		staticruntime "Off"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "PK_RELEASE"
 		runtime "Release"
-		staticruntime "Off"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "PK_DIST"
 		runtime "Release"
-		staticruntime "Off"
-		symbols "On"
+		symbols "on"

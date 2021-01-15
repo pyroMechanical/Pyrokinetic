@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Pyrokinetic/Input.h"
+#include "Pyrokinetic/Core/Input.h"
 
 namespace Pyrokinetic
 {
