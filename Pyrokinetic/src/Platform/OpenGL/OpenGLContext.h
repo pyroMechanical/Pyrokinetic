@@ -13,6 +13,7 @@ namespace Pyrokinetic
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
+		virtual void SetVSync(bool enabled) override;
 
 	private:
 		GLFWwindow* m_WindowHandle;

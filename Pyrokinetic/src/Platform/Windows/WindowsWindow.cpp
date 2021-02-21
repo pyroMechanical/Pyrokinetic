@@ -20,7 +20,9 @@ namespace Pyrokinetic
 
 	Window* Window::Create(const WindowProps& props)
 	{
+#ifdef PK_PLATFORM_WINDOWS
 		return new WindowsWindow(props);
+#endif
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)
@@ -45,8 +47,6 @@ namespace Pyrokinetic
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
-		
-
 		PK_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInitialized)
@@ -57,12 +57,13 @@ namespace Pyrokinetic
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}
-		{
-			PROFILE_SCOPE("GLFW window creation");
-			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		}
-		m_Context = CreateScope<OpenGLContext>(m_Window);
-		m_Context->Init();
+		bool vulkanSupported = glfwVulkanSupported();
+#ifdef PK_VULKAN_SUPPORTED
+		if (vulkanSupported) glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#endif
+		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
+		m_Context = GraphicsContext::Create(m_Window);
+		if(m_Context != nullptr) m_Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
@@ -178,12 +179,7 @@ namespace Pyrokinetic
 	void WindowsWindow::SetVSync(bool enabled)
 	{
 		PROFILE_FUNCTION();
-
-		if (enabled)
-			glfwSwapInterval(1);
-		else
-			glfwSwapInterval(0);
-
+		m_Context->SetVSync(enabled);
 		m_Data.VSync = enabled;
 	}
 

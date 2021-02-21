@@ -14,6 +14,7 @@ workspace "Pyrokinetic"
 	IncludeDir = {}
 	IncludeDir["GLFW"] =  "Pyrokinetic/ext/GLFW/include"
 	IncludeDir["Glad"] =  "Pyrokinetic/ext/Glad/include"
+	IncludeDir["Vulkan"] = "Pyrokinetic/ext/vulkan/include"
 	IncludeDir["ImGui"] = "Pyrokinetic/ext/imgui"
 	IncludeDir["ImPlot"] = "Pyrokinetic/ext/implot"
 	IncludeDir["glm"] = "Pyrokinetic/ext/glm"
@@ -25,6 +26,7 @@ workspace "Pyrokinetic"
 		include "Pyrokinetic/ext/Glad"
 		include "Pyrokinetic/ext/imgui"
 		include "Pyrokinetic/ext/implot"
+		include "Pyrokinetic/ext/vulkan"
 	group ""
 
 project "Pyrokinetic"
@@ -46,6 +48,8 @@ project "Pyrokinetic"
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/ext/stb_image/**.cpp",
 		"%{prj.name}/ext/stb_image/**.h",
+		"%{prj.name}/ext/vkbootstrap/src/**.cpp",
+		"%{prj.name}/ext/vkbootstrap/src/**.h",
 		"%{prj.name}/ext/glm/glm/**.hpp",
 		"%{prj.name}/ext/glm/glm/**.inl"
 	}
@@ -61,19 +65,22 @@ project "Pyrokinetic"
 		"%{prj.name}/ext/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
+		"%{IncludeDir.Vulkan}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImPlot}",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.stb_image}"
+		"%{IncludeDir.stb_image}",
+		"%{prj.name}/ext/vkbootstrap/src/"
 	}
 	
 	links
 	{
 		"GLFW",
 		"Glad",
+		"Vulkan",
 		"ImGui",
 		"ImPlot",
-		"opengl32.lib",
+		"opengl32.lib"
 	}
 
 	filter "system:windows"
@@ -98,6 +105,7 @@ project "Pyrokinetic"
 		defines "PK_DIST"
 		runtime "Release"
 		symbols "on"
+		optimize "on"
 
 
 project "Editor"
@@ -119,6 +127,8 @@ project "Editor"
 	includedirs
 	{
 		"Pyrokinetic/src",
+		"Pyrokinetic/ext/vkbootstrap/src/",
+		"%{IncludeDir.Vulkan}",
 		"Pyrokinetic/ext/spdlog/include",
 		"Pyrokinetic/ext/imgui",
 		"Pyrokinetic/ext/implot",
@@ -147,3 +157,4 @@ project "Editor"
 		defines "PK_DIST"
 		runtime "Release"
 		symbols "on"
+		optimize "on"

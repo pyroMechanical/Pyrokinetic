@@ -1,12 +1,13 @@
 #pragma once
-
 #include "Pyrokinetic/Core/Window.h"
+#include "Pyrokinetic/Rendering/GraphicsContext.h"
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include "Pyrokinetic/Rendering/GraphicsContext.h"
 
 namespace Pyrokinetic
 {
+
 	class WindowsWindow : public Window
 	{
 	public:
@@ -24,13 +25,14 @@ namespace Pyrokinetic
 		bool IsVSync() const override;
 
 		inline virtual void* GetNativeWindow() const { return m_Window; }
+
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
 
-		Scope<GraphicsContext> m_Context;
+		std::unique_ptr<GraphicsContext> m_Context;
 
 		struct WindowData
 		{

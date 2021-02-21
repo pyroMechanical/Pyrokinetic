@@ -1,11 +1,18 @@
 # Binaries
-##/bin/
+bin/
 !ext/bin/premake/
 bin-int/
+Pyrokinetic/ext/**/bin
+Pyrokinetic/ext/**/bin-int
+
+Editor/assets/shaders/compile.bat
 
 # Visual Studio files and folder
 .vs/
+**.lib
+**.exe
 **.sln
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
+**.png

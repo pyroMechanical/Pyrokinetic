@@ -24,7 +24,7 @@ namespace Pyrokinetic
 
 		virtual std::pair<float, float> GetMousePositionImpl() = 0;
 	private:
-		static Scope<Input> s_Instance;
+		static std::unique_ptr<Input> s_Instance;
 	};
 
 }

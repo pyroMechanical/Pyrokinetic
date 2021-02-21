@@ -7,13 +7,14 @@
 
 namespace Pyrokinetic
 {
-	Ref<VertexArray> VertexArray::Create()
+	std::shared_ptr<VertexArray> VertexArray::Create()
 	{
 
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:     return CreateRef<OpenGLVertexArray>();
+		case API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
+		case API::OpenGL:     return std::make_shared<OpenGLVertexArray>();
+		case API::Vulkan:    return nullptr;//std::make_shared<VulkanVertexArray>();
 		}
 
 		PK_CORE_ASSERT(false, "Unknown RendererAPI!");

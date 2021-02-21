@@ -6,24 +6,26 @@
 
 namespace Pyrokinetic
 {
-	Ref<Texture2D> Texture2D::Create(const std::string& path)
+	std::shared_ptr<Texture2D> Texture2D::Create(const std::string& path)
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:     return CreateRef<OpenGLTexture2D>(path);
+		case API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
+		case API::OpenGL:     return std::make_shared<OpenGLTexture2D>(path);
+		case API::Vulkan:     return nullptr;//std::make_shared<VulkanTexture2D>(path);
 		}
 
 		PK_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
 	}
 
-	Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
+	std::shared_ptr<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:     return CreateRef<OpenGLTexture2D>(width, height);
+		case API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
+		case API::OpenGL:     return std::make_shared<OpenGLTexture2D>(width, height);
+		case API::Vulkan:     return nullptr;//std::make_shared<VulkanTexture2D>(width, height);
 		}
 
 		PK_CORE_ASSERT(false, "Unknown RendererAPI!");

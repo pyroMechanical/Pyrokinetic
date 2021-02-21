@@ -2,14 +2,14 @@
 #include "WindowsInput.h"
 
 #include "Pyrokinetic/Core/Application.h"
-
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 
 namespace Pyrokinetic
 {
 
-	Scope<Input> Input::s_Instance = CreateScope<WindowsInput>();
+	std::unique_ptr<Input> Input::s_Instance = std::make_unique<WindowsInput>();
 
 
 	bool WindowsInput::IsKeyPressedImpl(int keycode)

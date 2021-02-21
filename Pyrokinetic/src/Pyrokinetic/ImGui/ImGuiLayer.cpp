@@ -43,8 +43,8 @@ namespace Pyrokinetic
 		//io.ConfigFlags |= ImGuiConfigFlags_viewportsNoMerge;
 
 		// Setup Dear ImGui Style
-		ImGui::StyleColorsDark();
-		//ImGui::StyleColorsClassic();
+		//ImGui::StyleColorsDark();
+		ImGui::StyleColorsClassic();
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

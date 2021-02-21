@@ -1,6 +1,5 @@
 #include "pkpch.h"
 #include "OpenGLContext.h"
-
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
@@ -42,5 +41,13 @@ namespace Pyrokinetic
 		PROFILE_FUNCTION();
 
 		glfwSwapBuffers(m_WindowHandle);
+	}
+
+	void OpenGLContext::SetVSync(bool enabled)
+	{
+		if (enabled)
+			glfwSwapInterval(1);
+		else
+			glfwSwapInterval(0);
 	}
 }

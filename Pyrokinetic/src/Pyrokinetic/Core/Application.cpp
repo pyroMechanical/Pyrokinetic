@@ -1,12 +1,10 @@
+#pragma once
 #include "pkpch.h"
-
 #include "Application.h"
 #include "Input.h"
-
 #include <glm/glm.hpp>
-
 #include "Pyrokinetic/Rendering/Renderer.h"
-
+#define GLFW_INCLUDE_VULKAN
 #include <glfw/glfw3.h>
 
 
@@ -27,11 +25,10 @@ namespace Pyrokinetic
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 		m_Window->SetVSync(true);
-
 		Renderer::Init();
 
-		m_ImGuiLayer = new ImGuiLayer();
-		PushOverlay(m_ImGuiLayer);
+		//m_ImGuiLayer = new ImGuiLayer();
+		//PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
@@ -84,12 +81,12 @@ namespace Pyrokinetic
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
-			if (!m_Minimized)
+			/*if (!m_Minimized)
 			{
 				{
 					PROFILE_SCOPE("LayerStack Update");
-						for (Layer* layer : m_LayerStack)
-							layer->OnUpdate(timestep);
+					for (Layer* layer : m_LayerStack)
+						layer->OnUpdate(timestep);
 				}
 				{
 					PROFILE_SCOPE("ImGuiStack Update");
@@ -98,10 +95,7 @@ namespace Pyrokinetic
 						layer->OnImGuiRender();
 					m_ImGuiLayer->End();
 				}
-			}
-
-			
-
+			}*/
 			m_Window->OnUpdate();
 		}
 	}

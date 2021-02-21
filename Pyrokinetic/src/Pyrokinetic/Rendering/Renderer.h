@@ -6,6 +6,7 @@
 
 #include "Shader.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Platform/Vulkan/VulkanShader.h"
 
 namespace Pyrokinetic
 {
@@ -19,9 +20,9 @@ namespace Pyrokinetic
 		static void BeginScene(OrthographicCamera& camera); //TODO take in scene params
 		static void EndScene();
 
-		static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
+		static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
 
-		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+		inline static API GetAPI() { return RendererAPI::GetAPI(); }
 
 	private:
 		struct SceneData
@@ -29,6 +30,6 @@ namespace Pyrokinetic
 			glm::mat4 ViewProjectionMatrix;
 		};
 
-		static Scope<SceneData> m_SceneData;
+		static std::unique_ptr<SceneData> m_SceneData;
 	};
 }

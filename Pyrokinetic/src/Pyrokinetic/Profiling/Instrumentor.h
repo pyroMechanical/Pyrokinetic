@@ -13,7 +13,6 @@ namespace Pyrokinetic
 #define PROFILE_END_SESSION() ::Pyrokinetic::Instrumentor::Get().EndSession()
 #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCSIG__)
 #define PROFILE_SCOPE(name) ::Pyrokinetic::InstrumentationTimer timer##__LINE__(name);
-
     struct ProfileResult
     {
         std::string Name;

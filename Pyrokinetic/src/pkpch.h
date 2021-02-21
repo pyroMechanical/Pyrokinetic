@@ -13,9 +13,16 @@
 #include <unordered_set>
 
 #include "Pyrokinetic/Core/Log.h"
-#ifdef PK_DEBUG
-#include "Pyrokinetic/Profiling/Instrumentor.h"
-#endif
+
+//#include "Pyrokinetic/Profiling/Instrumentor.h"
+
+#define PROFILE_BEGIN_SESSION(name, filepath)
+#define PROFILE_END_SESSION()
+#define PROFILE_FUNCTION()
+#define PROFILE_SCOPE(name)
+
+#define PK_VULKAN_SUPPORTED
+
 //Platforms
 #ifdef PK_PLATFORM_WINDOWS
 	#include <Windows.h>

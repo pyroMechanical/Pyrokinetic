@@ -25,6 +25,12 @@
     <Filter Include="ext\stb_image">
       <UniqueIdentifier>{90AC4A9A-FC6C-C6D0-C5A7-0F4E31270BAD}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ext\vkbootstrap">
+      <UniqueIdentifier>{640BFB66-D096-682B-D9A7-EB1F45B2C42B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ext\vkbootstrap\src">
+      <UniqueIdentifier>{7BDBB53A-E73C-9348-70AA-D9FADC0ACA07}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
     </Filter>
@@ -33,6 +39,9 @@
     </Filter>
     <Filter Include="src\Platform\OpenGL">
       <UniqueIdentifier>{35A49437-A105-7245-2A73-B8F796D3A804}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Platform\Vulkan">
+      <UniqueIdentifier>{81084748-ED69-2456-76D7-6A08E2375B15}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Platform\Windows">
       <UniqueIdentifier>{5B054582-4794-CE4B-F0B2-E246DC20DFF1}</UniqueIdentifier>
@@ -1299,6 +1308,9 @@
     <ClInclude Include="ext\stb_image\stb_image.h">
       <Filter>ext\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="ext\vkbootstrap\src\VkBootstrap.h">
+      <Filter>ext\vkbootstrap\src</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
@@ -1316,6 +1328,9 @@
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h">
       <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Vulkan\VulkanRendererAPI.h">
+      <Filter>src\Platform\Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsInput.h">
       <Filter>src\Platform\Windows</Filter>
@@ -1377,6 +1392,9 @@
     <ClInclude Include="src\Pyrokinetic\ImGui\ImGuiLayer.h">
       <Filter>src\Pyrokinetic\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="src\Pyrokinetic\Profiling\Instrumentor.h">
+      <Filter>src\Pyrokinetic\Profiling</Filter>
+    </ClInclude>
     <ClInclude Include="src\Pyrokinetic\Rendering\Buffer.h">
       <Filter>src\Pyrokinetic\Rendering</Filter>
     </ClInclude>
@@ -1390,6 +1408,9 @@
       <Filter>src\Pyrokinetic\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="src\Pyrokinetic\Rendering\Renderer.h">
+      <Filter>src\Pyrokinetic\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Pyrokinetic\Rendering\Renderer2D.h">
       <Filter>src\Pyrokinetic\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="src\Pyrokinetic\Rendering\RendererAPI.h">
@@ -1407,12 +1428,16 @@
     <ClInclude Include="src\pkpch.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Pyrokinetic\Rendering\Renderer2D.h" />
-    <ClInclude Include="src\Pyrokinetic\Profiling\Instrumentor.h" />
+    <ClInclude Include="src\Platform\Vulkan\VulkanContext.h" />
+    <ClInclude Include="src\Platform\Vulkan\VulkanInitializer.h" />
+    <ClInclude Include="src\Platform\Vulkan\VulkanPipelineBuilder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ext\stb_image\stb_image.cpp">
       <Filter>ext\stb_image</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\vkbootstrap\src\VkBootstrap.cpp">
+      <Filter>ext\vkbootstrap\src</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
@@ -1431,6 +1456,9 @@
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp">
       <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Vulkan\VulkanRendererAPI.cpp">
+      <Filter>src\Platform\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
       <Filter>src\Platform\Windows</Filter>
@@ -1465,10 +1493,16 @@
     <ClCompile Include="src\Pyrokinetic\Rendering\Camera.cpp">
       <Filter>src\Pyrokinetic\Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="src\Pyrokinetic\Rendering\GraphicsContext.cpp">
+      <Filter>src\Pyrokinetic\Rendering</Filter>
+    </ClCompile>
     <ClCompile Include="src\Pyrokinetic\Rendering\RenderCommand.cpp">
       <Filter>src\Pyrokinetic\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="src\Pyrokinetic\Rendering\Renderer.cpp">
+      <Filter>src\Pyrokinetic\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Pyrokinetic\Rendering\Renderer2D.cpp">
       <Filter>src\Pyrokinetic\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="src\Pyrokinetic\Rendering\RendererAPI.cpp">
@@ -1486,6 +1520,7 @@
     <ClCompile Include="src\pkpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Pyrokinetic\Rendering\Renderer2D.cpp" />
+    <ClCompile Include="src\Platform\Vulkan\VulkanContext.cpp" />
+    <ClCompile Include="src\Platform\Vulkan\VulkanPipelineBuilder.cpp" />
   </ItemGroup>
 </Project>

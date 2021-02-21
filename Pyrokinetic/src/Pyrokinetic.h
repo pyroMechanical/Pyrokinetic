@@ -1,5 +1,6 @@
 #pragma once
 
+#define GLFW_INCLUDE_VULKAN
 
 #include "Pyrokinetic/Core/Application.h"
 

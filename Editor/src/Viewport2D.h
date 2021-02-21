@@ -22,7 +22,8 @@ private:
 
 
 	//TODO: put in renderer
-	Pyrokinetic::Ref<Pyrokinetic::Texture2D> m_Texture;
+	std::shared_ptr<Pyrokinetic::Texture2D> m_Texture;
+	std::shared_ptr<Pyrokinetic::Texture2D> m_Spritesheet;
 	glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 
 	struct TimerResult

@@ -1,9 +1,7 @@
 #include "pkpch.h"
-#include "RenderCommand.h"
-
-#include "Platform/OpenGL/OpenGLRendererAPI.h"
+#include "Pyrokinetic/Rendering/RenderCommand.h"
 
 namespace Pyrokinetic
 {
-	Scope<RendererAPI> RenderCommand::s_RendererAPI = CreateScope<OpenGLRendererAPI>();
+	std::unique_ptr<RendererAPI> RenderCommand::s_RendererAPI = RendererAPI::Create();
 }

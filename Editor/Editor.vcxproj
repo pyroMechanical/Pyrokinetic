@@ -68,7 +68,7 @@
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin\Dist-windows-x86_64\Editor\</OutDir>
     <IntDir>..\bin-int\Dist-windows-x86_64\Editor\</IntDir>
     <TargetName>Editor</TargetName>
@@ -79,7 +79,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PK_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Pyrokinetic\src;..\Pyrokinetic\ext\spdlog\include;..\Pyrokinetic\ext\imgui;..\Pyrokinetic\ext\implot;..\Pyrokinetic\ext\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Pyrokinetic\src;..\Pyrokinetic\ext\vkbootstrap\src;..\Pyrokinetic\ext\vulkan\include;..\Pyrokinetic\ext\spdlog\include;..\Pyrokinetic\ext\imgui;..\Pyrokinetic\ext\implot;..\Pyrokinetic\ext\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -95,7 +95,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PK_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Pyrokinetic\src;..\Pyrokinetic\ext\spdlog\include;..\Pyrokinetic\ext\imgui;..\Pyrokinetic\ext\implot;..\Pyrokinetic\ext\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Pyrokinetic\src;..\Pyrokinetic\ext\vkbootstrap\src;..\Pyrokinetic\ext\vulkan\include;..\Pyrokinetic\ext\spdlog\include;..\Pyrokinetic\ext\imgui;..\Pyrokinetic\ext\implot;..\Pyrokinetic\ext\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -115,28 +115,34 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PK_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Pyrokinetic\src;..\Pyrokinetic\ext\spdlog\include;..\Pyrokinetic\ext\imgui;..\Pyrokinetic\ext\implot;..\Pyrokinetic\ext\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\Pyrokinetic\src;..\Pyrokinetic\ext\vkbootstrap\src;..\Pyrokinetic\ext\vulkan\include;..\Pyrokinetic\ext\spdlog\include;..\Pyrokinetic\ext\imgui;..\Pyrokinetic\ext\implot;..\Pyrokinetic\ext\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Viewport2D.cpp" />
+    <ClInclude Include="src\Viewport2D.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="src\EditorApp.cpp" />
+    <ClCompile Include="src\Viewport2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pyrokinetic\Pyrokinetic.vcxproj">
       <Project>{9698DBFA-024E-54F0-8B42-4EC7F7F64AF4}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\Viewport2D.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

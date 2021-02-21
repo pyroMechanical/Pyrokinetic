@@ -16,3 +16,6 @@
 [submodule "Pyrokinetic/ext/implot"]
 	path = Pyrokinetic/ext/implot
 	url = https://github.com/epezent/implot
+[submodule "Pyrokinetic/ext/vkbootstrap"]
+	path = Pyrokinetic/ext/vkbootstrap
+	url = https://github.com/charles-lunarg/vk-bootstrap
