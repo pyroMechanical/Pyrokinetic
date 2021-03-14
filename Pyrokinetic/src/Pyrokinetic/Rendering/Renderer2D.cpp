@@ -7,7 +7,7 @@
 #include "Shader.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Pyrokinetic
+namespace pk
 {
 
 	struct QuadVertex
@@ -16,6 +16,17 @@ namespace Pyrokinetic
 		glm::vec4 color;
 		glm::vec2 texCoords;
 		int texIndex;
+		float tileFactor;
+	};
+
+	struct QuadInfo
+	{
+		glm::vec3 pos;
+		glm::vec2 size;
+		glm::vec4 color;
+		std::shared_ptr<SubTexture2D>& texture;
+		float rotation;
+		float tilescaling;
 	};
 
 	struct RendererData2D
@@ -47,15 +58,17 @@ namespace Pyrokinetic
 	void Renderer2D::Init()
 	{
 		PROFILE_FUNCTION();
+//#ifndef PK_VULKAN_SUPPORTED
 
-		/*s_Data.quadVertexArray = VertexArray::Create();
+		s_Data.quadVertexArray = VertexArray::Create();
 
 		s_Data.quadVertexBuffer = VertexBuffer::Create(s_Data.maxVertices * sizeof(QuadVertex));
 		BufferLayout quadVBLayout = {
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" }, 
 			{ ShaderDataType::Float2, "a_TexCoords" },
-			{ ShaderDataType::Int, "a_TexIndex" }
+			{ ShaderDataType::Int, "a_TexIndex" },
+			{ ShaderDataType::Float, "a_TileFactor"}
 		};
 		s_Data.quadVertexBuffer->SetLayout(quadVBLayout);
 		s_Data.quadVertexArray->AddVertexBuffer(s_Data.quadVertexBuffer);
@@ -97,7 +110,8 @@ namespace Pyrokinetic
 		s_Data.quadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
 		s_Data.quadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
 		s_Data.quadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
-		s_Data.quadVertexPositions[3] = {  -0.5f,  0.5f, 0.0f, 1.0f };*/
+		s_Data.quadVertexPositions[3] = {  -0.5f,  0.5f, 0.0f, 1.0f };
+//#endif
 	}
 
 	void Renderer2D::Shutdown()
@@ -108,24 +122,26 @@ namespace Pyrokinetic
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
 		PROFILE_FUNCTION();
-
-		/*s_Data.shader->Bind();
+//#ifndef PK_VULKAN_SUPPORTED
+		s_Data.shader->Bind();
 		s_Data.shader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
 		//s_Data.shader->SetMat4("u_Transform", glm::mat4(1.0f));
 
 		s_Data.quadIndexCount = 0;
 		s_Data.textureSlotIndex = 1;
-		s_Data.quadVertexBufferPtr = s_Data.quadVertexBufferStart;*/
+		s_Data.quadVertexBufferPtr = s_Data.quadVertexBufferStart;
+//#endif
 	}
 
 	void Renderer2D::EndScene()
 	{
 		PROFILE_FUNCTION();
-
-		/*uint32_t dataSize = (uint8_t*)s_Data.quadVertexBufferPtr - (uint8_t*)s_Data.quadVertexBufferStart;
+//#ifndef PK_VULKAN_SUPPORTED
+		uint32_t dataSize = (uint8_t*)s_Data.quadVertexBufferPtr - (uint8_t*)s_Data.quadVertexBufferStart;
 		s_Data.quadVertexBuffer->SetData(s_Data.quadVertexBufferStart, dataSize);
 
-		Flush();*/
+		Flush();
+//#endif
 	}
 
 	void Renderer2D::Flush()
@@ -164,34 +180,25 @@ namespace Pyrokinetic
 		}
 
 		const float textureIndex = 0.0f;
+		constexpr size_t quadVertexCount = 4;
+		constexpr glm::vec2 textureCoords[] = { {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f} };
 	
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
 		if(rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
 
-		s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[0];
-		s_Data.quadVertexBufferPtr->color = color;
-		s_Data.quadVertexBufferPtr->texCoords = { 0.0f, 0.0f };
-		s_Data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_Data.quadVertexBufferPtr++;
+		for (size_t i = 0; i < quadVertexCount; ++i)
+		{
+			s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[i];
+			s_Data.quadVertexBufferPtr->color = color;
+			s_Data.quadVertexBufferPtr->texCoords = textureCoords[i];
+			s_Data.quadVertexBufferPtr->texIndex = textureIndex;
+			s_Data.quadVertexBufferPtr->tileFactor = 1;
+			++s_Data.quadVertexBufferPtr;
+		}
+		s_Data.quadIndexCount += 6;
 
-		s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[1];
-		s_Data.quadVertexBufferPtr->color = color;
-		s_Data.quadVertexBufferPtr->texCoords = { 1.0f, 0.0f };
-		s_Data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_Data.quadVertexBufferPtr++;
-
-		s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[2];
-		s_Data.quadVertexBufferPtr->color = color;
-		s_Data.quadVertexBufferPtr->texCoords = { 1.0f, 1.0f };
-		s_Data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_Data.quadVertexBufferPtr++;
-
-		s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[3];
-		s_Data.quadVertexBufferPtr->color = color;
-		s_Data.quadVertexBufferPtr->texCoords = { 0.0f, 1.0f };
-		s_Data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_Data.quadVertexBufferPtr++;
+		++s_Data.stats.quadCount;
 
 		s_Data.quadIndexCount += 6;
 
@@ -205,17 +212,18 @@ namespace Pyrokinetic
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float rotation, float tileFactor)
 	{
-
 		if(s_Data.quadIndexCount >= RendererData2D::maxIndices)
 		{
 			StartNewBatch();
 		}
 
 		const glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		constexpr size_t quadVertexCount = 4;
+		 glm::vec2 textureCoords[] = { {0, 0}, {1, 0}, {1, 1}, {0, 1} };
 
 		float textureIndex = 0.0f;
 		
-		for (uint32_t i = 1; i < s_Data.textureSlotIndex; i++)
+		for (uint32_t i = 1; i < s_Data.textureSlotIndex; ++i)
 		{
 			if (*s_Data.textureSlots[i].get() == *texture.get())
 			{
@@ -228,40 +236,81 @@ namespace Pyrokinetic
 		{
 			textureIndex = (float)s_Data.textureSlotIndex;
 			s_Data.textureSlots[s_Data.textureSlotIndex] = texture;
-			s_Data.textureSlotIndex++;
+			++s_Data.textureSlotIndex;
 		}
 		
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
 		if (rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
+	
 
-		s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[0];
-		s_Data.quadVertexBufferPtr->color = color;
-		s_Data.quadVertexBufferPtr->texCoords = { 0.0f, 0.0f };
-		s_Data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_Data.quadVertexBufferPtr++;
-
-		s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[1];
-		s_Data.quadVertexBufferPtr->color = color;
-		s_Data.quadVertexBufferPtr->texCoords = { 1.0f, 0.0f };
-		s_Data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_Data.quadVertexBufferPtr++;
-
-		s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[2];
-		s_Data.quadVertexBufferPtr->color = color;
-		s_Data.quadVertexBufferPtr->texCoords = { 1.0f, 1.0f };
-		s_Data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_Data.quadVertexBufferPtr++;
-
-		s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[3];
-		s_Data.quadVertexBufferPtr->color = color;
-		s_Data.quadVertexBufferPtr->texCoords = { 0.0f, 1.0f };
-		s_Data.quadVertexBufferPtr->texIndex = textureIndex;
-		s_Data.quadVertexBufferPtr++;
-
+		for (size_t i = 0; i < quadVertexCount; ++i)
+		{
+			s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[i];
+			s_Data.quadVertexBufferPtr->color = color;
+			s_Data.quadVertexBufferPtr->texCoords = textureCoords[i];
+			s_Data.quadVertexBufferPtr->texIndex = textureIndex;
+			s_Data.quadVertexBufferPtr->tileFactor = tileFactor;
+			++s_Data.quadVertexBufferPtr;
+		}
 		s_Data.quadIndexCount += 6;
 
-		s_Data.stats.quadCount++;
+		++s_Data.stats.quadCount;
+	}
+
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<SubTexture2D>& subtexture, float rotation, float tileFactor)
+	{
+		Renderer2D::DrawQuad({ position.x, position.y, 0.0f }, size, subtexture, rotation, tileFactor);
+	}
+
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<SubTexture2D>& subtexture, float rotation, float tileFactor)
+	{
+		if (s_Data.quadIndexCount >= RendererData2D::maxIndices)
+		{
+			StartNewBatch();
+		}
+
+		const glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		constexpr size_t quadVertexCount = 4;
+		const glm::vec2* textureCoords = subtexture->GetTexCoords();
+
+		const std::shared_ptr<Texture2D> texture = subtexture->GetTexture();
+
+		float textureIndex = 0.0f;
+
+		for (uint32_t i = 1; i < s_Data.textureSlotIndex; ++i)
+		{
+			if (*s_Data.textureSlots[i].get() == *texture.get())
+			{
+				textureIndex = (float)i;
+				break;
+			}
+		}
+
+		if (textureIndex == 0.0f)
+		{
+			textureIndex = (float)s_Data.textureSlotIndex;
+			s_Data.textureSlots[s_Data.textureSlotIndex] = texture;
+			++s_Data.textureSlotIndex;
+		}
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+
+		if (rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
+
+
+		for (size_t i = 0; i < quadVertexCount; ++i)
+		{
+			s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[i];
+			s_Data.quadVertexBufferPtr->color = color;
+			s_Data.quadVertexBufferPtr->texCoords = textureCoords[i];
+			s_Data.quadVertexBufferPtr->texIndex = textureIndex;
+			s_Data.quadVertexBufferPtr->tileFactor = tileFactor;
+			++s_Data.quadVertexBufferPtr;
+		}
+		s_Data.quadIndexCount += 6;
+
+		++s_Data.stats.quadCount;
 	}
 
 	void Renderer2D::ResetStats()

@@ -4,7 +4,7 @@
 
 struct GLFWwindow;
 
-namespace Pyrokinetic
+namespace pk
 {
 	class OpenGLContext : public GraphicsContext
 	{

@@ -1,10 +1,19 @@
 #pragma once
 #include "Pyrokinetic/Rendering/Buffer.h"
+#include "VulkanMemory.h"
+#include "VkTypes.h"
+#include <vector>
 
-namespace Pyrokinetic
+namespace pk
 {
 	class VulkanVertexBuffer : public VertexBuffer
 	{
+		struct VertexInputDescription
+		{
+			std::vector<VkVertexInputBindingDescription> m_Bindings;
+			std::vector<VkVertexInputAttributeDescription> m_Attributes;
+		};
+
 	public:
 		VulkanVertexBuffer(uint32_t size);
 		VulkanVertexBuffer(float* vertices, uint32_t size);
@@ -18,9 +27,16 @@ namespace Pyrokinetic
 		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
 		virtual const BufferLayout& GetLayout() const override { return m_Layout; }
 
+
+		VertexInputDescription GetVertexInputDescription();
+
 	private:
 		uint32_t m_RendererID;
 		BufferLayout m_Layout;
+		AllocatedBuffer m_Buffer;
+
+		VmaAllocator* allocator;
+
 	};
 
 	class VulkanIndexBuffer : public IndexBuffer
@@ -38,5 +54,8 @@ namespace Pyrokinetic
 	private:
 		uint32_t m_RendererID;
 		uint32_t m_Count;
+		AllocatedBuffer m_Buffer;
+
+		VmaAllocator* allocator;
 	};
 }

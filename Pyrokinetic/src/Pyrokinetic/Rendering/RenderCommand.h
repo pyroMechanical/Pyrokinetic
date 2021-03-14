@@ -5,7 +5,7 @@
 #include "Platform/OpenGL/OpenGLRendererAPI.h"
 #include "Platform/Vulkan/VulkanRendererAPI.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	class RenderCommand
 	{
@@ -32,6 +32,16 @@ namespace Pyrokinetic
 		static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
 			s_RendererAPI->DrawIndexed(vertexArray, indexCount);
+		}
+
+		static void Begin()
+		{
+			s_RendererAPI->Begin();
+		}
+
+		static void End()
+		{
+			s_RendererAPI->End();
 		}
 
 		static RendererAPI& getRendererAPI() { return *s_RendererAPI.get(); }

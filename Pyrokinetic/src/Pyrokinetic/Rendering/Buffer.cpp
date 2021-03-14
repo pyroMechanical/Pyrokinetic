@@ -4,8 +4,9 @@
 #include "Renderer.h"
 
 #include "Platform/OpenGL/OpenGLBuffer.h"
+#include "Platform/Vulkan/VulkanBuffer.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 
 	std::shared_ptr<VertexBuffer> VertexBuffer::Create(uint32_t size)
@@ -14,7 +15,7 @@ namespace Pyrokinetic
 		{
 		case API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
 		case API::OpenGL:     return std::make_shared<OpenGLVertexBuffer>(size);
-		case API::Vulkan:     return nullptr;//std::make_shared<VulkanVertexBuffer>(size);
+		case API::Vulkan:     return std::make_shared<VulkanVertexBuffer>(size);
 		}
 
 		PK_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -27,7 +28,7 @@ namespace Pyrokinetic
 		{
 		case API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
 		case API::OpenGL:     return std::make_shared<OpenGLVertexBuffer>(vertices, size);
-		case API::Vulkan:     return nullptr;//std::make_shared<VulkanVertexBuffer>(size);
+		case API::Vulkan:     return std::make_shared<VulkanVertexBuffer>(vertices, size);
 		}
 
 		PK_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -40,7 +41,7 @@ namespace Pyrokinetic
 		{
 		case API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
 		case API::OpenGL:    return std::make_shared<OpenGLIndexBuffer>(indices, count);
-		case API::Vulkan:     return nullptr;//std::make_shared<VulkanIndexBuffer>(size);
+		case API::Vulkan:     return std::make_shared<VulkanIndexBuffer>(indices, count);
 		}
 
 		PK_CORE_ASSERT(false, "Unknown RendererAPI!");

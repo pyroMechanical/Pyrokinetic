@@ -3,7 +3,7 @@
 #include "Platform/OpenGL/OpenGLRendererAPI.h"
 #include "Platform/Vulkan/VulkanRendererAPI.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 #ifdef PK_VULKAN_SUPPORTED
 	API RendererAPI::s_API = API::Vulkan;

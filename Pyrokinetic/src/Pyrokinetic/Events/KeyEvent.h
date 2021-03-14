@@ -2,7 +2,7 @@
 #include "pkpch.h"
 #include "Event.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	class KeyEvent : public Event
 	{

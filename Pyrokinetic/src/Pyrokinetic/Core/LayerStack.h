@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace Pyrokinetic
+namespace pk
 {
 	class LayerStack
 	{

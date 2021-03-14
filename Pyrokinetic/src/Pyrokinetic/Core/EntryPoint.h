@@ -3,14 +3,14 @@
 
 #ifdef PK_PLATFORM_WINDOWS
 
-extern Pyrokinetic::Application* Pyrokinetic::CreateApplication();
+extern pk::Application* pk::CreateApplication();
 
 int main(int argc, char** argv)
 {
-	Pyrokinetic::Log::Init();
+	pk::Log::Init();
 	PROFILE_BEGIN_SESSION("Startup", "Profile-Startup.json");
 
-	auto app = Pyrokinetic::CreateApplication();
+	auto app = pk::CreateApplication();
 	PROFILE_END_SESSION();
 	PROFILE_BEGIN_SESSION("Startup", "Profile-Runtime.json");
 	app->Run();

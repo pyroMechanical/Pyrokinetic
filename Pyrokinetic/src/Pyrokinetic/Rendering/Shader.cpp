@@ -3,8 +3,9 @@
 
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Platform/Vulkan/VulkanShader.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	std::shared_ptr<Shader> Shader::Create(const std::string& path)
 	{
@@ -12,7 +13,7 @@ namespace Pyrokinetic
 		{
 			case API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
 			case API::OpenGL:     return std::make_shared<OpenGLShader>(path);
-			//case API::Vulkan:     return std::make_shared<VulkanShader>(path);
+			case API::Vulkan:     return std::make_shared<VulkanShader>(path);
 		}
 
 		PK_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -26,7 +27,7 @@ namespace Pyrokinetic
 		{
 			case API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
 			case API::OpenGL:     return std::make_shared<OpenGLShader>(name, vertexSrc, fragmentSrc);
-			//case API::Vulkan:     return std::make_shared<VulkanShader>(name, vertexSrc, fragmentSrc);
+			case API::Vulkan:     return std::make_shared<VulkanShader>(name, vertexSrc, fragmentSrc);
 		}
 
 		PK_CORE_ASSERT(false, "Unknown RendererAPI!");

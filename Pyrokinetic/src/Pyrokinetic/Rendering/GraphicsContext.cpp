@@ -5,7 +5,7 @@
 #include "Platform/OpenGL/OpenGLContext.h"
 #include "Platform/Vulkan/VulkanContext.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	std::unique_ptr<GraphicsContext> GraphicsContext::Create(void* window)
 	{

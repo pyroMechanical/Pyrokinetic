@@ -2,7 +2,7 @@
 #include "pkpch.h"
 #include "Pyrokinetic/Core/Core.h"
 
-namespace Pyrokinetic 
+namespace pk 
 {
 	//TODO: buffered events instead of blocking
 
@@ -18,11 +18,11 @@ namespace Pyrokinetic
 	enum EventCategory
 	{
 		None = 0,
-		EventCategoryApplication = BIT(0),
-		EventCategoryInput = BIT(1),
-		EventCategoryKeyboard = BIT(2),
-		EventCategoryMouse = BIT(3),
-		EventCategoryMouseButton = BIT(4)
+		EventCategoryApplication = (1 << 0),
+		EventCategoryInput = (1 << 1),
+		EventCategoryKeyboard = (1 << 2),
+		EventCategoryMouse = (1 << 3),
+		EventCategoryMouseButton = (1 << 4)
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() {return EventType::type;}\
@@ -35,12 +35,16 @@ namespace Pyrokinetic
 	{
 		friend class EventDispatcher;
 	public:
+		virtual ~Event() = default;
+
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
 		virtual int GetCategoryFlags() const = 0;
 		virtual std::string ToString() const { return GetName(); }
 
 		bool IsHandled() { return m_Handled; }
+
+		void HandleEvent(bool shouldHandle) { m_Handled |= shouldHandle; }
 
 		inline bool IsInCategory(EventCategory category)
 		{

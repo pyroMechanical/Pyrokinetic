@@ -2,7 +2,7 @@
 
 #include "Pyrokinetic/Rendering/VertexArray.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	class VulkanVertexArray : public VertexArray
 	{

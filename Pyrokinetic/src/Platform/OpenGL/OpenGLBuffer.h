@@ -2,7 +2,7 @@
 
 #include "Pyrokinetic/Rendering/Buffer.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	class OpenGLVertexBuffer : public VertexBuffer
 	{

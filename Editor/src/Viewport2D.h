@@ -2,7 +2,7 @@
 
 #include "Pyrokinetic.h"
 
-class Viewport2D : public Pyrokinetic::Layer
+class Viewport2D : public pk::Layer
 {
 public:
 	Viewport2D();
@@ -12,18 +12,24 @@ public:
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
 
-	void OnUpdate(Pyrokinetic::Timestep timestep) override;
+	void OnUpdate(pk::Timestep timestep) override;
 	virtual void OnImGuiRender() override;
-	void OnEvent(Pyrokinetic::Event& e) override;
+	void OnEvent(pk::Event& e) override;
 
 private:
-	Pyrokinetic::OrthographicCameraController m_CameraController;
+	pk::OrthographicCameraController m_CameraController;
 
 
 
 	//TODO: put in renderer
-	std::shared_ptr<Pyrokinetic::Texture2D> m_Texture;
-	std::shared_ptr<Pyrokinetic::Texture2D> m_Spritesheet;
+	std::shared_ptr<pk::Texture2D> m_Texture;
+	std::shared_ptr<pk::Texture2D> m_Spritesheet;
+	std::shared_ptr<pk::SubTexture2D> m_StairSprite;
+	std::shared_ptr<pk::SubTexture2D> m_LargeTree;
+
+	std::shared_ptr<pk::Framebuffer> m_Framebuffer;
+	glm::vec2 m_ViewportSize;
+
 	glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 
 	struct TimerResult

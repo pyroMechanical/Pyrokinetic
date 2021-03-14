@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 
 
-namespace Pyrokinetic 
+namespace pk 
 {
 	
 	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle) 

@@ -7,12 +7,12 @@
 
 #include <thread>
 
-namespace Pyrokinetic
+namespace pk
 {
-#define PROFILE_BEGIN_SESSION(name, filepath) ::Pyrokinetic::Instrumentor::Get().BeginSession(name, filepath)
-#define PROFILE_END_SESSION() ::Pyrokinetic::Instrumentor::Get().EndSession()
+#define PROFILE_BEGIN_SESSION(name, filepath) ::pk::Instrumentor::Get().BeginSession(name, filepath)
+#define PROFILE_END_SESSION() ::pk::Instrumentor::Get().EndSession()
 #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCSIG__)
-#define PROFILE_SCOPE(name) ::Pyrokinetic::InstrumentationTimer timer##__LINE__(name);
+#define PROFILE_SCOPE(name) ::pk::InstrumentationTimer timer##__LINE__(name);
     struct ProfileResult
     {
         std::string Name;

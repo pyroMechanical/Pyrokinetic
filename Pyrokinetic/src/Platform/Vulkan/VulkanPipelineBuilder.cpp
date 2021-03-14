@@ -2,7 +2,7 @@
 #include "VulkanPipelineBuilder.h"
 
 #include <vulkan/vulkan.h>
-namespace Pyrokinetic
+namespace pk
 {
 	VkPipeline VulkanPipelineBuilder::BuildPipeline(VkDevice device, VkRenderPass pass)
 	{

@@ -5,24 +5,13 @@
 #include "Pyrokinetic/Events/MouseEvent.h"
 #include "Pyrokinetic/Events/ApplicationEvent.h"
 
-#include "Platform/OpenGL/OpenGLContext.h"
-
-
-
-namespace Pyrokinetic
+namespace pk
 {
 	static bool s_GLFWInitialized = false;
 
 	static void GLFWErrorCallback(int error, const char* desc)
 	{
 		PK_CORE_ERROR("GLFW Error ({0}): {1}", error, desc);
-	}
-
-	Window* Window::Create(const WindowProps& props)
-	{
-#ifdef PK_PLATFORM_WINDOWS
-		return new WindowsWindow(props);
-#endif
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)

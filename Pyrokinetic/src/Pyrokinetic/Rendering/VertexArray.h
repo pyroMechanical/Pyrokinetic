@@ -5,7 +5,7 @@
 
 
 
-namespace Pyrokinetic
+namespace pk
 {
 	class VertexArray
 	{

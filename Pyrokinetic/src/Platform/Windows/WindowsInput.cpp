@@ -1,32 +1,29 @@
 #include "pkpch.h"
-#include "WindowsInput.h"
+#include "Pyrokinetic/Core/Input.h"
 
 #include "Pyrokinetic/Core/Application.h"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 
-namespace Pyrokinetic
+namespace pk
 {
-
-	std::unique_ptr<Input> Input::s_Instance = std::make_unique<WindowsInput>();
-
-
-	bool WindowsInput::IsKeyPressedImpl(int keycode)
+#ifdef PK_PLATFORM_WINDOWS
+	bool Input::IsKeyPressed(int keycode)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetKey(window, keycode);
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	bool WindowsInput::IsMouseButtonPressedImpl(int button)
+	bool Input::IsMouseButtonPressed(int button)
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetMouseButton(window, button);
 		return state == GLFW_PRESS;
 	}
 
-	std::pair<float, float> WindowsInput::GetMousePositionImpl()
+	std::pair<float, float> Input::GetMousePosition()
 	{
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		double xpos, ypos;
@@ -34,17 +31,16 @@ namespace Pyrokinetic
 		return { (float)xpos, (float)ypos };
 	}
 
-	float WindowsInput::GetMouseXImpl()
+	float Input::GetMouseX()
 	{
-		auto[x, y] = GetMousePositionImpl();
+		auto[x, y] = GetMousePosition();
 		return x;
 	}
 
-	float WindowsInput::GetMouseYImpl()
+	float Input::GetMouseY()
 	{
-		auto[x, y] = GetMousePositionImpl();
+		auto[x, y] = GetMousePosition();
 		return y;
 	}
-
-
+#endif
 }

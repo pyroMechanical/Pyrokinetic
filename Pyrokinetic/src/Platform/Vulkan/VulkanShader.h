@@ -1,8 +1,9 @@
 #pragma once
 #include "Pyrokinetic/Rendering/Shader.h"
 #include <glm/glm.hpp>
+#include <vulkan/vulkan.h>
 
-namespace Pyrokinetic
+namespace pk
 {
 	class VulkanShader : public Shader
 	{
@@ -36,8 +37,8 @@ namespace Pyrokinetic
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
 	private:
 		std::string ReadFile(const std::string& path);
-		std::unordered_map<GLenum, std::string> PreProcess(const std::string& src);
-		void Compile(const std::unordered_map<GLenum, std::string>& sources);
+		std::unordered_map<VkShaderStageFlagBits, std::string> PreProcess(const std::string& src);
+		void Compile(const std::unordered_map<VkShaderStageFlagBits, std::string>& sources);
 	private:
 		uint32_t m_RendererID;
 		std::string m_Name;

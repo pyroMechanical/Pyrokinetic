@@ -3,23 +3,23 @@
 
 #include <glad/glad.h>
 
-namespace Pyrokinetic
+namespace pk
 {
 	static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 	{
 		switch (type)
 		{
-			case Pyrokinetic::ShaderDataType::Float:   return GL_FLOAT;
-			case Pyrokinetic::ShaderDataType::Float2:  return GL_FLOAT;
-			case Pyrokinetic::ShaderDataType::Float3:  return GL_FLOAT;
-			case Pyrokinetic::ShaderDataType::Float4:  return GL_FLOAT;
-			case Pyrokinetic::ShaderDataType::Mat3:    return GL_FLOAT;
-			case Pyrokinetic::ShaderDataType::Mat4:    return GL_FLOAT;
-			case Pyrokinetic::ShaderDataType::Int:     return GL_INT;
-			case Pyrokinetic::ShaderDataType::Int2:    return GL_INT;
-			case Pyrokinetic::ShaderDataType::Int3:    return GL_INT;
-			case Pyrokinetic::ShaderDataType::Int4:    return GL_INT;
-			case Pyrokinetic::ShaderDataType::Bool:    return GL_BOOL;
+			case pk::ShaderDataType::Float:   return GL_FLOAT;
+			case pk::ShaderDataType::Float2:  return GL_FLOAT;
+			case pk::ShaderDataType::Float3:  return GL_FLOAT;
+			case pk::ShaderDataType::Float4:  return GL_FLOAT;
+			case pk::ShaderDataType::Mat3:    return GL_FLOAT;
+			case pk::ShaderDataType::Mat4:    return GL_FLOAT;
+			case pk::ShaderDataType::Int:     return GL_INT;
+			case pk::ShaderDataType::Int2:    return GL_INT;
+			case pk::ShaderDataType::Int3:    return GL_INT;
+			case pk::ShaderDataType::Int4:    return GL_INT;
+			case pk::ShaderDataType::Bool:    return GL_BOOL;
 		}
 
 		PK_CORE_ASSERT(false, "Unknown ShaderDataType!")

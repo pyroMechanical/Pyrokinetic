@@ -2,7 +2,7 @@
 #include "Layer.h"
 
 
-namespace Pyrokinetic
+namespace pk
 {
 
 	Layer::Layer(const std::string& debugName)

@@ -6,7 +6,7 @@
 #include "Pyrokinetic/Events/Event.h"
 
 
-namespace Pyrokinetic 
+namespace pk 
 {
 
 	struct WindowProps

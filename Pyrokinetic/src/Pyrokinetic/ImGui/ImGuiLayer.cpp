@@ -4,6 +4,8 @@
 #include "imgui.h"
 #include "implot.h"
 
+#include "ImGuiStyles.h"
+
 #define IMGUI_IMPL_API
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
@@ -14,7 +16,7 @@
 #include <glad/glad.h>
 
 
-namespace Pyrokinetic
+namespace pk
 {
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
@@ -43,8 +45,8 @@ namespace Pyrokinetic
 		//io.ConfigFlags |= ImGuiConfigFlags_viewportsNoMerge;
 
 		// Setup Dear ImGui Style
-		//ImGui::StyleColorsDark();
-		ImGui::StyleColorsClassic();
+		//ImGui::StyleColorsPKLight();
+		ImGui::StyleColorsPKDark();
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -70,6 +72,16 @@ namespace Pyrokinetic
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 		ImPlot::DestroyContext();
+	}
+
+	void ImGuiLayer::OnEvent(Event& e)
+	{
+		if (m_BlockEvents)
+		{
+			ImGuiIO& io = ImGui::GetIO();
+			e.HandleEvent(e.IsInCategory(EventCategoryMouse) && io.WantCaptureMouse);
+			e.HandleEvent(e.IsInCategory(EventCategoryKeyboard) && io.WantCaptureKeyboard);
+		}
 	}
 
 	void ImGuiLayer::Begin()

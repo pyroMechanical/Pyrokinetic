@@ -1,8 +1,7 @@
 #include "pkpch.h"
 #include "Renderer.h"
-#include "Renderer2D.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	std::unique_ptr<Renderer::SceneData> Renderer::m_SceneData = std::make_unique<Renderer::SceneData>();
 

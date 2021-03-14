@@ -5,23 +5,23 @@
 
 #include "stb_image.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	VulkanTexture2D::VulkanTexture2D(uint32_t width, uint32_t height)
 		: m_Width(width), m_Height(height)
 	{
 		PROFILE_FUNCTION();
 
-		GLenum internalFormat = GL_RGBA8, dataFormat = GL_RGBA;
+		VkFormat internalFormat = VK_FORMAT_R8G8B8_SRGB;
 
 		m_InternalFormat = internalFormat;
-		m_DataFormat = dataFormat;
+		//m_DataFormat = dataFormat;
 
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-		glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
+		//glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+		//glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 
 	VulkanTexture2D::VulkanTexture2D(const std::string& path)
@@ -40,31 +40,31 @@ namespace Pyrokinetic
 		m_Width = width;
 		m_Height = height;
 
-		GLenum internalFormat = 0, dataFormat = 0;
+		VkFormat internalFormat, dataFormat;
 
 		if (channels == 4)
 		{
-			internalFormat = GL_RGBA8;
-			dataFormat = GL_RGBA;
+			internalFormat = VK_FORMAT_R8G8B8A8_SRGB;
+			//dataFormat = GL_RGBA;
 		}
 		if (channels == 3)
 		{
-			internalFormat = GL_RGB8;
-			dataFormat = GL_RGB;
+			internalFormat = VK_FORMAT_R8G8B8_SRGB;
+			//dataFormat = GL_RGB;
 		}
 
 		m_InternalFormat = internalFormat;
-		m_DataFormat = dataFormat;
+		//m_DataFormat = dataFormat;
 
-		PK_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
+		PK_CORE_ASSERT(internalFormat, "Format not supported!");
 
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-		glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
+		//glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+		//glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		//glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
+		//glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
 
 		stbi_image_free(data);
 	}
@@ -73,22 +73,22 @@ namespace Pyrokinetic
 	{
 		PROFILE_FUNCTION();
 
-		glDeleteTextures(1, &m_RendererID);
+		//glDeleteTextures(1, &m_RendererID);
 	}
 
 	void VulkanTexture2D::SetData(void* data, uint32_t size)
 	{
 		PROFILE_FUNCTION();
 
-		uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
-		PK_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
-		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+		//uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
+		//PK_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
+		//glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
 	}
 
 	void VulkanTexture2D::Bind(uint32_t slot) const
 	{
 		PROFILE_FUNCTION();
 
-		glBindTextureUnit(slot, m_RendererID);
+		//glBindTextureUnit(slot, m_RendererID);
 	}
 }

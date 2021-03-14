@@ -6,18 +6,18 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-namespace Pyrokinetic
+namespace pk
 {
 
-	/*static VkShaderModule ShaderTypeFromString(const std::string& type)
+	static VkShaderStageFlagBits ShaderTypeFromString(const std::string& type)
 	{
 		if (type == "vertex")
-			return GL_VERTEX_SHADER;
+			return VK_SHADER_STAGE_VERTEX_BIT;
 		if (type == "fragment" || type == "pixel" || type == "frag")
-			return GL_FRAGMENT_SHADER;
+			return VK_SHADER_STAGE_FRAGMENT_BIT;
 
 		PK_CORE_ASSERT(false, "Unknown shader type!");
-	}*/
+	}
 
 	VulkanShader::VulkanShader(const std::string& path)
 	{
@@ -27,7 +27,7 @@ namespace Pyrokinetic
 		auto shaderSources = PreProcess(src);
 		Compile(shaderSources);
 
-		// assets/shaders/Texture.glsl
+		// pull shader name from source file
 		auto lastSlash = path.find_last_of("/\\");
 		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
 		auto lastDot = path.rfind(".");
@@ -40,9 +40,9 @@ namespace Pyrokinetic
 	{
 		PROFILE_FUNCTION();
 
-		std::unordered_map<VkShaderModule, std::string> sources;
-		sources[GL_VERTEX_SHADER] = vertexSrc;
-		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
+		std::unordered_map<VkShaderStageFlagBits, std::string> sources;
+		sources[VK_SHADER_STAGE_VERTEX_BIT] = vertexSrc;
+		sources[VK_SHADER_STAGE_FRAGMENT_BIT] = fragmentSrc;
 		Compile(sources);
 	}
 
@@ -50,7 +50,7 @@ namespace Pyrokinetic
 	{
 		PROFILE_FUNCTION();
 
-		glDeleteProgram(m_RendererID);
+		//glDeleteProgram(m_RendererID);
 	}
 
 	std::string VulkanShader::ReadFile(const std::string& path)
@@ -75,11 +75,11 @@ namespace Pyrokinetic
 		return result;
 	}
 
-	std::unordered_map<GLenum, std::string> VulkanShader::PreProcess(const std::string& src)
+	std::unordered_map<VkShaderStageFlagBits, std::string> VulkanShader::PreProcess(const std::string& src)
 	{
 		PROFILE_FUNCTION();
 
-		std::unordered_map<GLenum, std::string> sources;
+		std::unordered_map<VkShaderStageFlagBits, std::string> sources;
 
 		const char* typeToken = "#type";
 		size_t typeTokenLength = strlen(typeToken);
@@ -101,11 +101,11 @@ namespace Pyrokinetic
 		return sources;
 	}
 
-	void VulkanShader::Compile(const std::unordered_map<GLenum, std::string>& sources)
+	void VulkanShader::Compile(const std::unordered_map<VkShaderStageFlagBits, std::string>& sources)
 	{
 		PROFILE_FUNCTION();
 
-		GLuint program = glCreateProgram();
+		/*GLuint program = glCreateProgram();
 		PK_CORE_ASSERT(sources.size() <= 2, "Too many shaders too compile!");
 		std::array<GLenum, 2> glShaderIDs;
 		int glShaderIDIndex = 0;
@@ -170,7 +170,7 @@ namespace Pyrokinetic
 			glDeleteShader(id);
 		}
 
-		m_RendererID = program;
+		m_RendererID = program;*/
 	}
 
 
@@ -178,14 +178,14 @@ namespace Pyrokinetic
 	{
 		PROFILE_FUNCTION();
 
-		glUseProgram(m_RendererID);
+		//glUseProgram(m_RendererID);
 	}
 
 	void VulkanShader::Unbind() const
 	{
 		PROFILE_FUNCTION();
 
-		glUseProgram(0);
+		//glUseProgram(0);
 	}
 
 	void VulkanShader::SetFloat(const std::string& name, const float value)
@@ -227,54 +227,53 @@ namespace Pyrokinetic
 
 		UploadUniformMat4(name, value);
 	}
-
+	
 	void VulkanShader::UploadUniformInt(const std::string& name, const int values)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
-		glUniform1i(location, values);
+		//GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		//glUniform1i(location, values);
 	}
 
 	void VulkanShader::UploadUniformIntArray(const std::string& name, int* values, uint32_t count)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
-		glUniform1iv(location, count, values);
+		//GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		//glUniform1iv(location, count, values);
 	}
 
 	void VulkanShader::UploadUniformFloat(const std::string& name, const float values)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
-		glUniform1f(location, values);
+		//GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		//glUniform1f(location, values);
 	}
 
 	void VulkanShader::UploadUniformFloat2(const std::string& name, const glm::vec2& values)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
-		glUniform2f(location, values.x, values.y);
+		//GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		//glUniform2f(location, values.x, values.y);
 	}
 
 	void VulkanShader::UploadUniformFloat3(const std::string& name, const glm::vec3& values)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
-		glUniform3f(location, values.x, values.y, values.z);
+		//GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		//glUniform3f(location, values.x, values.y, values.z);
 	}
 
 	void VulkanShader::UploadUniformFloat4(const std::string& name, const glm::vec4& values)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
-		glUniform4f(location, values.x, values.y, values.z, values.w);
+		//GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		//glUniform4f(location, values.x, values.y, values.z, values.w);
 	}
 
 	void VulkanShader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
-		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+		//GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		//glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void VulkanShader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
-		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
-		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+		//GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		//glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
-
 
 }

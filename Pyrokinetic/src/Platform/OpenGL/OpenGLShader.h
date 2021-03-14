@@ -5,7 +5,7 @@
 //TODO: REMOVE THIS!
 typedef unsigned int GLenum;
 
-namespace Pyrokinetic
+namespace pk
 {
 	class OpenGLShader : public Shader
 	{

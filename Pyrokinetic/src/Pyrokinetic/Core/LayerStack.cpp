@@ -1,7 +1,7 @@
 #include "pkpch.h"
 #include "LayerStack.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	LayerStack::LayerStack()
 	{

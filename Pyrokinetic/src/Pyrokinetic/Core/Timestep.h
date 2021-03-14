@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Pyrokinetic
+namespace pk
 {
 	class Timestep
 	{

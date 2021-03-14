@@ -1,11 +1,11 @@
 #pragma once
 #include "Pyrokinetic/Rendering/RendererAPI.h"
 #include "Pyrokinetic/Rendering/GraphicsContext.h"
-#include "Platform/Vulkan/VulkanContext.h" //figure out how to actually include this
+#include "Platform/Vulkan/VulkanContext.h"
 #include "Pyrokinetic/Core/Window.h"
 
 
-namespace Pyrokinetic
+namespace pk
 {
 
 	class VulkanRendererAPI : public RendererAPI
@@ -16,6 +16,8 @@ namespace Pyrokinetic
 
 		virtual void SetClearColor(const glm::vec4& color) override;
 		virtual void Clear() override;
+		virtual void Begin() override;
+		virtual void End() override;
 
 		virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 

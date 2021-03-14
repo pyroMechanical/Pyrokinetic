@@ -15,7 +15,7 @@
 
 #include "Pyrokinetic/Rendering/Camera.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	class Application
 	{
@@ -29,6 +29,8 @@ namespace Pyrokinetic
 
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
+
+		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; };
 
 		static Application& Get() { return *s_Instance; }
 		Window& GetWindow() { return *m_Window; }

@@ -22,6 +22,7 @@
 #include "Pyrokinetic/Rendering/Buffer.h"
 #include "Pyrokinetic/Rendering/VertexArray.h"
 #include "Pyrokinetic/Rendering/Shader.h"
+#include "Pyrokinetic/Rendering/Framebuffer.h"
 #include "Pyrokinetic/Rendering/Texture.h"
 
 #include "Pyrokinetic/CameraController.h"

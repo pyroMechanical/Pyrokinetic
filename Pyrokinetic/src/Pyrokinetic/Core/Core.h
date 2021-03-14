@@ -24,7 +24,7 @@
 #error "Android not supported"
 #elif defined(__linux__)
 #define PK_PLATFORM_LINUX
-#error "Linux not supported"
+//#error "Linux not supported"
 #else
 #error "Unknown platform"
 #endif
@@ -41,6 +41,6 @@
 #define PK_CORE_ASSERT(x, ...)
 #endif
 
-#define BIT(x) (1 << x)
+//#define BIT(x) (1 << x)
 
 #define PK_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)

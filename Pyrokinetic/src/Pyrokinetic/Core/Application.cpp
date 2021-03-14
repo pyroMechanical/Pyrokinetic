@@ -8,7 +8,7 @@
 #include <glfw/glfw3.h>
 
 
-namespace Pyrokinetic
+namespace pk
 {
 
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
@@ -26,9 +26,10 @@ namespace Pyrokinetic
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 		m_Window->SetVSync(true);
 		Renderer::Init();
-
-		//m_ImGuiLayer = new ImGuiLayer();
-		//PushOverlay(m_ImGuiLayer);
+#ifndef PK_VULKAN_SUPPORTED
+		m_ImGuiLayer = new ImGuiLayer();
+		PushOverlay(m_ImGuiLayer);
+#endif
 	}
 
 	Application::~Application()
@@ -80,8 +81,7 @@ namespace Pyrokinetic
 			float time = (float) glfwGetTime(); // Platform::GetTime
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
-
-			/*if (!m_Minimized)
+			if (!m_Minimized)
 			{
 				{
 					PROFILE_SCOPE("LayerStack Update");
@@ -95,7 +95,7 @@ namespace Pyrokinetic
 						layer->OnImGuiRender();
 					m_ImGuiLayer->End();
 				}
-			}*/
+			}
 			m_Window->OnUpdate();
 		}
 	}

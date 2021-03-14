@@ -4,9 +4,6 @@
 [submodule "Pyrokinetic/ext/GLFW"]
 	path = Pyrokinetic/ext/GLFW
 	url = https://github.com/glfw/glfw
-[submodule "Pyrokinetic/ext/imgui"]
-	path = Pyrokinetic/ext/imgui
-	url = https://github.com/ocornut/imgui
 [submodule "glm"]
 	path = glm
 	url = https://github.com/g-truc/glm
@@ -19,3 +16,13 @@
 [submodule "Pyrokinetic/ext/vkbootstrap"]
 	path = Pyrokinetic/ext/vkbootstrap
 	url = https://github.com/charles-lunarg/vk-bootstrap
+[submodule "Pyrokinetic/ext/vulkanmemoryallocator"]
+	path = Pyrokinetic/ext/vulkanmemoryallocator
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+[submodule "Pyrokinetic/ext/entt"]
+	path = Pyrokinetic/ext/entt
+	url = https://github.com/skypjack/entt
+[submodule "imgui"]
+	path = Pyrokinetic/ext/imgui
+	url = https://github.com/ocornut/imgui/
+	branch = docking

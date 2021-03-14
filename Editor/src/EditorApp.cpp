@@ -10,7 +10,7 @@
 
 #include "Viewport2D.h"
 
-	class Editor : public Pyrokinetic::Application
+	class Editor : public pk::Application
 	{
 	public:
 		Editor()
@@ -22,10 +22,9 @@
 		~Editor()
 		{
 		}
-
 	};
 
-	Pyrokinetic::Application* Pyrokinetic::CreateApplication()
+	pk::Application* pk::CreateApplication()
 	{
 		return new Editor();
 	}

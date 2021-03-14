@@ -4,7 +4,7 @@
 #include "Pyrokinetic/Core/Timestep.h"
 #include "Pyrokinetic/Events/Event.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 
 	class Layer

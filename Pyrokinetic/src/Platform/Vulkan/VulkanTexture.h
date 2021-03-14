@@ -5,7 +5,7 @@
 #include <vulkan/vulkan.h>
 
 
-namespace Pyrokinetic
+namespace pk
 {
 	class VulkanTexture2D : public Texture2D
 	{
@@ -22,6 +22,8 @@ namespace Pyrokinetic
 
 		virtual void Bind(uint32_t slot = 0) const override;
 
+		virtual uint32_t GetRendererID() { return m_RendererID; }
+
 		virtual bool operator == (const Texture& other) const override 
 		{ 
 			return m_RendererID == ((VulkanTexture2D&)other).m_RendererID; 
@@ -32,6 +34,6 @@ namespace Pyrokinetic
 		uint32_t m_Width;
 		uint32_t m_Height;
 		uint32_t m_RendererID;
-		GLenum m_InternalFormat, m_DataFormat;
+		VkFormat m_InternalFormat, m_DataFormat;
 	};
 }

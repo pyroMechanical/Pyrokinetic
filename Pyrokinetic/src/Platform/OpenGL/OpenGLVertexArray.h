@@ -2,7 +2,7 @@
 
 #include "Pyrokinetic/Rendering/VertexArray.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 	class OpenGLVertexArray : public VertexArray
 	{

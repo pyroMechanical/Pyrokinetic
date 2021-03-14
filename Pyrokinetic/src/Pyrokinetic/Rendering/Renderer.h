@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCommand.h"
+#include "Renderer2D.h"
 
 #include "Camera.h"
 
@@ -8,7 +9,7 @@
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Platform/Vulkan/VulkanShader.h"
 
-namespace Pyrokinetic
+namespace pk
 {
 
 	class Renderer
