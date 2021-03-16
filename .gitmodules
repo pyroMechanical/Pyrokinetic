@@ -22,7 +22,9 @@
 [submodule "Pyrokinetic/ext/entt"]
 	path = Pyrokinetic/ext/entt
 	url = https://github.com/skypjack/entt
-[submodule "imgui"]
+	branch = v3.4.0
+[submodule "Pyrokinetic/ext/imgui"]
 	path = Pyrokinetic/ext/imgui
-	url = https://github.com/ocornut/imgui/
-	branch = docking
+	url = https://github.com/ocornut/imgui
+[submodule "https://github.com/skypjack/entt/commit/bf0160adbd8fb405d758808f879de917e81465ca"]
+	branch = bf0160adbd8fb405d758808f879de917e81465ca

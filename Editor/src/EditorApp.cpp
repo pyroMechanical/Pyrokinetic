@@ -8,15 +8,17 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Viewport2D.h"
+#include "EditorLayer.h"
+namespace pk
+{
 
-	class Editor : public pk::Application
+	class Editor : public Application
 	{
 	public:
 		Editor()
 		{
 			//PushLayer(new ExampleLayer());
-			PushLayer(new Viewport2D());
+			PushLayer(new EditorLayer());
 		}
 
 		~Editor()
@@ -24,7 +26,8 @@
 		}
 	};
 
-	pk::Application* pk::CreateApplication()
+	Application* CreateApplication()
 	{
 		return new Editor();
 	}
+}

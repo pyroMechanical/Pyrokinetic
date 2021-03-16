@@ -119,6 +119,22 @@ namespace pk
 		PROFILE_FUNCTION();
 	}
 
+	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
+	{
+		PROFILE_FUNCTION();
+		
+		glm::mat4 viewProj = camera.GetProjection() * glm::inverse(transform);
+
+		s_Data.shader->Bind();
+		s_Data.shader->SetMat4("u_ViewProjection", viewProj);
+		//s_Data.shader->SetMat4("u_Transform", glm::mat4(1.0f));
+
+		s_Data.quadIndexCount = 0;
+		s_Data.textureSlotIndex = 1;
+		s_Data.quadVertexBufferPtr = s_Data.quadVertexBufferStart;
+		//#endif
+	}
+
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
 		PROFILE_FUNCTION();
@@ -174,6 +190,14 @@ namespace pk
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, float rotation)
 	{
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+		if(rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
+
+		DrawQuad(transform, color);
+	}
+
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+	{
 		if (s_Data.quadIndexCount >= RendererData2D::maxIndices)
 		{
 			StartNewBatch();
@@ -182,10 +206,6 @@ namespace pk
 		const float textureIndex = 0.0f;
 		constexpr size_t quadVertexCount = 4;
 		constexpr glm::vec2 textureCoords[] = { {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f} };
-	
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
-		if(rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
 
 		for (size_t i = 0; i < quadVertexCount; ++i)
 		{
@@ -211,6 +231,14 @@ namespace pk
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float rotation, float tileFactor)
+	{
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+		if (rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
+
+		DrawQuad(transform, texture, tileFactor);
+	}
+
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const std::shared_ptr<Texture2D>& texture, float tileFactor)
 	{
 		if(s_Data.quadIndexCount >= RendererData2D::maxIndices)
 		{
@@ -238,11 +266,6 @@ namespace pk
 			s_Data.textureSlots[s_Data.textureSlotIndex] = texture;
 			++s_Data.textureSlotIndex;
 		}
-		
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
-		if (rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
-	
 
 		for (size_t i = 0; i < quadVertexCount; ++i)
 		{
@@ -264,6 +287,14 @@ namespace pk
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<SubTexture2D>& subtexture, float rotation, float tileFactor)
+	{
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+		if (rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
+
+		DrawQuad(transform, subtexture, tileFactor);
+	}
+
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const std::shared_ptr<SubTexture2D>& subtexture, float tileFactor)
 	{
 		if (s_Data.quadIndexCount >= RendererData2D::maxIndices)
 		{
@@ -293,11 +324,6 @@ namespace pk
 			s_Data.textureSlots[s_Data.textureSlotIndex] = texture;
 			++s_Data.textureSlotIndex;
 		}
-
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
-		if (rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
-
 
 		for (size_t i = 0; i < quadVertexCount; ++i)
 		{
