@@ -31,22 +31,45 @@ namespace pk
 		return entity;
 	}
 
+	void Scene::DestroyEntity(Entity entity)
+	{
+		m_Registry.destroy(entity);
+	}
+
 	void Scene::OnUpdate(Timestep t)
 	{
+		//Update scripts
+		{
+			m_Registry.view<CPPScriptComponent>().each([=](auto entity, auto& sc)
+				{
+					//TODO: Move to Scene::OnScenePlay
+					if (!sc.Instance)
+					{
+						sc.Instance = sc.InstantiateScript();
+						sc.Instance->m_Entity = Entity{ entity, this };
+						sc.Instance->OnCreate();
+					}
+
+					sc.Instance->OnUpdate(t);
+				});
+
+
+		}
+
 		// Render sprites
 		Camera* mainCamera = nullptr;
-		glm::mat4* cameraTransform = nullptr;
+		glm::mat4 cameraTransform;
 		{
 			auto view = m_Registry.view<TransformComponent, CameraComponent>();
 
 			for (auto entity : view)
 			{
-				auto& [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
+				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
 				
 				if(camera.Primary)
 				{
 					mainCamera = &camera.Camera;
-					cameraTransform = &transform.Transform;
+					cameraTransform = transform.GetTransform();
 					break;
 				}
 
@@ -56,15 +79,15 @@ namespace pk
 
 		if (mainCamera) //test, would be `if (mainCamera)`
 		{
-			Renderer2D::BeginScene(*mainCamera, *cameraTransform);
+			Renderer2D::BeginScene(*mainCamera, cameraTransform);
 
-			/* group = m_Registry.group<TransformComponent, SpriteRendererComponent>(); //multiple groups one after the other cause problems. find out why!
+			auto group = m_Registry.group<TransformComponent, SpriteRendererComponent>(); //multiple groups one after the other cause problems. find out why!
 			for (auto spriteEntity : group)
 			{
-				auto& [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(spriteEntity);
+				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(spriteEntity);
 
-				Renderer2D::DrawQuad(transform, sprite.Color);
-			}*/
+				Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color, sprite.Texture);
+			}
 
 			Renderer2D::EndScene();
 		}
@@ -78,14 +101,14 @@ namespace pk
 
 		//Resize non-FixedAspectRatio Cameras
 		
-		//auto& view = m_Registry.view<CameraComponent>();
-		/*for (auto entity : view)
+		auto view = m_Registry.view<CameraComponent>();
+		for (auto entity : view)
 		{
 			auto& cameraComponent = view.get<CameraComponent>(entity);
 			if (!cameraComponent.FixedAspectRatio)
 			{
 				cameraComponent.Camera.SetViewportSize(width, height);
 			}
-		}*/
+		}
 	}
 }

@@ -183,88 +183,46 @@ namespace pk
 		s_Data.quadVertexBufferPtr = s_Data.quadVertexBufferStart;
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float rotation)
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const std::shared_ptr<Texture2D>& texture, float rotation, float tileFactor)
 	{
-		Renderer2D::DrawQuad({ position.x, position.y, 0.0f }, size, color, rotation);
+		DrawQuad({ position.x, position.y, 0.0f }, size, color, texture, rotation, tileFactor);
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, float rotation)
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const std::shared_ptr<Texture2D>& texture, float rotation, float tileFactor)
 	{
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-		if(rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
+		if (rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
 
-		DrawQuad(transform, color);
+		DrawQuad(transform, color, texture, tileFactor);
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, const std::shared_ptr<Texture2D>& texture, float tileFactor)
 	{
 		if (s_Data.quadIndexCount >= RendererData2D::maxIndices)
 		{
 			StartNewBatch();
 		}
-
-		const float textureIndex = 0.0f;
 		constexpr size_t quadVertexCount = 4;
-		constexpr glm::vec2 textureCoords[] = { {0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f} };
-
-		for (size_t i = 0; i < quadVertexCount; ++i)
-		{
-			s_Data.quadVertexBufferPtr->pos = transform * s_Data.quadVertexPositions[i];
-			s_Data.quadVertexBufferPtr->color = color;
-			s_Data.quadVertexBufferPtr->texCoords = textureCoords[i];
-			s_Data.quadVertexBufferPtr->texIndex = textureIndex;
-			s_Data.quadVertexBufferPtr->tileFactor = 1;
-			++s_Data.quadVertexBufferPtr;
-		}
-		s_Data.quadIndexCount += 6;
-
-		++s_Data.stats.quadCount;
-
-		s_Data.quadIndexCount += 6;
-
-		s_Data.stats.quadCount++;
-	}
-
-	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float rotation, float tileFactor)
-	{
-		Renderer2D::DrawQuad({ position.x, position.y, 0.0f }, size, texture, rotation, tileFactor);
-	}
-
-	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float rotation, float tileFactor)
-	{
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-		if (rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
-
-		DrawQuad(transform, texture, tileFactor);
-	}
-
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const std::shared_ptr<Texture2D>& texture, float tileFactor)
-	{
-		if(s_Data.quadIndexCount >= RendererData2D::maxIndices)
-		{
-			StartNewBatch();
-		}
-
-		const glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		constexpr size_t quadVertexCount = 4;
-		 glm::vec2 textureCoords[] = { {0, 0}, {1, 0}, {1, 1}, {0, 1} };
+		glm::vec2 textureCoords[] = { {0, 0}, {1, 0}, {1, 1}, {0, 1} };
 
 		float textureIndex = 0.0f;
-		
-		for (uint32_t i = 1; i < s_Data.textureSlotIndex; ++i)
+		if(texture != nullptr)
 		{
-			if (*s_Data.textureSlots[i].get() == *texture.get())
+			for (uint32_t i = 1; i < s_Data.textureSlotIndex; ++i)
 			{
-				textureIndex = (float)i;
-				break;
+				if (*s_Data.textureSlots[i].get() == *texture.get())
+				{
+					textureIndex = (float)i;
+					break;
+				}
 			}
-		}
 
-		if(textureIndex == 0.0f)
-		{
-			textureIndex = (float)s_Data.textureSlotIndex;
-			s_Data.textureSlots[s_Data.textureSlotIndex] = texture;
-			++s_Data.textureSlotIndex;
+			if (textureIndex == 0.0f)
+			{
+				textureIndex = (float)s_Data.textureSlotIndex;
+				s_Data.textureSlots[s_Data.textureSlotIndex] = texture;
+				++s_Data.textureSlotIndex;
+			}
 		}
 
 		for (size_t i = 0; i < quadVertexCount; ++i)

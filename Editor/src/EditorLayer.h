@@ -2,6 +2,9 @@
 
 #include "Pyrokinetic.h"
 
+#include "Panels/SceneHierarchy.h"
+#include "Panels/Properties.h"
+
 namespace pk 
 {
 	class EditorLayer : public Layer
@@ -14,14 +17,14 @@ namespace pk
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 
-		void OnUpdate(pk::Timestep timestep) override;
+		void OnUpdate(Timestep t) override;
 		virtual void OnImGuiRender() override;
-		void OnEvent(pk::Event& e) override;
+		void OnEvent(Event& e) override;
+
+		void ResizeViewport();
 
 	private:
 		OrthographicCameraController m_CameraController;
-
-
 
 		//TODO: put in renderer
 		std::shared_ptr<Texture2D> m_Texture;
@@ -33,13 +36,15 @@ namespace pk
 
 		std::shared_ptr<Scene> m_ActiveScene;
 		Entity m_SquareEntity;
+		Entity m_SquareEntity2;
 		Entity m_CameraEntity;
 		Entity m_ClipspaceCameraEntity;
 		bool m_PrimaryCamera = false;
 
 		glm::vec2 m_ViewportSize;
 
-		glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+		SceneHierarchyPanel m_SceneHierarchy;
+		PropertiesPanel m_Properties;
 
 		struct TimerResult
 		{

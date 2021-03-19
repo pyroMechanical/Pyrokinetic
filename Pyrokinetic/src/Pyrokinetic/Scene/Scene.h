@@ -14,6 +14,7 @@ namespace pk
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
+		void DestroyEntity(Entity entity);
 
 		//TEMPORARY
 
@@ -25,6 +26,7 @@ namespace pk
 		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 
 		friend class Entity;
+		friend class SceneHierarchyPanel;
 	};
 
 }

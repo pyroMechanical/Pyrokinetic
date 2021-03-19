@@ -9,10 +9,17 @@
 
 namespace pk
 {
+#ifdef PK_PROFILING
 #define PROFILE_BEGIN_SESSION(name, filepath) ::pk::Instrumentor::Get().BeginSession(name, filepath)
 #define PROFILE_END_SESSION() ::pk::Instrumentor::Get().EndSession()
 #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCSIG__)
 #define PROFILE_SCOPE(name) ::pk::InstrumentationTimer timer##__LINE__(name);
+#else
+#define PROFILE_BEGIN_SESSION(name, filepath)
+#define PROFILE_END_SESSION()
+#define PROFILE_FUNCTION() 
+#define PROFILE_SCOPE(name)
+#endif
     struct ProfileResult
     {
         std::string Name;
@@ -27,15 +34,9 @@ namespace pk
 
     class Instrumentor
     {
-    private:
-        InstrumentationSession* m_CurrentSession;
-        std::ofstream m_OutputStream;
-        int m_ProfileCount;
     public:
-        Instrumentor()
-            : m_CurrentSession(nullptr), m_ProfileCount(0)
-        {
-        }
+        Instrumentor(const Instrumentor&) = delete;
+        Instrumentor(Instrumentor&&) = delete;
 
         void BeginSession(const std::string& name, const std::string& filepath = "results.json")
         {
@@ -74,6 +75,24 @@ namespace pk
             m_OutputStream.flush();
         }
 
+        static Instrumentor& Get()
+        {
+            static Instrumentor instance;
+            return instance;
+        }
+
+    private:
+        Instrumentor()
+            :m_CurrentSession(nullptr)
+        {
+        }
+
+        ~Instrumentor()
+        {
+            EndSession();
+        }
+
+
         void WriteHeader()
         {
             m_OutputStream << "{\"otherData\": {},\"traceEvents\":[";
@@ -86,11 +105,10 @@ namespace pk
             m_OutputStream.flush();
         }
 
-        static Instrumentor& Get()
-        {
-            static Instrumentor instance;
-            return instance;
-        }
+    private:
+        InstrumentationSession* m_CurrentSession;
+        std::ofstream m_OutputStream;
+        int m_ProfileCount;
     };
 
     class InstrumentationTimer

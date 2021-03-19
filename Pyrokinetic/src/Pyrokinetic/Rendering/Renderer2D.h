@@ -5,6 +5,8 @@
 
 namespace pk
 {
+#define PK_COLOR_DEFAULT glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}
+#define PK_COLOR_NOSHADER glm::vec4{1.0f, 0.0f, 1.0f, 1.0f}
 	class Renderer2D
 	{
 	public:
@@ -15,17 +17,14 @@ namespace pk
 		static void EndScene();
 		static void Flush();
 
-		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float rotation);
-		static void DrawQuad(const glm::vec3& position,const glm::vec2& size, const glm::vec4& color, float rotation);
 
-		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float rotation, float tileFactor = 1.0f);
-		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, float rotation, float tileFactor = 1.0f);
+		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const std::shared_ptr<Texture2D>& texture, float rotation, float tileFactor = 1.0f);
+		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, const std::shared_ptr<Texture2D>& texture, float rotation, float tileFactor = 1.0f);
 
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<SubTexture2D>& texture, float rotation, float tileFactor = 1.0f);
 		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<SubTexture2D>& texture, float rotation, float tileFactor = 1.0f);
 
-		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
-		static void DrawQuad(const glm::mat4& transform, const std::shared_ptr<Texture2D>& texture, float tileFactor = 1.0f);
+		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color, const std::shared_ptr<Texture2D>& texture, float tileFactor = 1.0f);
 		static void DrawQuad(const glm::mat4& transform, const std::shared_ptr<SubTexture2D>& texture, float tileFactor = 1.0f);
 
 		struct Statistics
@@ -39,6 +38,7 @@ namespace pk
 
 		static void ResetStats();
 		static Statistics& GetStats();
+
 	private:
 		static void StartNewBatch();
 	};

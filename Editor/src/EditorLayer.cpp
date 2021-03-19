@@ -28,20 +28,70 @@ namespace pk
 		spec.width = 1280;
 		spec.height = 720;
 
+		m_ViewportSize = { spec.width, spec.height };
+
 		m_Framebuffer = Framebuffer::Create(spec);
 
 		m_ActiveScene = std::make_shared<Scene>();
 
 		m_SquareEntity = m_ActiveScene->CreateEntity("Square");
-		m_SquareEntity.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f });
+		m_SquareEntity.AddComponent<SpriteRendererComponent>(PK_COLOR_NOSHADER, m_Texture);
 
-		m_CameraEntity = m_ActiveScene->CreateEntity("Orthographic Camera");
+		m_SquareEntity2 = m_ActiveScene->CreateEntity("Square");
+		m_SquareEntity2.AddComponent<SpriteRendererComponent>(PK_COLOR_DEFAULT, m_Texture);
+		m_SquareEntity2.GetComponent<TransformComponent>().Translation = { 1.5f, 0.0f, 0.0f };
+
+		m_CameraEntity = m_ActiveScene->CreateEntity("Camera");
 		auto& c = m_CameraEntity.AddComponent<CameraComponent>();
 		c.Primary = true;
+		c.FixedAspectRatio = false;
+		m_CameraEntity.GetComponent<TransformComponent>().Translation = { 0.0f, 0.0f, 3.0f };
 
-		m_ClipspaceCameraEntity = m_ActiveScene->CreateEntity("Clip Space Camera");
+		m_ClipspaceCameraEntity = m_ActiveScene->CreateEntity();
 		auto& c2  = m_ClipspaceCameraEntity.AddComponent<CameraComponent>();
 		c2.Primary = false;
+		c.FixedAspectRatio = true;
+
+		class CameraController : public ScriptableEntity
+		{
+		public:
+			void OnCreate()
+			{
+			}
+
+			void OnDestroy()
+			{
+			}
+
+			void OnUpdate(Timestep t)
+			{
+				auto& transform = GetComponent<TransformComponent>();
+				float speed = 5.0f;
+
+				if (Input::IsKeyPressed(PK_KEY_W))
+				{
+					transform.Translation.y += speed * t;
+				}
+				if (Input::IsKeyPressed(PK_KEY_S))
+				{
+					transform.Translation.y -= speed * t;
+				}
+				if (Input::IsKeyPressed(PK_KEY_A))
+				{
+					transform.Translation.x -= speed * t;
+				}
+				if (Input::IsKeyPressed(PK_KEY_D))
+				{
+					transform.Translation.x += speed * t;
+				}
+			}
+		};
+		
+		//m_CameraEntity.AddComponent<CPPScriptComponent>().Bind<CameraController>();
+
+		m_SceneHierarchy.SetContext(m_ActiveScene);
+		m_Properties.SetContext(m_ActiveScene);
+		m_SceneHierarchy.SetPropertiesPanel(&m_Properties);
 	}
 
 	void EditorLayer::OnDetach()
@@ -51,23 +101,16 @@ namespace pk
 
 	void EditorLayer::OnUpdate(Timestep t)
 	{
-		if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
-			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
-			(spec.width != m_ViewportSize.x || spec.height != m_ViewportSize.y))
+		FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+		if ((m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f) && (spec.width != (uint32_t)m_ViewportSize.x || spec.height != (uint32_t)m_ViewportSize.y))
 		{
-			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_CameraController.Resize(m_ViewportSize.x, m_ViewportSize.y);
-
-			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			ResizeViewport();
 		}
-
-
-
 
 		m_CameraController.OnUpdate(t);
 
 		m_Framebuffer->Bind();
-		RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1 });
+		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		RenderCommand::Clear();
 
 		m_ActiveScene->OnUpdate(t);
@@ -113,18 +156,19 @@ namespace pk
 		}
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
+		m_SceneHierarchy.OnImGuiRender();
+		m_Properties.OnImGuiRender();
+
 		//auto stats = Renderer2D::GetStats();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Scene");
 
 		Application::Get().GetImGuiLayer()->SetBlockEvents(!(ImGui::IsWindowHovered()));
-
-		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		if (m_ViewportSize != *(glm::vec2*)&viewportPanelSize)
+		ImVec2 v = ImGui::GetContentRegionAvail();
+		glm::vec2 viewportPanelSize = { v.x, v.y };
+		if (m_ViewportSize != viewportPanelSize && viewportPanelSize.x > 0.0f && viewportPanelSize.y > 0.0f)
 		{
-			m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_CameraController.Resize(m_ViewportSize.x, m_ViewportSize.y);
+			m_ViewportSize = viewportPanelSize;
 		}
 		/*
 		ImGui::Text("Draw Calls: %d", stats.drawCalls);
@@ -137,29 +181,21 @@ namespace pk
 		ImGui::End();
 		ImGui::PopStyleVar(ImGuiStyleVar_WindowPadding);
 
-		ImGui::Begin("Scene Hierarchy");
-
-		ImGui::End();
-
 		ImGui::Begin("Log");
 		ImGui::End();
 
-		ImGui::Begin("Settings");
-		ImGui::Separator();
-		ImGui::DragFloat3("Camera Transform", glm::value_ptr(m_CameraEntity.GetComponent<TransformComponent>().Transform[3]));
-		if (ImGui::Checkbox("Clipspace Camera", &m_PrimaryCamera))
-		{
-			m_CameraEntity.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
-			m_ClipspaceCameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
-		}
-		ImGui::Separator();
-		ImGui::End();
-
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 	}
 
 	void EditorLayer::OnEvent(Event& e)
 	{
 		m_CameraController.OnEvent(e);
+	}
+
+	void EditorLayer::ResizeViewport()
+	{
+		m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		m_CameraController.Resize(m_ViewportSize.x, m_ViewportSize.y);
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 	}
 }

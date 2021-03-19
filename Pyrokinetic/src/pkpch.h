@@ -18,12 +18,7 @@
 
 
 
-//#include "Pyrokinetic/Profiling/Instrumentor.h"
-
-#define PROFILE_BEGIN_SESSION(name, filepath)
-#define PROFILE_END_SESSION()
-#define PROFILE_FUNCTION()
-#define PROFILE_SCOPE(name)
+#include "Pyrokinetic/Profiling/Instrumentor.h"
 
 //#define PK_VULKAN_SUPPORTED
 
