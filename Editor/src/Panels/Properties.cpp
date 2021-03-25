@@ -1,6 +1,7 @@
 #include "Properties.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -75,12 +76,13 @@ namespace pk
 				{
 					auto& transform = m_SelectedEntity.GetComponent<TransformComponent>();
 
-					ImGui::DragFloat3("Position", glm::value_ptr(transform.Translation), 0.05f);
+					if (ImGui::DragFloat3("Position", glm::value_ptr(transform.Translation), 0.05f)) transform.Dirty = true;
 					if (ImGui::DragFloat3("Rotation", glm::value_ptr(transform.EulerAngles), 1.0f))
 					{
 						transform.RecalculateQuaternion();
+						transform.Dirty = true;
 					}
-					ImGui::DragFloat3("Scale", glm::value_ptr(transform.Scale), 0.05f);
+					if (ImGui::DragFloat3("Scale", glm::value_ptr(transform.Scale), 0.05f)) transform.Dirty = true;
 					ImGui::TreePop();
 				}
 			}
@@ -95,8 +97,12 @@ namespace pk
 					Texture2D* texture = sprite.Texture.get();
 
 					ImGui::ColorEdit4("Color", glm::value_ptr(sprite.Color));
-					if(texture)
-					ImGui::Image((void*)texture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+					if (texture)
+					{
+						ImGui::Text("Texture:");
+						ImGui::SameLine();
+						ImGui::Image((void*)texture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+					}
 					ImGui::TreePop();
 				}
 			}
@@ -140,11 +146,18 @@ namespace pk
 						bool infinite = camera.IsFarPlaneInfinite();
 						if(ImGui::Checkbox("Infinite Far Plane", &infinite))
 							camera.SetFarPlaneInfinite(infinite);
-						if(!infinite)
+						if (infinite)
 						{
+							ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+							ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+						}
 							float perspectiveFar = camera.GetPerspectiveFarClip();
 							if (ImGui::DragFloat("Far Plane", &perspectiveFar))
 								camera.SetPerspectiveFarClip(perspectiveFar);
+						if (infinite)
+						{
+							ImGui::PopItemFlag();
+							ImGui::PopStyleVar();
 						}
 						
 					}

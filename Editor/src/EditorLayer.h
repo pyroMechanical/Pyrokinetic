@@ -37,6 +37,9 @@ namespace pk
 		std::shared_ptr<Scene> m_ActiveScene;
 		Entity m_SquareEntity;
 		Entity m_SquareEntity2;
+		Entity m_SquareEntity3;
+		Entity m_SquareEntity4;
+		Entity m_SquareEntity5;
 		Entity m_CameraEntity;
 		Entity m_ClipspaceCameraEntity;
 		bool m_PrimaryCamera = false;

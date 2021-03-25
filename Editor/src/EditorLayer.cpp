@@ -34,23 +34,36 @@ namespace pk
 
 		m_ActiveScene = std::make_shared<Scene>();
 
-		m_SquareEntity = m_ActiveScene->CreateEntity("Square");
-		m_SquareEntity.AddComponent<SpriteRendererComponent>(PK_COLOR_NOSHADER, m_Texture);
+		m_SquareEntity = m_ActiveScene->CreateEntity("Sprite");
+		m_SquareEntity.AddComponent<SpriteRendererComponent>(glm::vec4{ 1.0f, 0.0f, 1.0f, 1.0f }, m_Texture);
+		m_SquareEntity.GetComponent<TransformComponent>().Translation = { -3.0f, 0.0f, 0.0f };
 
-		m_SquareEntity2 = m_ActiveScene->CreateEntity("Square");
-		m_SquareEntity2.AddComponent<SpriteRendererComponent>(PK_COLOR_DEFAULT, m_Texture);
+		m_SquareEntity2 = m_ActiveScene->CreateEntity("Sprite 2");
+		m_SquareEntity2.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f }, m_Texture);
 		m_SquareEntity2.GetComponent<TransformComponent>().Translation = { 1.5f, 0.0f, 0.0f };
+
+		m_SquareEntity3 = m_ActiveScene->CreateEntity("Sprite 3");
+		m_SquareEntity3.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f }, m_Texture);
+		m_SquareEntity3.GetComponent<TransformComponent>().Translation = { 1.5f, 0.0f, 0.0f };
+
+		m_SquareEntity4 = m_ActiveScene->CreateEntity("Sprite 4");
+		m_SquareEntity4.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f }, m_Texture);
+		m_SquareEntity4.GetComponent<TransformComponent>().Translation = { 1.5f, 0.0f, 0.0f };
+
+		m_SquareEntity5 = m_ActiveScene->CreateEntity("Sprite 5");
+		m_SquareEntity5.AddComponent<SpriteRendererComponent>(glm::vec4{ 1.0f, 1.0f, 0.0f, 1.0f }, m_Texture);
+		m_SquareEntity5.GetComponent<TransformComponent>().Translation = { 1.5f, 0.0f, 0.0f };
+
+		m_SquareEntity.AddChild(m_SquareEntity2);
+		m_SquareEntity2.AddChild(m_SquareEntity3);
+		m_SquareEntity3.AddChild(m_SquareEntity4);
+		m_SquareEntity4.AddChild(m_SquareEntity5);
 
 		m_CameraEntity = m_ActiveScene->CreateEntity("Camera");
 		auto& c = m_CameraEntity.AddComponent<CameraComponent>();
 		c.Primary = true;
 		c.FixedAspectRatio = false;
-		m_CameraEntity.GetComponent<TransformComponent>().Translation = { 0.0f, 0.0f, 3.0f };
-
-		m_ClipspaceCameraEntity = m_ActiveScene->CreateEntity();
-		auto& c2  = m_ClipspaceCameraEntity.AddComponent<CameraComponent>();
-		c2.Primary = false;
-		c.FixedAspectRatio = true;
+		m_CameraEntity.GetComponent<TransformComponent>().Translation = { 0.0f, 0.0f, 6.0f };
 
 		class CameraController : public ScriptableEntity
 		{
@@ -110,7 +123,7 @@ namespace pk
 		m_CameraController.OnUpdate(t);
 
 		m_Framebuffer->Bind();
-		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		RenderCommand::Clear();
 
 		m_ActiveScene->OnUpdate(t);
@@ -159,7 +172,7 @@ namespace pk
 		m_SceneHierarchy.OnImGuiRender();
 		m_Properties.OnImGuiRender();
 
-		//auto stats = Renderer2D::GetStats();
+		auto stats = Renderer2D::GetStats();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Scene");
 
@@ -170,11 +183,6 @@ namespace pk
 		{
 			m_ViewportSize = viewportPanelSize;
 		}
-		/*
-		ImGui::Text("Draw Calls: %d", stats.drawCalls);
-		ImGui::Text("Quads: %d", stats.quadCount);
-		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
-		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());*/
 
 		uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
 		ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
@@ -182,9 +190,15 @@ namespace pk
 		ImGui::PopStyleVar(ImGuiStyleVar_WindowPadding);
 
 		ImGui::Begin("Log");
+		ImGui::Text("Draw Calls: %d", stats.drawCalls);
+		ImGui::Text("Tris: %d", stats.quadCount*2);
+		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
+		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 		ImGui::End();
 
 		//ImGui::ShowDemoWindow();
+
+		Renderer2D::ResetStats();
 	}
 
 	void EditorLayer::OnEvent(Event& e)

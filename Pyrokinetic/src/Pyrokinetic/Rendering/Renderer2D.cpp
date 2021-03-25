@@ -153,8 +153,9 @@ namespace pk
 	{
 		PROFILE_FUNCTION();
 //#ifndef PK_VULKAN_SUPPORTED
+		if (s_Data.quadIndexCount == 0) return;
 		uint32_t dataSize = (uint8_t*)s_Data.quadVertexBufferPtr - (uint8_t*)s_Data.quadVertexBufferStart;
-		s_Data.quadVertexBuffer->SetData(s_Data.quadVertexBufferStart, dataSize);
+			s_Data.quadVertexBuffer->SetData(s_Data.quadVertexBufferStart, dataSize);
 
 		Flush();
 //#endif
@@ -198,6 +199,9 @@ namespace pk
 
 	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, const std::shared_ptr<Texture2D>& texture, float tileFactor)
 	{
+
+		//PK_CORE_INFO("{0}", texture->GetRendererID());
+
 		if (s_Data.quadIndexCount >= RendererData2D::maxIndices)
 		{
 			StartNewBatch();

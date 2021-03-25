@@ -5,6 +5,8 @@
 #include <entt/entt.hpp>
 #include <memory>
 
+#include <glm/glm.hpp>
+
 namespace pk
 {
 	class Entity
@@ -33,6 +35,18 @@ namespace pk
 		}
 
 		template<typename T>
+		T& AddOrGetComponent()
+		{
+			return m_Scene->m_Registry.get_or_emplace<T>(m_EntityID);
+		}
+
+		template<typename T>
+		T& GetComponentIfExists()
+		{
+			return m_Scene->m_Registry.try_get<T>(m_EntityID);
+		}
+
+		template<typename T>
 		bool HasComponent()
 		{
 			return m_Scene->m_Registry.all_of<T>(m_EntityID);
@@ -45,6 +59,12 @@ namespace pk
 
 			return m_Scene->m_Registry.remove<T>(m_EntityID);
 		}
+
+		void AddChild(Entity child);
+
+		void RemoveChild(Entity child);
+
+		glm::mat4 UpdateTransform(glm::mat4& world, bool dirty);
 
 		operator bool() const { return m_EntityID != entt::null; }
 

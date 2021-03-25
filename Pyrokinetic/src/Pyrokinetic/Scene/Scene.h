@@ -14,7 +14,11 @@ namespace pk
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
-		void DestroyEntity(Entity entity);
+		void DestroyEntity(entt::entity entity);
+
+		void RemoveChild(entt::entity child);
+
+		bool IsParent(entt::entity child, entt::entity parent);
 
 		//TEMPORARY
 

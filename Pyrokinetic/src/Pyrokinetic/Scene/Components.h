@@ -31,6 +31,9 @@ namespace pk
 		glm::vec3 EulerAngles{ 0.0f };
 		glm::quat Quaternion = glm::quat(glm::radians(EulerAngles));
 		glm::vec3 Scale{ 1.0f };
+		glm::mat4 World{ 1.0f };
+		glm::mat4 Local{ 1.0f };
+		bool Dirty = true;
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
@@ -40,14 +43,23 @@ namespace pk
 		void RecalculateQuaternion()
 		{
 			Quaternion = glm::quat(glm::radians(EulerAngles));
+			Dirty = true;
 		}
 
-		glm::mat4 GetTransform() const
+		glm::mat4 RecalculateMatrix()
 		{
 			return glm::translate(glm::mat4(1.0f), Translation)
 				* glm::mat4_cast(Quaternion)
 				* glm::scale(glm::mat4(1.0f), Scale);
-				
+		}
+
+		glm::mat4 GetWorldMatrix() const
+		{
+			return World * Local;
+		}
+		glm::mat4 GetLocalMatrix() const
+		{
+			return Local;
 		}
 	};
 
@@ -89,5 +101,33 @@ namespace pk
 			InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
 			DestroyScript = [](CPPScriptComponent* sc) { delete sc->Instance; sc->Instance = nullptr; };
 		}
+	};
+	
+	struct ParentComponent
+	{
+		std::size_t Children{};
+		entt::entity First{ entt::null };
+
+		ParentComponent() = default;
+		ParentComponent(const ParentComponent&) = default;
+		ParentComponent(Entity child)
+			:First(child), Children(1) {}
+	};
+
+	struct ChildComponent
+	{
+		entt::entity Parent{ entt::null };
+		entt::entity Prev{ entt::null };
+		entt::entity Next{ entt::null };
+
+		ChildComponent() = default;
+		ChildComponent(const ChildComponent&) = default;
+		ChildComponent(entt::entity parent)
+			:Parent(parent) {}
+	};
+
+	struct DeleteComponent
+	{
+		DeleteComponent() = default;
 	};
 }

@@ -18,6 +18,8 @@ namespace ImGui
 
 		style.Colors[ImGuiCol_WindowBg] = ImVec4(0.25f, 0.25f, 0.25f, 1.0f);
 
+		style.Colors[ImGuiCol_DragDropTarget] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
+
 		//Tabs
 		style.Colors[ImGuiCol_Tab] = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
 		style.Colors[ImGuiCol_TabHovered] = ImVec4(0.55f, 0.55f, 0.55f, 1.0f);
