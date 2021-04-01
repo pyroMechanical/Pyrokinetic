@@ -13,7 +13,6 @@
 namespace pk 
 {
 
-
 	VulkanContext::VulkanContext(GLFWwindow* windowHandle) 
 		: m_WindowHandle(windowHandle)
 	{
@@ -23,19 +22,18 @@ namespace pk
 		glfwGetFramebufferSize(m_WindowHandle, &width, &height);
 		windowExtent = { (uint32_t)width, (uint32_t)height };
 		clearValue = {};
-		clearValue.color = { 0.00f, 0.00f, 0.00f, 1.0f };
+		clearValue.color = { 0.0f, 0.0f, 0.0f, 1.0f };
 		frameNumber = 0;
 	}
 
 	void VulkanContext::Init()
 	{
 		PROFILE_FUNCTION();
-		reinterpret_cast<VulkanRendererAPI&>(RenderCommand::getRendererAPI()).SetContext(this);
-		allocator = VulkanMemory::GetInstance()->GetAllocator();
 
 		InitVulkan();
 		CreateSwapchain();
 		InitCommands();
+		InitImmediateCommands();
 		InitDefaultRenderPass();
 		InitFramebuffers();
 		InitSyncStructures();
@@ -109,7 +107,7 @@ namespace pk
 		allocatorInfo.physicalDevice = physicalDevice;
 		allocatorInfo.device = device;
 		allocatorInfo.instance = instance;
-		vmaCreateAllocator(&allocatorInfo, allocator);
+		vmaCreateAllocator(&allocatorInfo, &allocator);
 	}
 
 	void VulkanContext::CreateSwapchain()
@@ -119,7 +117,11 @@ namespace pk
 
 		if (VSync) swapchain_builder.set_desired_present_mode(VK_PRESENT_MODE_FIFO_RELAXED_KHR);
 
-		vkb::Swapchain vkb_swapchain = swapchain_builder.use_default_format_selection()
+		VkSurfaceFormatKHR surfaceFormat{};
+		surfaceFormat.format = VK_FORMAT_R8G8B8A8_SRGB;
+		surfaceFormat.colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
+
+		vkb::Swapchain vkb_swapchain = swapchain_builder.set_desired_format(surfaceFormat)
 			.set_image_usage_flags(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT)
 			.set_desired_extent(windowExtent.width, windowExtent.height)
 			.build()
@@ -140,12 +142,21 @@ namespace pk
 		{
 			VkCommandPoolCreateInfo commandPoolInfo = vkinit::command_pool_create_info(graphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 			CHECK_VULKAN(vkCreateCommandPool(device, &commandPoolInfo, nullptr, &frameData[i].commandPool));
+			
 
 			VkCommandBufferAllocateInfo commandAllocInfo = vkinit::command_buffer_allocate_info(frameData[i].commandPool, 1);
 			CHECK_VULKAN(vkAllocateCommandBuffers(device, &commandAllocInfo, &frameData[i].mainCommandBuffer));
 
 			swapchainDeletionQueue.push_function([=]() {vkDestroyCommandPool(device, frameData[i].commandPool, nullptr); });
 		}
+	}
+
+	void VulkanContext::InitImmediateCommands()
+	{
+		VkCommandPoolCreateInfo commandPoolInfo = vkinit::command_pool_create_info(graphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+		CHECK_VULKAN(vkCreateCommandPool(device, &commandPoolInfo, nullptr, &immediateCommandPool));
+
+		mainDeletionQueue.push_function([=]() {vkDestroyCommandPool(device, immediateCommandPool, nullptr); });
 	}
 
 	void VulkanContext::InitDefaultRenderPass()
@@ -237,19 +248,56 @@ namespace pk
 				vkDestroySemaphore(device, GetCurrentFrame(i).renderSemaphore, nullptr);
 				});
 		}
+
+		VkFenceCreateInfo fenceCreateInfo = {};
+		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceCreateInfo.pNext = nullptr;
+
+		CHECK_VULKAN(vkCreateFence(device, &fenceCreateInfo, nullptr, &immediateFence));
+
+		mainDeletionQueue.push_function([=]() {vkDestroyFence(device, immediateFence, nullptr); });
 	}
 
 	void VulkanContext::InitDescriptors()
 	{
+
+		std::vector<VkDescriptorPoolSize> sizes =
+		{
+			{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+		};
+
+		VkDescriptorPoolCreateInfo poolInfo = {};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.flags = 0;
+		poolInfo.maxSets = 1000;
+		poolInfo.poolSizeCount = (uint32_t)sizes.size();
+		poolInfo.pPoolSizes = sizes.data();
+
+		CHECK_VULKAN(vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool));
+
 		for (int i = 0; i < FRAME_OVERLAP; i++)
 		{
 			//frameData[i].
 		}
+
+		mainDeletionQueue.push_function([=]() {
+			vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+			});
 	}
 
 	void VulkanContext::Cleanup()
 	{
-		vmaDestroyAllocator(*allocator);
+		vmaDestroyAllocator(allocator);
 		vkWaitForFences(device, 1, &GetCurrentFrame(frameNumber).renderFence, true, 1000000000);
 
 		mainDeletionQueue.flush();
@@ -269,7 +317,6 @@ namespace pk
 
 		CHECK_VULKAN(vkAcquireNextImageKHR(device, swapchain, 1000000000, GetCurrentFrame(frameNumber).presentSemaphore, nullptr, &swapchainImageIndex));
 
-		CHECK_VULKAN(vkWaitForFences(device, 1, &GetCurrentFrame(frameNumber).renderFence, true, 1000000000));
 		CHECK_VULKAN(vkResetFences(device, 1, &GetCurrentFrame(frameNumber).renderFence));
 
 		VkSubmitInfo submit = {};
@@ -305,7 +352,8 @@ namespace pk
 
 		CHECK_VULKAN(vkQueuePresentKHR(graphicsQueue, &presentInfo));
 
-
+		vkWaitForFences(device, 1, &GetCurrentFrame(frameNumber).renderFence, true, 1000000000);
+		CHECK_VULKAN(vkResetFences(device, 1, &GetCurrentFrame(frameNumber).renderFence));
 
 		++frameNumber;
 	}
@@ -327,7 +375,7 @@ namespace pk
 
 	void VulkanContext::RebuildSwapchain()
 	{
-		vkQueueWaitIdle(graphicsQueue);
+		vkWaitForFences(device, 1, &GetCurrentFrame(frameNumber).renderFence, true, 1000000000);
 
 		for (uint32_t i = 0; i < FRAME_OVERLAP; ++i)
 		{
@@ -345,6 +393,8 @@ namespace pk
 
 	void VulkanContext::InitPipelines()
 	{
+
+
 		VkShaderModule triangleFragShader;
 		if (!load_shader_module("assets/shaders/triangle.frag.spv", &triangleFragShader))
 		{
@@ -420,9 +470,47 @@ namespace pk
 		
 		AllocatedBuffer newBuffer;
 
-		CHECK_VULKAN(vmaCreateBuffer(*allocator, &bufferInfo, &vmaallocInfo, &newBuffer.buffer, &newBuffer.allocation, nullptr));
+		CHECK_VULKAN(vmaCreateBuffer(allocator, &bufferInfo, &vmaallocInfo, &newBuffer.buffer, &newBuffer.allocation, nullptr));
 
 		return newBuffer;
+	}
+
+	VkCommandBuffer VulkanContext::BeginImmediateExecute()
+	{
+		CHECK_VULKAN(vkResetFences(device, 1, &immediateFence));
+
+		VkCommandBufferAllocateInfo allocateInfo{};
+		allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocateInfo.commandPool = immediateCommandPool;
+		allocateInfo.commandBufferCount = 1;
+
+		VkCommandBuffer buffer;
+		CHECK_VULKAN(vkAllocateCommandBuffers(device, &allocateInfo, &buffer));
+
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		CHECK_VULKAN(vkBeginCommandBuffer(buffer, &beginInfo));
+
+		return buffer;
+	}
+
+	void VulkanContext::EndImmediateExecute(VkCommandBuffer buffer)
+	{
+		CHECK_VULKAN(vkEndCommandBuffer(buffer));
+
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &buffer;
+
+		CHECK_VULKAN(vkQueueSubmit(graphicsQueue, 1, &submitInfo, immediateFence));
+		
+		vkWaitForFences(device, 1, &immediateFence, true, 1000000000);
+
+		vkFreeCommandBuffers(device, immediateCommandPool, 1, &buffer);
 	}
 
 	//TODO: move these functions to other classes in the API. *extremely* temporary!
@@ -462,4 +550,30 @@ namespace pk
 	}
 
 
+
+
+	//this is for Dear ImGui integration
+	InitInfo VulkanContext::CreateImGuiImplInfo()
+	{
+		InitInfo info{};
+		info.Instance = instance;
+		info.PhysicalDevice = physicalDevice;
+		info.Device = device;
+		info.QueueFamily = graphicsQueueFamily;
+		info.Queue = graphicsQueue;
+		info.PipelineCache = VK_NULL_HANDLE;
+		info.DescriptorPool = descriptorPool;
+		info.Subpass = 0;
+		info.MinImageCount = FRAME_OVERLAP;
+		info.ImageCount = FRAME_OVERLAP;
+		info.CheckVkResultFn = [](VkResult result)
+		{
+			if (result)
+			{
+				PK_CORE_ERROR("Vulkan Error: {0}", result);
+			}
+		};
+
+		return info;
+	}
 }

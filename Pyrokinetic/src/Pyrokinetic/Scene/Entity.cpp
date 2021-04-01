@@ -13,6 +13,13 @@ namespace pk
 			auto& oldParent = m_Scene->m_Registry.get<ParentComponent>(childComponent.Parent);
 			auto& prev = m_Scene->m_Registry.get<ChildComponent>(childComponent.Prev);
 			auto& next = m_Scene->m_Registry.get<ChildComponent>(childComponent.Next);
+
+			/*{
+				TransformComponent& parentTransform = m_Scene->m_Registry.get<TransformComponent>(childComponent.Parent);
+				TransformComponent& childTransform = child.GetComponent<TransformComponent>();
+				childTransform
+			}*/
+
 			--oldParent.Children;
 			if (oldParent.Children > 0)
 			{

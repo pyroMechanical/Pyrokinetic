@@ -16,7 +16,9 @@ namespace pk
 		virtual void Begin() override;
 		virtual void End() override;
 
-		virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
+		virtual void SetContext(GraphicsContext* context) override {}
+
+		//virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 	};
 
 }

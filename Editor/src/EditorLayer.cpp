@@ -11,7 +11,7 @@
 namespace pk
 {
 	EditorLayer::EditorLayer()
-		: Layer("2D Viewport"), m_CameraController(1280.0f / 720.0f, true)
+		: Layer("2D Viewport")
 	{
 	}
 	void EditorLayer::OnAttach()
@@ -25,45 +25,30 @@ namespace pk
 		m_LargeTree = SubTexture2D::CreateFromCoordinates(m_Spritesheet, { 1, 1 }, { 128, 128 }, { 1, 2 });
 
 		FramebufferSpecification spec;
+		spec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };
 		spec.width = 1280;
 		spec.height = 720;
-
-		m_ViewportSize = { spec.width, spec.height };
+		spec.clearColor = glm::vec4{ 0.1f, 0.1f, 0.1f, 1.0f };
 
 		m_Framebuffer = Framebuffer::Create(spec);
 
+		m_ViewportSize = { spec.width, spec.height };
+
+		RenderPassSpecification renderPassSpec;
+		renderPassSpec.TargetFramebuffer = m_Framebuffer;
+		m_RenderPass = RenderPass::Create(renderPassSpec);
+
 		m_ActiveScene = std::make_shared<Scene>();
-
-		m_SquareEntity = m_ActiveScene->CreateEntity("Sprite");
-		m_SquareEntity.AddComponent<SpriteRendererComponent>(glm::vec4{ 1.0f, 0.0f, 1.0f, 1.0f }, m_Texture);
-		m_SquareEntity.GetComponent<TransformComponent>().Translation = { -3.0f, 0.0f, 0.0f };
-
-		m_SquareEntity2 = m_ActiveScene->CreateEntity("Sprite 2");
-		m_SquareEntity2.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f }, m_Texture);
-		m_SquareEntity2.GetComponent<TransformComponent>().Translation = { 1.5f, 0.0f, 0.0f };
-
-		m_SquareEntity3 = m_ActiveScene->CreateEntity("Sprite 3");
-		m_SquareEntity3.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 1.0f, 1.0f }, m_Texture);
-		m_SquareEntity3.GetComponent<TransformComponent>().Translation = { 1.5f, 0.0f, 0.0f };
-
-		m_SquareEntity4 = m_ActiveScene->CreateEntity("Sprite 4");
-		m_SquareEntity4.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f }, m_Texture);
-		m_SquareEntity4.GetComponent<TransformComponent>().Translation = { 1.5f, 0.0f, 0.0f };
-
-		m_SquareEntity5 = m_ActiveScene->CreateEntity("Sprite 5");
-		m_SquareEntity5.AddComponent<SpriteRendererComponent>(glm::vec4{ 1.0f, 1.0f, 0.0f, 1.0f }, m_Texture);
-		m_SquareEntity5.GetComponent<TransformComponent>().Translation = { 1.5f, 0.0f, 0.0f };
-
-		m_SquareEntity.AddChild(m_SquareEntity2);
-		m_SquareEntity2.AddChild(m_SquareEntity3);
-		m_SquareEntity3.AddChild(m_SquareEntity4);
-		m_SquareEntity4.AddChild(m_SquareEntity5);
 
 		m_CameraEntity = m_ActiveScene->CreateEntity("Camera");
 		auto& c = m_CameraEntity.AddComponent<CameraComponent>();
 		c.Primary = true;
 		c.FixedAspectRatio = false;
 		m_CameraEntity.GetComponent<TransformComponent>().Translation = { 0.0f, 0.0f, 6.0f };
+
+		m_TestSquare = m_ActiveScene->CreateEntity("Test Square");
+		auto& sprite = m_TestSquare.AddComponent<SpriteRendererComponent>();
+		sprite.Color = { 1.0f, 0.1f, 0.1f, 1.0f };
 
 		class CameraController : public ScriptableEntity
 		{
@@ -120,21 +105,18 @@ namespace pk
 			ResizeViewport();
 		}
 
-		m_CameraController.OnUpdate(t);
-
-		m_Framebuffer->Bind();
-		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
-		RenderCommand::Clear();
+		Renderer::BeginRenderPass(m_RenderPass);
 
 		m_ActiveScene->OnUpdate(t);
 
-		m_Framebuffer->Unbind();
+		Renderer::EndRenderPass();
+
+		Renderer2D::Flush();
 	}
 
 	void EditorLayer::OnImGuiRender()
 	{
 		PROFILE_FUNCTION();
-
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -184,7 +166,7 @@ namespace pk
 			m_ViewportSize = viewportPanelSize;
 		}
 
-		uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
+		uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);
 		ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		ImGui::End();
 		ImGui::PopStyleVar(ImGuiStyleVar_WindowPadding);
@@ -196,20 +178,18 @@ namespace pk
 		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 		ImGui::End();
 
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 
 		Renderer2D::ResetStats();
 	}
 
 	void EditorLayer::OnEvent(Event& e)
 	{
-		m_CameraController.OnEvent(e);
 	}
 
 	void EditorLayer::ResizeViewport()
 	{
 		m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-		m_CameraController.Resize(m_ViewportSize.x, m_ViewportSize.y);
 		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 	}
 }

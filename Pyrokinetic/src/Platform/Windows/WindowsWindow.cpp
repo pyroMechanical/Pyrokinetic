@@ -5,6 +5,8 @@
 #include "Pyrokinetic/Events/MouseEvent.h"
 #include "Pyrokinetic/Events/ApplicationEvent.h"
 
+#include "Pyrokinetic/Rendering/Renderer.h"
+
 namespace pk
 {
 	static bool s_GLFWInitialized = false;
@@ -46,16 +48,13 @@ namespace pk
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}
-		bool vulkanSupported = glfwVulkanSupported();
-#ifdef PK_VULKAN_SUPPORTED
-		if (vulkanSupported) glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-#endif
+		
+		if (RendererAPI::GetAPI() == RendererAPI::API::Vulkan) glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		m_Context = GraphicsContext::Create(m_Window);
-		if(m_Context != nullptr) m_Context->Init();
+		m_Context = Renderer::GetContext();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
-		SetVSync(true);
+		//SetVSync(true);
 
 		// Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)

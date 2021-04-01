@@ -42,6 +42,9 @@ namespace pk
 
 		virtual void* GetNativeWindow() const = 0;
 
+		virtual void* GetContext() = 0;
+		virtual void SetContext(void* context) = 0;
+
 		static Window* Create(const WindowProps& props = WindowProps());
 	};
 }

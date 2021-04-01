@@ -25,6 +25,8 @@ namespace pk
 
 		virtual const std::string& GetName() const override { return m_Name; }
 
+		virtual void SetUniformBuffer(void*, uint32_t size) override {};
+
 		void UploadUniformInt(const std::string& name, const int values);
 		void UploadUniformIntArray(const std::string& name, int* values, uint32_t count);
 
@@ -35,6 +37,13 @@ namespace pk
 
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
+
+		virtual std::shared_ptr<Texture2D> GetTexture() override { return m_Texture; }
+		virtual void SetTexture(std::shared_ptr<Texture2D>& texture) override { m_Texture = texture; }
+		//Vulkan specific
+		VkPipelineLayout GetPipelineLayout() { return m_Layout; };
+		VkDescriptorSet& GetDescriptorSet() { return m_DescriptorSet; };
+
 	private:
 		std::string ReadFile(const std::string& path);
 		std::unordered_map<VkShaderStageFlagBits, std::string> PreProcess(const std::string& src);
@@ -42,5 +51,10 @@ namespace pk
 	private:
 		uint32_t m_RendererID;
 		std::string m_Name;
+
+		std::shared_ptr<Texture2D> m_Texture;
+
+		VkPipelineLayout m_Layout;
+		VkDescriptorSet m_DescriptorSet;
 	};
 }

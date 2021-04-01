@@ -1,5 +1,4 @@
 #pragma once
-
 #include "RendererAPI.h"
 
 #include "Platform/OpenGL/OpenGLRendererAPI.h"
@@ -10,8 +9,10 @@ namespace pk
 	class RenderCommand
 	{
 	public:
-		static void Init()
+		static void Init(GraphicsContext* context)
 		{
+			s_RendererAPI = RendererAPI::Create();
+			s_RendererAPI->SetContext(context);
 			s_RendererAPI->Init();
 		}
 
@@ -29,24 +30,14 @@ namespace pk
 			s_RendererAPI->Clear();
 		}
 
-		static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0)
+		/*static void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
 			s_RendererAPI->DrawIndexed(vertexArray, indexCount);
-		}
-
-		static void Begin()
-		{
-			s_RendererAPI->Begin();
-		}
-
-		static void End()
-		{
-			s_RendererAPI->End();
-		}
+		}*/
 
 		static RendererAPI& getRendererAPI() { return *s_RendererAPI.get(); }
 
 	private:
-		static std::unique_ptr<RendererAPI> s_RendererAPI;
+		inline static std::unique_ptr<RendererAPI> s_RendererAPI;
 	};
 }

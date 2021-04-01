@@ -1,5 +1,5 @@
 #pragma once
-
+#define IM_ASSERT(_EXPR) { if(!(_EXPR)) { PK_ERROR("ImGui Assert Failed: {0}", _EXPR); __debugbreak(); } }
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -16,11 +16,7 @@
 
 #include "Pyrokinetic/Core/Log.h"
 
-
-
 #include "Pyrokinetic/Profiling/Instrumentor.h"
-
-//#define PK_VULKAN_SUPPORTED
 
 //Platforms
 #ifdef PK_PLATFORM_WINDOWS

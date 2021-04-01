@@ -24,7 +24,11 @@ namespace pk
 		void ResizeViewport();
 
 	private:
-		OrthographicCameraController m_CameraController;
+		std::shared_ptr<Pipeline> m_Pipeline;
+		std::shared_ptr<VertexBuffer> m_VertexBuffer;
+		std::shared_ptr<IndexBuffer> m_IndexBuffer;
+		std::shared_ptr<Shader> m_Shader;
+		std::shared_ptr<RenderPass> m_RenderPass;
 
 		//TODO: put in renderer
 		std::shared_ptr<Texture2D> m_Texture;
@@ -35,14 +39,8 @@ namespace pk
 		std::shared_ptr<Framebuffer> m_Framebuffer;
 
 		std::shared_ptr<Scene> m_ActiveScene;
-		Entity m_SquareEntity;
-		Entity m_SquareEntity2;
-		Entity m_SquareEntity3;
-		Entity m_SquareEntity4;
-		Entity m_SquareEntity5;
 		Entity m_CameraEntity;
-		Entity m_ClipspaceCameraEntity;
-		bool m_PrimaryCamera = false;
+		Entity m_TestSquare;
 
 		glm::vec2 m_ViewportSize;
 

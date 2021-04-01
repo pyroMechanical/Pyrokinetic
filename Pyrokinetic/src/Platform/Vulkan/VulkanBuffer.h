@@ -1,6 +1,5 @@
 #pragma once
 #include "Pyrokinetic/Rendering/Buffer.h"
-#include "VulkanMemory.h"
 #include "VkTypes.h"
 #include <vector>
 
@@ -22,7 +21,8 @@ namespace pk
 		virtual void Bind() const override;
 		virtual void Unbind() const override;
 
-		virtual void SetData(const void* data, uint32_t size) override;
+		virtual void* Map() override {return m_LocalBuffer; }
+		virtual void Unmap(uint32_t size) override;
 
 		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
 		virtual const BufferLayout& GetLayout() const override { return m_Layout; }
@@ -30,9 +30,12 @@ namespace pk
 
 		VertexInputDescription GetVertexInputDescription();
 
+		VkBuffer& GetDeviceBuffer() { return m_Buffer.buffer; }
+
 	private:
 		uint32_t m_RendererID;
 		BufferLayout m_Layout;
+		char* m_LocalBuffer;
 		AllocatedBuffer m_Buffer;
 
 		VmaAllocator* allocator;
@@ -50,6 +53,8 @@ namespace pk
 
 		virtual void Bind() const override;
 		virtual void Unbind() const override;
+
+		VkBuffer& GetDeviceBuffer() { return m_Buffer.buffer; }
 
 	private:
 		uint32_t m_RendererID;

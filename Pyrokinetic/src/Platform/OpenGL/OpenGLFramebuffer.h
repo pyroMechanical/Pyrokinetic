@@ -17,12 +17,17 @@ namespace pk
 
 		virtual void Resize(const uint32_t width, const uint32_t height) override;
 
-		virtual uint32_t GetColorAttachmentRendererID() const override { return m_ColorAttachment; }
+		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override { PK_CORE_ASSERT(index < m_ColorAttachments.size(), "Color Attachment Index out of range!");return m_ColorAttachments[index]; }
 
 		virtual const FramebufferSpecification& GetSpecification() const override { return m_Specification; }
 	private:
-		uint32_t m_RendererID;
-		uint32_t m_ColorAttachment, m_DepthAttachment;
+		uint32_t m_RendererID = 0;
+		std::vector<FramebufferTextureSpecification> m_ColorAttachmentSpecifications;
+
+		FramebufferTextureSpecification m_DepthAttachmentSpecification = FramebufferTextureFormat::None;
 		FramebufferSpecification m_Specification;
+
+		std::vector<uint32_t> m_ColorAttachments;
+		uint32_t m_DepthAttachment = 0;
 	};
 }

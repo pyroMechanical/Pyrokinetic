@@ -1,7 +1,7 @@
 #pragma once
 #include "Pyrokinetic/Rendering/GraphicsContext.h"
-#include "VulkanMemory.h"
 #include "VulkanShader.h"
+#include "VulkanPipeline.h"
 #include "VkTypes.h"
 #include <vulkan/vulkan.h>
 #include <deque>
@@ -18,6 +18,23 @@ struct GLFWwindow;
 
 namespace pk
 {
+	struct InitInfo
+	{
+		VkInstance                      Instance;
+		VkPhysicalDevice                PhysicalDevice;
+		VkDevice                        Device;
+		uint32_t                        QueueFamily;
+		VkQueue                         Queue;
+		VkPipelineCache                 PipelineCache;
+		VkDescriptorPool                DescriptorPool;
+		uint32_t                        Subpass;
+		uint32_t                        MinImageCount;          // >= 2
+		uint32_t                        ImageCount;             // >= MinImageCount
+		VkSampleCountFlagBits           MSAASamples;            // >= VK_SAMPLE_COUNT_1_BIT
+		const VkAllocationCallbacks* Allocator;
+		void                            (*CheckVkResultFn)(VkResult err);
+	};
+
 	constexpr unsigned int FRAME_OVERLAP = 2;
 
 	class VulkanContext : public GraphicsContext
@@ -51,9 +68,55 @@ namespace pk
 		virtual void SetVSync(bool enabled) override;
 		void SetViewport(VkExtent2D extent);
 
+		uint32_t GetWidth() { return windowExtent.width; }
+		uint32_t GetHeight() { return windowExtent.height; }
+
 		FrameData& GetCurrentFrame(unsigned int currentFrame) { return frameData[currentFrame % FRAME_OVERLAP]; };
 
+		VmaAllocator* GetAllocator() { return &allocator; }
+
 		void RebuildSwapchain();
+
+		InitInfo CreateImGuiImplInfo();
+
+		VkDevice& GetDevice() { return device; }
+
+		VkRenderPass& GetRenderPass() { return renderPass; }
+
+		std::vector<VkCommandBuffer> GetCommandBuffers()
+		{
+			std::vector<VkCommandBuffer> cmdBuffers;
+			for(int i = 0; i < FRAME_OVERLAP; ++i)
+			{
+				cmdBuffers.push_back(frameData[i].mainCommandBuffer);
+			}
+
+			return cmdBuffers;
+		}
+
+		VkCommandBuffer& GetCurrentCommandBuffer()
+		{
+			return GetCurrentFrame(frameNumber).mainCommandBuffer;
+		}
+
+		VkFramebuffer& GetCurrentFramebuffer()
+		{
+			return framebuffers[frameNumber % FRAME_OVERLAP];
+		}
+
+		 VkCommandBuffer BeginImmediateExecute();
+
+		 void EndImmediateExecute(VkCommandBuffer buffer);
+
+		std::vector<VkFramebuffer> GetFramebuffers()
+		{
+			return framebuffers;
+		}
+
+		VkPipeline GetPipeline()
+		{
+			return trianglePipeline;
+		}
 
 		DeletionQueue mainDeletionQueue;
 		DeletionQueue swapchainDeletionQueue;
@@ -61,9 +124,9 @@ namespace pk
 		VkExtent2D windowExtent;
 		VkInstance instance;
 		VkDebugUtilsMessengerEXT debugMessenger;
-		VkSurfaceKHR surface;
 		VkPhysicalDevice physicalDevice;
 		VkDevice device;
+		VkSurfaceKHR surface;
 		VkSwapchainKHR swapchain;
 		uint32_t swapchainImageIndex = 0;
 		VkFormat swapchainImageFormat;
@@ -79,14 +142,20 @@ namespace pk
 		VkPipelineLayout trianglePipelineLayout;
 		VkPipeline trianglePipeline;
 		std::unordered_map<std::string, VulkanShader> shaders;
-		std::unordered_map<std::string, VkPipeline> pipelines;
+		std::unordered_map<std::string, VulkanPipeline> pipelines;
+		VkCommandPool immediateCommandPool;
+		VkFence immediateFence;
 
-		VmaAllocator* allocator;
+		VkDescriptorSetLayout globalSetLayout;
+		VkDescriptorPool descriptorPool;
+
+		VmaAllocator allocator;
 
 	private:
 		void InitVulkan();
 		void CreateSwapchain();
 		void InitCommands();
+		void InitImmediateCommands();
 		void InitDefaultRenderPass();
 		void InitFramebuffers();
 		void InitSyncStructures();

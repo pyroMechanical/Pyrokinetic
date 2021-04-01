@@ -19,7 +19,9 @@ namespace pk
 		virtual void Begin() override;
 		virtual void End() override;
 
-		virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
+		virtual void SetContext(GraphicsContext* context) override { m_Context = dynamic_cast<VulkanContext*>(context); }
+
+		//virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 
 		void SetContext(VulkanContext* context) { m_Context = context; }
 	private:

@@ -1,17 +1,11 @@
 #include "pkpch.h"
 #include "VulkanBuffer.h"
+#include "Pyrokinetic/Rendering/Renderer.h"
+#include "VulkanContext.h"
 #include <vulkan/vulkan.h>
 
 namespace pk
 {
-#define CHECK_VULKAN(x) \
-		{ \
-			VkResult err = x;								\
-			if (err)										\
-			{												\
-				PK_CORE_ERROR("Vulkan Error: {0}", err);	\
-			}												\
-		}													\
 
 	//	VertexBuffer ///////////////////////////////////////////////////////////////
 
@@ -19,11 +13,11 @@ namespace pk
 	{
 		PROFILE_FUNCTION();
 
-		//glCreateBuffers(1, &m_RendererID);
-		//glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		//glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+		m_LocalBuffer = new char[size];
 
-		allocator = VulkanMemory::GetInstance()->GetAllocator();
+		VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
+
+		allocator = context->GetAllocator();
 
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -39,12 +33,10 @@ namespace pk
 	VulkanVertexBuffer::VulkanVertexBuffer(float* vertices, uint32_t size)
 	{
 		PROFILE_FUNCTION();
+		
+		VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
 
-		//glCreateBuffers(1, &m_RendererID);
-		//glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		//glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-
-		allocator = VulkanMemory::GetInstance()->GetAllocator();
+		allocator = context->GetAllocator();
 
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -68,6 +60,8 @@ namespace pk
 		PROFILE_FUNCTION();
 
 		vmaDestroyBuffer(*allocator, m_Buffer.buffer, m_Buffer.allocation);
+
+		delete[] m_LocalBuffer;
 	}
 
 	void VulkanVertexBuffer::Bind() const
@@ -84,12 +78,12 @@ namespace pk
 		//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void VulkanVertexBuffer::SetData(const void* data, uint32_t size)
+	void VulkanVertexBuffer::Unmap(uint32_t size)
 	{
 		void* region;
 
 		vmaMapMemory(*allocator, m_Buffer.allocation, &region);
-		memcpy(region, data, size);
+		memcpy(region, (const void*)m_LocalBuffer, size);
 		vmaUnmapMemory(*allocator, m_Buffer.allocation);
 	}
 
@@ -130,10 +124,11 @@ namespace pk
 				attribute.binding = 0;
 				attribute.location = location;
 				attribute.format = format;
-				attribute.offset = size;
+				attribute.offset = offset + size;
 				description.m_Attributes.push_back(attribute);
 				++location;
 				--repeats;
+				offset += size;
 			} while (repeats > 0);
 		}
 
@@ -153,7 +148,9 @@ namespace pk
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 
-		allocator = VulkanMemory::GetInstance()->GetAllocator();
+		VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
+
+		allocator = context->GetAllocator();
 
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

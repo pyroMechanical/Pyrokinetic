@@ -59,7 +59,7 @@ namespace pk
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITYNODE"))
 				{
-					PK_CORE_ASSERT(payload->DataSize == sizeof(Entity));
+					PK_CORE_ASSERT(payload->DataSize == sizeof(Entity), "Not an Entity!");
 					Entity entityValue = *(Entity*)payload->Data;
 					m_Context->RemoveChild(entityValue);
 				}
@@ -122,7 +122,7 @@ namespace pk
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITYNODE"))
 				{
-					PK_CORE_ASSERT(payload->DataSize == sizeof(Entity));
+					PK_CORE_ASSERT(payload->DataSize == sizeof(Entity), "Not an Entity!");
 					PK_CORE_INFO("{0}, {1}", (uint32_t)entity, (uint32_t) * (Entity*)payload->Data);
 					Entity entityValue = *(Entity*)payload->Data;
 					entity.AddChild(entityValue);

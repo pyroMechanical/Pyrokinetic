@@ -21,15 +21,17 @@ namespace pk
 
 		PK_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
-
+		
 		m_Window = std::unique_ptr<Window>(Window::Create());
+		m_Context = GraphicsContext::Create(m_Window->GetNativeWindow());
+		m_Context->Init();
+		Renderer::Init(m_Context);
+		m_Window->SetContext(m_Context.get());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+		
 		m_Window->SetVSync(true);
-		Renderer::Init();
-#ifndef PK_VULKAN_SUPPORTED
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
-#endif
 	}
 
 	Application::~Application()

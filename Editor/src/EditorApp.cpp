@@ -17,7 +17,6 @@ namespace pk
 	public:
 		Editor()
 		{
-			//PushLayer(new ExampleLayer());
 			PushLayer(new EditorLayer());
 		}
 
@@ -28,6 +27,7 @@ namespace pk
 
 	Application* CreateApplication()
 	{
+		RendererAPI::SetAPI(RendererAPI::API::Vulkan);
 		return new Editor();
 	}
 }

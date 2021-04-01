@@ -11,8 +11,7 @@
 
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Pyrokinetic/Rendering/Buffer.h"
-#include "Pyrokinetic/Rendering/VertexArray.h"
-
+#include "Pyrokinetic/Rendering/GraphicsContext.h"
 #include "Pyrokinetic/Rendering/Camera.h"
 
 namespace pk
@@ -47,6 +46,8 @@ namespace pk
 		float m_LastFrameTime = 0.0f;
 	private:
 		static Application* s_Instance;
+
+		std::unique_ptr<GraphicsContext> m_Context;
 	};
 
 	//To be defined in client

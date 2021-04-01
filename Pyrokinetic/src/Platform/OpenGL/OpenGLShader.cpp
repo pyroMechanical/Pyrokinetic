@@ -188,6 +188,11 @@ namespace pk
 		glUseProgram(0);
 	}
 
+	void OpenGLShader::SetUniformBuffer(void*, uint32_t size)
+	{
+
+	}
+
 	void OpenGLShader::SetFloat(const std::string& name, const float value)
 	{
 		PROFILE_FUNCTION();

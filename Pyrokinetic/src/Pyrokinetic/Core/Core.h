@@ -1,9 +1,11 @@
 #pragma once
 #include <memory>
 
+#ifndef PK_PLATFORM
 #ifdef _WIN32
 #ifdef _WIN64
 #define PK_PLATFORM_WINDOWS
+#define PK_PLATFORM PK_PLATFORM_WINDOWS
 #else
 #error "x86 not supported"
 #endif
@@ -13,20 +15,25 @@
 #error "IOS sim not supported"
 #elif TARGET_OS_IPHONE == 1
 #define PK_PLATFORM_IOS
+#define PK_PLATFORM PK_PLATFORM_IOS
 #error "IOS not supported"
 #elif TARGET_OS_MAC == 1
 #define PK_PLATFORM_MACOS
+#define PK_PLATFORM PK_PLATFORM_MACOS
 #else
 #error "Unknown apple platform"
 #endif
 #elif defined(__ANDROID__)
 #define PK_PLATFORM_ANDROID
+#define PK_PLATFORM PK_PLATFORM_ANDROID
 #error "Android not supported"
 #elif defined(__linux__)
 #define PK_PLATFORM_LINUX
+#define PK_PLATFORM PK_PLATFORM_LINUX
 //#error "Linux not supported"
 #else
 #error "Unknown platform"
+#endif
 #endif
 
 #ifdef PK_DEBUG

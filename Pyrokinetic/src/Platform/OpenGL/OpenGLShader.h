@@ -1,5 +1,6 @@
 #pragma once
 #include "Pyrokinetic/Rendering/Shader.h"
+#include "OpenGLTexture.h"
 #include <glm/glm.hpp>
 
 //TODO: REMOVE THIS!
@@ -27,6 +28,10 @@ namespace pk
 
 		virtual const std::string& GetName() const override { return m_Name; }
 
+		uint32_t GetRendererID() const { return m_RendererID; }
+
+		virtual void SetUniformBuffer(void*, uint32_t size) override;
+
 		void UploadUniformInt(const std::string& name, const int values);
 		void UploadUniformIntArray(const std::string& name, int* values, uint32_t count);
 
@@ -37,12 +42,20 @@ namespace pk
 
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
+
+		virtual std::shared_ptr<Texture2D> GetTexture() override { return nullptr; };
+
+		virtual void SetTexture(std::shared_ptr<Texture2D>& texture) override { m_Texture = texture; }
+
 	private:
 		std::string ReadFile(const std::string& path);
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& src);
 		void Compile(const std::unordered_map<GLenum, std::string>& sources);
+
 	private:
 		uint32_t m_RendererID;
 		std::string m_Name;
+
+		std::shared_ptr<Texture2D> m_Texture;
 	};
 }

@@ -100,7 +100,7 @@ namespace pk
 			testing = c.Parent;
 		}
 
-		PK_CORE_TRACE("{0}, {1}, {2}", isParent, child, parent);
+		//PK_CORE_TRACE("{0}, {1}, {2}", isParent, child, parent);
 
 		return isParent;
 	}
@@ -168,7 +168,7 @@ namespace pk
 					auto [transform, sprite] = m_Registry.get<TransformComponent, SpriteRendererComponent>(entity);
 					Renderer2D::DrawQuad(transform.GetWorldMatrix(), sprite.Color, sprite.Texture);
 				}
-				Renderer2D::EndScene();
+			Renderer2D::EndScene();
 		}
 
 		m_Registry.view<DeleteComponent>().each([=](auto entity) {m_Registry.destroy(entity); });

@@ -25,13 +25,16 @@ namespace pk
 
 		inline virtual void* GetNativeWindow() const { return m_Window; }
 
+		virtual void* GetContext() override { return m_Context; }
+		virtual void SetContext(void* context) override { m_Context = ((GraphicsContext*)context); }
+
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
 
-		std::unique_ptr<GraphicsContext> m_Context;
+		GraphicsContext* m_Context;
 
 		struct WindowData
 		{

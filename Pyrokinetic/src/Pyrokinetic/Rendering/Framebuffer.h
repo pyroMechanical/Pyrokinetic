@@ -1,14 +1,50 @@
 #pragma once
 
-#include "Pyrokinetic/Core/Core.h"
+
+#include <glm/glm.hpp>
 
 namespace pk
 {
+	enum class FramebufferTextureFormat
+	{
+		None = 0,
+
+		// color formats
+		RGBA8,
+
+		// depth formats
+		DEPTH24STENCIL8,
+		DEPTH32,
+
+		//defaults
+		Depth = DEPTH24STENCIL8
+	};
+
+	struct FramebufferTextureSpecification
+	{
+		FramebufferTextureSpecification() = default;
+		FramebufferTextureSpecification(FramebufferTextureFormat format)
+			: TextureFormat(format) {}
+
+		FramebufferTextureFormat TextureFormat = FramebufferTextureFormat::None;
+
+		//add filtering/wrapping vars
+	};
+
+	struct FramebufferAttachmentSpecification
+	{
+		FramebufferAttachmentSpecification() = default;
+		FramebufferAttachmentSpecification(const std::initializer_list<FramebufferTextureSpecification> attachments)
+			: Attachments(attachments) {}
+		std::vector<FramebufferTextureSpecification> Attachments;
+	};
+
 	struct FramebufferSpecification
 	{
 		uint32_t width, height;
-		//FramebufferFormat format = 
+		FramebufferAttachmentSpecification Attachments;
 		uint32_t samples = 1;
+		glm::vec4 clearColor;
 
 		bool SwapchainTarget = false;
 	};
@@ -23,7 +59,7 @@ namespace pk
 
 		virtual void Resize(const uint32_t width, const uint32_t height) = 0;
 
-		virtual uint32_t GetColorAttachmentRendererID() const = 0;
+		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
 
 		virtual const FramebufferSpecification& GetSpecification() const = 0;
 		//REMINDER: set spec/rebuild

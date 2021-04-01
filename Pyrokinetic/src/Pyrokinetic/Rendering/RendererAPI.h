@@ -1,17 +1,17 @@
 #pragma once
-
+#include "GraphicsContext.h"
 #include <glm/glm.hpp>
-#include "VertexArray.h"
+#include <memory>
 
 namespace pk
 {
-	enum class API
-	{
-		None = 0, OpenGL = 1, Vulkan = 2, DirectX = 3, Metal = 4, Gnmx = 5
-	};
-
 	class RendererAPI
 	{
+	public:
+		enum class API
+		{
+			None = 0, OpenGL = 1, Vulkan = 2, DirectX11 = 3
+		};
 	public:
 		virtual ~RendererAPI() = default;
 
@@ -21,12 +21,15 @@ namespace pk
 		virtual void Clear() = 0;
 		virtual void Begin() = 0;
 		virtual void End() = 0;
+		virtual void SetContext(GraphicsContext* context) = 0;
 
-		virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
+		//virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
 		inline static API GetAPI() { return s_API; }
+		inline static void SetAPI(API api) { s_API = api; }
+
 		static std::unique_ptr<RendererAPI> Create();
 	private:
-		static API s_API;
+		inline static API s_API;
 	};
 }

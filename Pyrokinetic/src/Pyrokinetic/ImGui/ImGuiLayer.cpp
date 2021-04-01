@@ -6,14 +6,20 @@
 
 #include "ImGuiStyles.h"
 
+#include "Pyrokinetic/Rendering/Renderer.h"
+
 #define IMGUI_IMPL_API
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
+#include "backends/imgui_impl_vulkan.h"
 
 #include "Pyrokinetic/Core/Application.h"
 
+#include "Platform/Vulkan/VulkanContext.h"
+
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <vulkan/vulkan.h>
 
 
 namespace pk
@@ -60,16 +66,46 @@ namespace pk
 
 
 		// Setup Platform/Renderer Bindings
-		ImGui_ImplGlfw_InitForOpenGL(window, true);
-		ImGui_ImplOpenGL3_Init("#version 410");
+
+		if (RendererAPI::GetAPI() == RendererAPI::API::Vulkan)
+		{
+			VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
+			ImGui_ImplVulkan_InitInfo* info = (ImGui_ImplVulkan_InitInfo*) &(context->CreateImGuiImplInfo());
+			ImGui_ImplGlfw_InitForVulkan(window, true);
+			ImGui_ImplVulkan_Init(info, context->GetRenderPass());
+			
+			
+			auto cmd = context->BeginImmediateExecute();
+			ImGui_ImplVulkan_CreateFontsTexture(cmd);
+			context->EndImmediateExecute(cmd);
+
+			//clear font textures from cpu data
+			ImGui_ImplVulkan_DestroyFontUploadObjects();
+			
+		}
+		else if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
+		{
+			ImGui_ImplGlfw_InitForOpenGL(window, true);
+			ImGui_ImplOpenGL3_Init("#version 410");
+		}
 	}
 
 	void ImGuiLayer::OnDetach()
 	{
 		PROFILE_FUNCTION();
 
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
+
+		if (RendererAPI::GetAPI() == RendererAPI::API::Vulkan)
+		{
+			ImGui_ImplVulkan_Shutdown();
+			ImGui_ImplGlfw_Shutdown();
+		}
+		else if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
+		{
+			ImGui_ImplOpenGL3_Shutdown();
+			ImGui_ImplGlfw_Shutdown();
+		}
+
 		ImGui::DestroyContext();
 		ImPlot::DestroyContext();
 	}
@@ -88,8 +124,16 @@ namespace pk
 	{
 		PROFILE_FUNCTION();
 
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
+		if (RendererAPI::GetAPI() == RendererAPI::API::Vulkan)
+		{
+			ImGui_ImplVulkan_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+		}
+		else if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
+		{
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+		}
 		ImGui::NewFrame();
 	}
 
@@ -102,7 +146,34 @@ namespace pk
 		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
 
 		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		ImDrawData* drawData = ImGui::GetDrawData();
+		if (RendererAPI::GetAPI() == RendererAPI::API::Vulkan)
+		{
+			VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
+			auto cmd = context->BeginImmediateExecute();
+			VkClearValue clearValue;
+			clearValue.color = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+			VkRenderPassBeginInfo renderPassBeginInfo = {};
+			renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderPassBeginInfo.pNext = nullptr;
+			renderPassBeginInfo.renderPass = context->GetRenderPass();
+			renderPassBeginInfo.renderArea.offset.x = 0;
+			renderPassBeginInfo.renderArea.offset.y = 0;
+			renderPassBeginInfo.renderArea.extent.width = context->GetWidth();
+			renderPassBeginInfo.renderArea.extent.height = context->GetHeight();
+			renderPassBeginInfo.clearValueCount = 1;
+			renderPassBeginInfo.pClearValues = &clearValue;
+			renderPassBeginInfo.framebuffer = context->GetCurrentFramebuffer();
+			vkCmdBeginRenderPass(cmd, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+			ImGui_ImplVulkan_RenderDrawData(drawData, cmd);
+			vkCmdEndRenderPass(cmd);
+			context->EndImmediateExecute(cmd);
+		}
+		else if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
+		{
+			ImGui_ImplOpenGL3_RenderDrawData(drawData);
+		}
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
