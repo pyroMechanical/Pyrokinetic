@@ -6,7 +6,11 @@ namespace pk
 	VulkanPipeline::VulkanPipeline(const PipelineSpecification& spec)
 		: m_Spec(spec)
 	{
-
+		Rebuild();
 	}
 
+	void VulkanPipeline::Rebuild()
+	{
+		
+	}
 }

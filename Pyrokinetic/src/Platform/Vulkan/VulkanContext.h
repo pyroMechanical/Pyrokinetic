@@ -141,7 +141,6 @@ namespace pk
 		VkClearValue clearValue;
 		VkPipelineLayout trianglePipelineLayout;
 		VkPipeline trianglePipeline;
-		std::unordered_map<std::string, VulkanShader> shaders;
 		std::unordered_map<std::string, VulkanPipeline> pipelines;
 		VkCommandPool immediateCommandPool;
 		VkFence immediateFence;
@@ -165,7 +164,7 @@ namespace pk
 		/// <summary>
 		/// TODO: move/rewrite these functions for other parts of the API;
 		/// </summary>
-		bool load_shader_module(const char* filePath, VkShaderModule* outShaderModule);
+		bool load_shader_module(std::string& filePath, VkShaderModule* outShaderModule);
 		AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 
 		GLFWwindow* m_WindowHandle;

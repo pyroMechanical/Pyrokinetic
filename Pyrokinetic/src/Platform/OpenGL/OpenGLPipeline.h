@@ -11,6 +11,8 @@ namespace pk
 
 		virtual const PipelineSpecification& GetSpecification() override { return m_Spec; }
 
+		virtual void Rebuild() override {};
+
 		uint32_t GetVertexArrayRendererID() const { return m_VertexArrayRendererID; }
 
 	private:

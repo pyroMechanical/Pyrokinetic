@@ -14,10 +14,13 @@ namespace pk
 
 		virtual const PipelineSpecification& GetSpecification() override { return m_Spec; }
 
+		virtual void Rebuild() override;
+
 		VkPipeline GetVulkanPipeline() { return m_Pipeline; }
 
 	private:
 		PipelineSpecification m_Spec;
+		VkPipelineLayout m_Layout;
 		VkPipeline m_Pipeline;
 	};
 }

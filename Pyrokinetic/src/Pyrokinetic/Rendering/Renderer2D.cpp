@@ -59,9 +59,7 @@ namespace pk
 	void Renderer2D::Init()
 	{
 		PROFILE_FUNCTION();
-//#ifndef PK_VULKAN_SUPPORTED
 
-		//s_Data.quadVertexArray = VertexArray::Create();
 
 		s_Data.quadVertexBuffer = VertexBuffer::Create(s_Data.maxVertices * sizeof(QuadVertex));
 		BufferLayout quadVBLayout = {
@@ -72,7 +70,6 @@ namespace pk
 			{ ShaderDataType::Float, "a_TileFactor"}
 		};
 		s_Data.quadVertexBuffer->SetLayout(quadVBLayout);
-		//s_Data.quadVertexArray->AddVertexBuffer(s_Data.quadVertexBuffer);
 
 		s_Data.quadVertexBufferData = new QuadVertex[s_Data.maxVertices];
 
@@ -131,7 +128,6 @@ namespace pk
 		s_Data.quadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
 		s_Data.quadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
 		s_Data.quadVertexPositions[3] = {  -0.5f,  0.5f, 0.0f, 1.0f };
-//#endif
 	}
 
 	void Renderer2D::Shutdown()

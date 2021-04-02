@@ -396,7 +396,7 @@ namespace pk
 
 
 		VkShaderModule triangleFragShader;
-		if (!load_shader_module("assets/shaders/triangle.frag.spv", &triangleFragShader))
+		if (!load_shader_module(std::string("assets/shaders/triangle.frag.spv"), &triangleFragShader))
 		{
 			PK_CORE_ERROR("Error when building triangle fragment shader!");
 		}
@@ -406,7 +406,7 @@ namespace pk
 		}
 
 		VkShaderModule triangleVertShader;
-		if (!load_shader_module("assets/shaders/triangle.vert.spv", &triangleVertShader))
+		if (!load_shader_module(std::string("assets/shaders/triangle.vert.spv"), &triangleVertShader))
 		{
 			PK_CORE_ERROR("Error when building triangle Vertex shader!");
 		}
@@ -515,7 +515,7 @@ namespace pk
 
 	//TODO: move these functions to other classes in the API. *extremely* temporary!
 
-	bool VulkanContext::load_shader_module(const char* filePath /* TODO: replace with std::string& */, VkShaderModule* outShaderModule)
+	bool VulkanContext::load_shader_module(std::string& filePath /* TODO: replace with std::string& */, VkShaderModule* outShaderModule)
 	{
 		std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
