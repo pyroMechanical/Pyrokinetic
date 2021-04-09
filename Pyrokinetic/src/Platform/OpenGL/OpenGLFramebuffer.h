@@ -19,13 +19,13 @@ namespace pk
 
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override { PK_CORE_ASSERT(index < m_ColorAttachments.size(), "Color Attachment Index out of range!");return m_ColorAttachments[index]; }
 
-		virtual const FramebufferSpecification& GetSpecification() const override { return m_Specification; }
+		virtual const FramebufferSpecification& GetSpecification() const override { return m_Spec; }
 	private:
 		uint32_t m_RendererID = 0;
 		std::vector<FramebufferTextureSpecification> m_ColorAttachmentSpecifications;
 
-		FramebufferTextureSpecification m_DepthAttachmentSpecification = FramebufferTextureFormat::None;
-		FramebufferSpecification m_Specification;
+		FramebufferTextureSpecification m_DepthAttachmentSpecification = ImageFormat::None;
+		FramebufferSpecification m_Spec;
 
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;

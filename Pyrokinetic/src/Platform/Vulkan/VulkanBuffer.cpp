@@ -110,26 +110,21 @@ namespace pk
 				case ShaderDataType::Float2: format = VK_FORMAT_R32G32_SFLOAT;       size = 4 * 2;              break;
 				case ShaderDataType::Float3: format = VK_FORMAT_R32G32B32_SFLOAT;    size = 4 * 3;              break;
 				case ShaderDataType::Float4: format = VK_FORMAT_R32G32B32A32_SFLOAT; size = 4 * 4;              break;
-				case ShaderDataType::Mat3:   format = VK_FORMAT_R32G32B32_SFLOAT;    size = 4 * 3; repeats = 2; break;
-				case ShaderDataType::Mat4:   format = VK_FORMAT_R32G32B32A32_SFLOAT; size = 4 * 4; repeats = 3; break;
 				case ShaderDataType::Int:    format = VK_FORMAT_R32_SINT;            size = 4;                  break;
 				case ShaderDataType::Int2:   format = VK_FORMAT_R32G32_SINT;         size = 4 * 2;              break;
 				case ShaderDataType::Int3:   format = VK_FORMAT_R32G32B32_SINT;      size = 4 * 3;              break;
 				case ShaderDataType::Int4:   format = VK_FORMAT_R32G32B32A32_SINT;   size = 4 * 4;              break;
 				case ShaderDataType::Bool:   format = VK_FORMAT_R8_UINT;			 size = 1;                  break;
 			}
-			do
-			{
-				VkVertexInputAttributeDescription attribute = {};
-				attribute.binding = 0;
-				attribute.location = location;
-				attribute.format = format;
-				attribute.offset = offset + size;
-				description.m_Attributes.push_back(attribute);
-				++location;
-				--repeats;
-				offset += size;
-			} while (repeats > 0);
+			VkVertexInputAttributeDescription attribute = {};
+			attribute.binding = 0;
+			attribute.location = location;
+			attribute.format = format;
+			attribute.offset = offset + size;
+			description.m_Attributes.push_back(attribute);
+			++location;
+			--repeats;
+			offset += size;
 		}
 
 		return description;

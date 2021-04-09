@@ -14,7 +14,9 @@ namespace pk
 		virtual void Bind() override {};
 		virtual void Unbind() override {};
 
-		
+		VkFramebuffer GetVulkanFramebuffer() { return m_Framebuffer; }
+
+		const VkFramebuffer GetVulkanFramebuffer() const { return m_Framebuffer; }
 
 		virtual void Resize(const uint32_t width, const uint32_t height) override {};
 
@@ -23,6 +25,7 @@ namespace pk
 		virtual const FramebufferSpecification& GetSpecification() const override { return m_Spec; }
 
 	private:
+		uint32_t m_RendererID;
 		FramebufferSpecification m_Spec;
 		VkFramebuffer m_Framebuffer;
 	};

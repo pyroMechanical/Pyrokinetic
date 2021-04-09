@@ -29,11 +29,11 @@ namespace pk
 	{
 		VulkanRenderPass* vkRenderPass = static_cast<VulkanRenderPass*>(renderPass.get());
 
-		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VkFramebuffer& framebuffer)
+		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VulkanFramebuffer& framebuffer)
 			{
 				VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
 
-				auto& clearColor = vkRenderPass->GetSpecification().TargetFramebuffer->GetSpecification().clearColor;
+				auto& clearColor = framebuffer.GetSpecification().renderPass->GetSpecification().clearColor;
 
 				VkClearValue clearValues[2];
 				clearValues[0].color = { {clearColor.r, clearColor.g, clearColor.b, clearColor.a} };
@@ -42,14 +42,14 @@ namespace pk
 				VkRenderPassBeginInfo renderPassBeginInfo = {};
 				renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 				renderPassBeginInfo.pNext = nullptr;
-				renderPassBeginInfo.renderPass = context->GetRenderPass();
+				renderPassBeginInfo.renderPass = vkRenderPass->GetVulkanRenderPass();
 				renderPassBeginInfo.renderArea.offset.x = 0;
 				renderPassBeginInfo.renderArea.offset.y = 0;
-				renderPassBeginInfo.renderArea.extent.width = context->GetWidth();
-				renderPassBeginInfo.renderArea.extent.height = context->GetHeight();
+				renderPassBeginInfo.renderArea.extent.width = context->GetSwapchain().GetWidth();
+				renderPassBeginInfo.renderArea.extent.height = context->GetSwapchain().GetHeight();
 				renderPassBeginInfo.clearValueCount = 2;
 				renderPassBeginInfo.pClearValues = clearValues;
-				renderPassBeginInfo.framebuffer = framebuffer;
+				renderPassBeginInfo.framebuffer = framebuffer.GetVulkanFramebuffer();
 
 				vkCmdBeginRenderPass(drawCommandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 			});
@@ -57,7 +57,7 @@ namespace pk
 
 	void VulkanRenderCommandBuffer::EndRenderPass()
 	{
-		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VkFramebuffer& framebuffer)
+		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VulkanFramebuffer& framebuffer)
 			{
 				//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), drawCommandBuffer);
 
@@ -71,20 +71,20 @@ namespace pk
 	{
 		VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
 
-		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VkFramebuffer& framebuffer)
+		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VulkanFramebuffer& framebuffer)
 			{
 				VkViewport viewport = {};
 				viewport.x = 0;
-				viewport.y = (float)context->GetHeight();
-				viewport.width = (float)context->GetWidth();
-				viewport.height = -(float)context->GetHeight();
+				viewport.y = (float)context->GetSwapchain().GetHeight();
+				viewport.width = (float)context->GetSwapchain().GetWidth();
+				viewport.height = -(float)context->GetSwapchain().GetHeight();
 				viewport.minDepth = (float)0.0f;
 				viewport.maxDepth = (float)1.0f;
 				vkCmdSetViewport(drawCommandBuffer, 0, 1, &viewport);
 
 				VkRect2D scissor = {};
-				scissor.extent.width = context->GetWidth();
-				scissor.extent.height = context->GetHeight();
+				scissor.extent.width = context->GetSwapchain().GetWidth();
+				scissor.extent.height = context->GetSwapchain().GetHeight();
 				scissor.offset.x = 0;
 				scissor.offset.y = 0;
 				vkCmdSetScissor(drawCommandBuffer, 0, 1, &scissor);
@@ -93,8 +93,7 @@ namespace pk
 				VulkanShader* shader = dynamic_cast<VulkanShader*>(vkPipeline->GetSpecification().Shader.get());
 				//vkCmdBindDescriptorSets(drawCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shader->GetPipelineLayout(), 0, 1, &shader->GetDescriptorSet(), 0, nullptr);
 
-				//vkCmdBindPipeline(drawCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->GetVulkanPipeline());
-				vkCmdBindPipeline(drawCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, context->GetPipeline());
+				vkCmdBindPipeline(drawCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->GetVulkanPipeline());
 
 				VkDeviceSize offsets[1] = { 0 };
 				VulkanVertexBuffer* vkVertexBuffer = static_cast<VulkanVertexBuffer*>(vertexBuffer.get());
@@ -116,17 +115,17 @@ namespace pk
 		cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		cmdBeginInfo.pNext = nullptr;
 
-		auto& drawCmdBuffers = context->GetCommandBuffers();
-		auto& framebuffers = context->GetFramebuffers();
+		auto& drawCmdBuffers = context->GetSwapchain().GetCommandBuffers();
+		auto& framebuffers = context->GetSwapchain().GetFramebuffers();
 
 		for (int32_t i = 0; i < drawCmdBuffers.size(); ++i)
 		{
-			CHECK_VULKAN(vkBeginCommandBuffer(drawCmdBuffers[i], &cmdBeginInfo));
+			CHECK_VULKAN(vkBeginCommandBuffer(drawCmdBuffers[i].buffer, &cmdBeginInfo));
 
-			/*for (auto& func : m_Queue)
-				func(drawCmdBuffers[i], framebuffers[i]);*/
+			for (auto& func : m_Queue)
+				func(drawCmdBuffers[i].buffer, framebuffers[i]);
 
-			CHECK_VULKAN(vkEndCommandBuffer(drawCmdBuffers[i]));
+			CHECK_VULKAN(vkEndCommandBuffer(drawCmdBuffers[i].buffer));
 		}
 
 		m_Queue.clear();

@@ -2,7 +2,7 @@
 
 #include "Pyrokinetic/Rendering/RenderCommandBuffer.h"
 
-
+#include "VulkanFramebuffer.h"
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <functional>
@@ -24,6 +24,6 @@ namespace pk
 
 		virtual void Flush() override;
 	private:
-		std::vector<std::function<void(const VkCommandBuffer& drawCommandBuffer, const VkFramebuffer& framebuffer)>> m_Queue;
+		std::vector<std::function<void(const VkCommandBuffer& drawCommandBuffer, const VulkanFramebuffer& framebuffer)>> m_Queue;
 	};
 }

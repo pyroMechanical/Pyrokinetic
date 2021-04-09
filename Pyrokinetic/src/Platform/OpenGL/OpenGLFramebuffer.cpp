@@ -1,5 +1,7 @@
 #include "pkpch.h"
 #include "OpenGLFramebuffer.h"
+#include "OpenGLRenderPass.h"
+#include "Pyrokinetic/Rendering/RenderPass.h"
 
 #include <glad/glad.h>
 
@@ -60,11 +62,11 @@ namespace pk
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, TextureTarget(multisampled), id, 0);
 		}
 
-		static bool IsDepthFormat(FramebufferTextureFormat format)
+		static bool IsDepthFormat(ImageFormat format)
 		{
 			switch (format)
 			{
-			case FramebufferTextureFormat::DEPTH24STENCIL8: return true;
+			case ImageFormat::DEPTH24STENCIL8: return true;
 			}
 
 			return false;
@@ -82,9 +84,11 @@ namespace pk
 	}
 	
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
-		: m_Specification(spec)
+		: m_Spec(spec)
 	{
-		for (auto format : m_Specification.Attachments.Attachments)
+		dynamic_cast<OpenGLRenderPass*>(m_Spec.renderPass.get())->AddFramebuffer(this);
+
+		for (auto format : m_Spec.renderPass->GetSpecification().Attachments.Attachments)
 		{
 			if (!util::IsDepthFormat(format.TextureFormat))
 				m_ColorAttachmentSpecifications.emplace_back(format);
@@ -100,6 +104,7 @@ namespace pk
 		glDeleteFramebuffers(1, &m_RendererID);
 		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
 		glDeleteTextures(1, &m_DepthAttachment);
+		dynamic_cast<OpenGLRenderPass*>(m_Spec.renderPass.get())->RemoveFramebuffer(this);
 	}
 
 	void OpenGLFramebuffer::Rebuild()
@@ -117,7 +122,7 @@ namespace pk
 		glGenFramebuffers(1, &m_RendererID);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
-		bool multisample = m_Specification.samples > 1;
+		bool multisample = m_Spec.renderPass->GetSpecification().samples > 1;
 		
 		if (m_ColorAttachmentSpecifications.size())
 		{
@@ -129,21 +134,21 @@ namespace pk
 				util::BindTexture(multisample, m_ColorAttachments[i]);
 				switch (m_ColorAttachmentSpecifications[i].TextureFormat)
 				{
-					case FramebufferTextureFormat::RGBA8:
-						util::AttachColorTexture(m_ColorAttachments[i], m_Specification.samples, GL_RGBA8, m_Specification.width, m_Specification.height, i);
+					case ImageFormat::RGBA8:
+						util::AttachColorTexture(m_ColorAttachments[i], m_Spec.renderPass->GetSpecification().samples, GL_RGBA8, m_Spec.width, m_Spec.height, i);
 						break;
 				}
 			}
 		}
 
-		if (m_DepthAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None)
+		if (m_DepthAttachmentSpecification.TextureFormat != ImageFormat::None)
 		{
 			util::CreateTextures(multisample, &m_DepthAttachment, 1);
 			util::BindTexture(multisample, m_DepthAttachment);
 			switch (m_DepthAttachmentSpecification.TextureFormat)
 			{
-				case FramebufferTextureFormat::DEPTH24STENCIL8:
-					util::AttachDepthTexture(m_DepthAttachment, m_Specification.samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.width, m_Specification.height);
+				case ImageFormat::DEPTH24STENCIL8:
+					util::AttachDepthTexture(m_DepthAttachment, m_Spec.renderPass->GetSpecification().samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Spec.width, m_Spec.height);
 					break;
 			}
 		}
@@ -167,7 +172,7 @@ namespace pk
 	void OpenGLFramebuffer::Bind()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-		glViewport(0, 0, m_Specification.width, m_Specification.height);
+		glViewport(0, 0, m_Spec.width, m_Spec.height);
 	}
 
 	void OpenGLFramebuffer::Unbind()
@@ -177,8 +182,8 @@ namespace pk
 
 	void OpenGLFramebuffer::Resize(const uint32_t width, const uint32_t height)
 	{
-		m_Specification.width = width;
-		m_Specification.height = height;
+		m_Spec.width = width;
+		m_Spec.height = height;
 		Rebuild();
 	}
 

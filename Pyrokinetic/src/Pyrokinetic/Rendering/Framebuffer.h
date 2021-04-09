@@ -1,51 +1,14 @@
 #pragma once
 
-
-#include <glm/glm.hpp>
+#include "RenderPass.h"
 
 namespace pk
 {
-	enum class FramebufferTextureFormat
-	{
-		None = 0,
-
-		// color formats
-		RGBA8,
-
-		// depth formats
-		DEPTH24STENCIL8,
-		DEPTH32,
-
-		//defaults
-		Depth = DEPTH24STENCIL8
-	};
-
-	struct FramebufferTextureSpecification
-	{
-		FramebufferTextureSpecification() = default;
-		FramebufferTextureSpecification(FramebufferTextureFormat format)
-			: TextureFormat(format) {}
-
-		FramebufferTextureFormat TextureFormat = FramebufferTextureFormat::None;
-
-		//add filtering/wrapping vars
-	};
-
-	struct FramebufferAttachmentSpecification
-	{
-		FramebufferAttachmentSpecification() = default;
-		FramebufferAttachmentSpecification(const std::initializer_list<FramebufferTextureSpecification> attachments)
-			: Attachments(attachments) {}
-		std::vector<FramebufferTextureSpecification> Attachments;
-	};
 
 	struct FramebufferSpecification
 	{
 		uint32_t width, height;
-		FramebufferAttachmentSpecification Attachments;
-		uint32_t samples = 1;
-		glm::vec4 clearColor;
-
+		std::shared_ptr<RenderPass> renderPass;
 		bool SwapchainTarget = false;
 	};
 

@@ -1,6 +1,5 @@
 #pragma once
 #include "Pyrokinetic/Rendering/RendererAPI.h"
-#include "Pyrokinetic/Rendering/GraphicsContext.h"
 #include "Platform/Vulkan/VulkanContext.h"
 #include "Pyrokinetic/Core/Window.h"
 

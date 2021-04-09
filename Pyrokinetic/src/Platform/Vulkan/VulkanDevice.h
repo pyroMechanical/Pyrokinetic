@@ -1,33 +1,23 @@
 #pragma once
 #include <vulkan/vulkan.h>
+#include "VkBootstrap.h"
 
 namespace pk
 {
 	class VulkanPhysicalDevice
 	{
 	public:
-		struct QueueFamilyIndices
-		{
-			int32_t Graphics = -1;
-			int32_t Compute = -1;
-			int32_t Transfer = -1;
-		};
 	public:
 		VulkanPhysicalDevice(VkSurfaceKHR surface);
 		~VulkanPhysicalDevice();
 
-		bool IsExtensionSupported(const std::string& extensionName) const;
-
 		VkPhysicalDevice GetVulkanPhysicalDevice() const { return m_PhysicalDevice.physical_device; }
-		const QueueFamilyIndices& GetQueueFamilyIndices() const { return m_QueueFamilyIndices; }
-
+		
 		VkFormat GetDepthFormat() const { return m_DepthFormat; }
 
 	private:
 		VkFormat FindDepthFormat() const;
-		QueueFamilyIndices GetQueueFamilyIndices(int queueFlags);
 	private:
-		QueueFamilyIndices m_QueueFamilyIndices;
 
 		vkb::PhysicalDevice m_PhysicalDevice;
 
@@ -42,6 +32,13 @@ namespace pk
 	class VulkanDevice
 	{
 	public:
+		struct VulkanCommandBuffer
+		{
+			VkCommandBuffer buffer;
+			VkQueue& queue;
+			VkCommandPool& pool;
+		};
+	public:
 		VulkanDevice(const std::shared_ptr<VulkanPhysicalDevice>& physicalDevice);
 		~VulkanDevice();
 		
@@ -51,8 +48,11 @@ namespace pk
 		VkQueue GetGraphicsQueue() { return m_GraphicsQueue; }
 		VkQueue GetComputeQueue() { return m_ComputeQueue; }
 
-		VkCommandBuffer GetCommandBuffer(bool begin, bool compute = false);
+		VulkanCommandBuffer GetCommandBuffer(bool begin, bool compute = false);
 		
+		void EndCommandBuffer(VulkanCommandBuffer& buffer, bool flush = false);
+
+		void FlushCommandBuffer(VulkanCommandBuffer buffer);
 
 		const std::shared_ptr<VulkanPhysicalDevice>& GetPhysicalDevice() const { return m_PhysicalDevice; }
 
@@ -61,7 +61,7 @@ namespace pk
 		vkb::Device m_LogicalDevice;
 		std::shared_ptr<VulkanPhysicalDevice> m_PhysicalDevice;
 		VkPhysicalDeviceFeatures m_EnabledFeatures;
-		VkCommandPool m_RenderCommandPool, m_ComputeCommandPool, m_ImmediateCommandPool;
+		VkCommandPool m_GraphicsCommandPool, m_ComputeCommandPool;
 
 		uint32_t m_GraphicsQueueFamily, m_ComputeQueueFamily;
 		VkQueue m_GraphicsQueue;

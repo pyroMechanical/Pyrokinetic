@@ -1,13 +1,50 @@
 #pragma once
-#include "Framebuffer.h"
 
+#include <glm/glm.hpp>
 #include <memory>
+#include <unordered_set>
 
 namespace pk
 {
+	enum class ImageFormat
+	{
+		None = 0,
+
+		// color formats
+		RGBA8,
+
+		// depth formats
+		DEPTH24STENCIL8,
+		DEPTH32,
+
+		//defaults
+		Depth = DEPTH24STENCIL8
+	};
+
+	struct FramebufferTextureSpecification
+	{
+		FramebufferTextureSpecification() = default;
+		FramebufferTextureSpecification(ImageFormat format)
+			: TextureFormat(format) {}
+
+		ImageFormat TextureFormat = ImageFormat::None;
+
+		//add filtering/wrapping vars
+	};
+
+	struct FramebufferAttachmentSpecification
+	{
+		FramebufferAttachmentSpecification() = default;
+		FramebufferAttachmentSpecification(const std::initializer_list<FramebufferTextureSpecification> attachments)
+			: Attachments(attachments) {}
+		std::vector<FramebufferTextureSpecification> Attachments;
+	};
+
 	struct RenderPassSpecification
 	{
-		std::shared_ptr<Framebuffer> TargetFramebuffer;
+		FramebufferAttachmentSpecification Attachments;
+		uint32_t samples = 1;
+		glm::vec4 clearColor;
 	};
 
 	class RenderPass

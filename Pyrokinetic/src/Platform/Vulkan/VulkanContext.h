@@ -6,7 +6,6 @@
 #include "VulkanPipeline.h"
 #include "VkTypes.h"
 #include "VkBootstrap.h"
-#include "Pyrokinetic/Rendering/Renderer.h"
 #include <vulkan/vulkan.h>
 #include <deque>
 struct GLFWwindow;
@@ -68,9 +67,9 @@ namespace pk
 		VulkanContext(GLFWwindow* windowHandle);
 
 		virtual void Init() override;
-		virtual void SwapBuffers() override;
-		virtual void SetVSync(bool enabled) override;
-		void SetViewport(VkExtent2D extent);
+		virtual void SwapBuffers() override {};
+		virtual void SetVSync(bool enabled) override {};
+		void SetViewport(VkExtent2D extent){};
 
 		//FrameData& GetCurrentFrame(unsigned int currentFrame) { return frameData[currentFrame % FRAME_OVERLAP]; };
 
@@ -79,6 +78,8 @@ namespace pk
 		InitInfo CreateImGuiImplInfo();
 
 		std::shared_ptr<VulkanDevice> GetDevice() { return m_Device; }
+
+		VulkanSwapchain GetSwapchain() { return m_Swapchain; }
 
 		static vkb::Instance GetVkbInstance() { return m_Instance; }
 		static VkInstance GetVulkanInstance() { return m_Instance.instance; }

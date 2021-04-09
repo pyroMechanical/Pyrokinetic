@@ -60,7 +60,6 @@ namespace pk
 	{
 		PROFILE_FUNCTION();
 
-
 		s_Data.quadVertexBuffer = VertexBuffer::Create(s_Data.maxVertices * sizeof(QuadVertex));
 		BufferLayout quadVBLayout = {
 			{ ShaderDataType::Float3, "a_Position" },

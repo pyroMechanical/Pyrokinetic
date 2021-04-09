@@ -72,12 +72,12 @@ namespace pk
 			VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
 			ImGui_ImplVulkan_InitInfo* info = (ImGui_ImplVulkan_InitInfo*) &(context->CreateImGuiImplInfo());
 			ImGui_ImplGlfw_InitForVulkan(window, true);
-			ImGui_ImplVulkan_Init(info, context->GetRenderPass());
+			ImGui_ImplVulkan_Init(info, context->GetSwapchain().GetRenderPass());
 			
 			
-			auto cmd = context->BeginImmediateExecute();
-			ImGui_ImplVulkan_CreateFontsTexture(cmd);
-			context->EndImmediateExecute(cmd);
+			auto cmd = context->GetDevice()->GetCommandBuffer(true);
+			ImGui_ImplVulkan_CreateFontsTexture(cmd.buffer);
+			context->GetDevice()->EndCommandBuffer(cmd, true);
 
 			//clear font textures from cpu data
 			ImGui_ImplVulkan_DestroyFontUploadObjects();
@@ -149,26 +149,28 @@ namespace pk
 		ImDrawData* drawData = ImGui::GetDrawData();
 		if (RendererAPI::GetAPI() == RendererAPI::API::Vulkan)
 		{
+			
+
 			VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
-			auto cmd = context->BeginImmediateExecute();
+			auto cmd = context->GetDevice()->GetCommandBuffer(true);
 			VkClearValue clearValue;
 			clearValue.color = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 			VkRenderPassBeginInfo renderPassBeginInfo = {};
 			renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			renderPassBeginInfo.pNext = nullptr;
-			renderPassBeginInfo.renderPass = context->GetRenderPass();
+			renderPassBeginInfo.renderPass = context->GetSwapchain().GetRenderPass();
 			renderPassBeginInfo.renderArea.offset.x = 0;
 			renderPassBeginInfo.renderArea.offset.y = 0;
-			renderPassBeginInfo.renderArea.extent.width = context->GetWidth();
-			renderPassBeginInfo.renderArea.extent.height = context->GetHeight();
+			renderPassBeginInfo.renderArea.extent.width = context->GetSwapchain().GetWidth();
+			renderPassBeginInfo.renderArea.extent.height = context->GetSwapchain().GetHeight();
 			renderPassBeginInfo.clearValueCount = 1;
 			renderPassBeginInfo.pClearValues = &clearValue;
-			renderPassBeginInfo.framebuffer = context->GetCurrentFramebuffer();
-			vkCmdBeginRenderPass(cmd, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-			ImGui_ImplVulkan_RenderDrawData(drawData, cmd);
-			vkCmdEndRenderPass(cmd);
-			context->EndImmediateExecute(cmd);
+			renderPassBeginInfo.framebuffer = context->GetSwapchain().GetCurrentFramebuffer().GetVulkanFramebuffer();
+			vkCmdBeginRenderPass(cmd.buffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+			ImGui_ImplVulkan_RenderDrawData(drawData, cmd.buffer);
+			vkCmdEndRenderPass(cmd.buffer);
+			context->GetDevice()->EndCommandBuffer(cmd, true);
 		}
 		else if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
 		{

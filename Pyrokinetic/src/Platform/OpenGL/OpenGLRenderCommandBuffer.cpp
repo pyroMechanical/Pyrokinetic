@@ -23,11 +23,11 @@ namespace pk
 
 	void OpenGLRenderCommandBuffer::BeginRenderPass(const std::shared_ptr<RenderPass>& renderPass)
 	{
-		
-		m_Queue.push_back([=]()
+		m_RenderPasses.push_back(dynamic_cast<OpenGLRenderPass*>(renderPass.get()));
+		m_Queue.push_back([=](OpenGLFramebuffer& framebuffer)
 		{
-			renderPass->GetSpecification().TargetFramebuffer->Bind();
-			auto& clearColor = renderPass->GetSpecification().TargetFramebuffer->GetSpecification().clearColor;
+			framebuffer.Bind();
+			auto& clearColor = renderPass->GetSpecification().clearColor;
 			glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		});
@@ -35,7 +35,7 @@ namespace pk
 
 	void OpenGLRenderCommandBuffer::EndRenderPass()
 	{
-		m_Queue.push_back([=]()
+		m_Queue.push_back([=](OpenGLFramebuffer& framebuffer)
 			{
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			});
@@ -48,7 +48,7 @@ namespace pk
 		OpenGLVertexBuffer* glVertexBuffer = static_cast<OpenGLVertexBuffer*>(vertexBuffer.get());
 		OpenGLIndexBuffer* glIndexBuffer = static_cast<OpenGLIndexBuffer*>(indexBuffer.get());
 
-		m_Queue.push_back([=]()
+		m_Queue.push_back([=](OpenGLFramebuffer& framebuffer)
 			{
 				glUseProgram(glShader->GetRendererID());
 				const auto& texture = glShader->GetTexture();
@@ -78,9 +78,12 @@ namespace pk
 
 	void OpenGLRenderCommandBuffer::Flush()
 	{
-		for (auto& func : m_Queue)
-			func();
+		for(auto renderPass : m_RenderPasses)
+			for(auto framebuffer : renderPass->GetFramebuffers())
+				for (auto& func : m_Queue)
+					func(*framebuffer);
 
 		m_Queue.clear();
+		m_RenderPasses.clear();
 	}
 }

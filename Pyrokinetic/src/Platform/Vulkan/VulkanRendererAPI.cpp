@@ -5,8 +5,6 @@
 
 namespace pk
 {
-
-
 	void VulkanRendererAPI::Init()
 	{
 		PROFILE_FUNCTION();
@@ -25,33 +23,31 @@ namespace pk
 
 		VkClearValue clearValue;
 		clearValue.color = { color.r, color.g, color.b, color.a };
-		m_Context->clearValue = clearValue;
+		//m_Context->clearValue = clearValue;
 	}
 
 	void VulkanRendererAPI::Clear()
 	{
 		PROFILE_FUNCTION();
 
-		FrameData currentFrame = m_Context->GetCurrentFrame(m_Context->frameNumber);
-
-		VkRenderPassBeginInfo rpInfo = {};
+		/*VkRenderPassBeginInfo rpInfo = {};
 		rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		rpInfo.pNext = nullptr;
-		rpInfo.renderPass = m_Context->renderPass;
+		rpInfo.renderPass = m_Context->GetSwapchain().GetRenderPass();
 		rpInfo.renderArea.offset.x = 0;
 		rpInfo.renderArea.offset.y = 0;
-		rpInfo.renderArea.extent = m_Context->windowExtent;
+		rpInfo.renderArea.extent = m_Context->GetSwapchain().GetExtent();
 		rpInfo.framebuffer = m_Context->framebuffers[m_Context->frameNumber % FRAME_OVERLAP];
 		rpInfo.clearValueCount = 1;
-		rpInfo.pClearValues = &m_Context->clearValue;
+		rpInfo.pClearValues = &m_Context->GetSwapchain().GetClearValue();
 
 		vkCmdBeginRenderPass(currentFrame.mainCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdEndRenderPass(currentFrame.mainCommandBuffer);
+		vkCmdEndRenderPass(currentFrame.mainCommandBuffer);*/
 	}
 
 	void VulkanRendererAPI::Begin()
 	{
-		FrameData currentFrame = m_Context->GetCurrentFrame(m_Context->frameNumber);
+		/*FrameData currentFrame = m_Context->GetCurrentFrame(m_Context->frameNumber);
 
 		CHECK_VULKAN(vkResetCommandBuffer(currentFrame.mainCommandBuffer, 0));
 		VkCommandBufferBeginInfo cmdBeginInfo = {};
@@ -59,14 +55,14 @@ namespace pk
 		cmdBeginInfo.pNext = nullptr;
 		cmdBeginInfo.pInheritanceInfo = nullptr;
 		cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		CHECK_VULKAN(vkBeginCommandBuffer(currentFrame.mainCommandBuffer, &cmdBeginInfo));
+		CHECK_VULKAN(vkBeginCommandBuffer(currentFrame.mainCommandBuffer, &cmdBeginInfo));*/
 	}
 
 	void VulkanRendererAPI::End()
 	{
-		FrameData currentFrame = m_Context->GetCurrentFrame(m_Context->frameNumber);
+		/*FrameData currentFrame = m_Context->GetCurrentFrame(m_Context->frameNumber);
 
-		CHECK_VULKAN(vkEndCommandBuffer(currentFrame.mainCommandBuffer));
+		CHECK_VULKAN(vkEndCommandBuffer(currentFrame.mainCommandBuffer));*/
 	}
 
 	/*void VulkanRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount)

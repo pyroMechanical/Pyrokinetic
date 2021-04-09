@@ -5,6 +5,7 @@
 #include <functional>
 
 #include "OpenGLRenderPass.h"
+#include "OpenGLFramebuffer.h"
 
 namespace pk
 {
@@ -24,8 +25,8 @@ namespace pk
 		virtual void Flush() override;
 
 	private:
-		std::vector<std::function<void()>> m_Queue;
+		std::vector<std::function<void(OpenGLFramebuffer&)>> m_Queue;
 
-		OpenGLRenderPass* m_RenderPass = nullptr;
+		std::vector<OpenGLRenderPass*> m_RenderPasses;
 	};
 }

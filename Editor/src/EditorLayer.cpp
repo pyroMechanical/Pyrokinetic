@@ -24,19 +24,19 @@ namespace pk
 		m_StairSprite = SubTexture2D::CreateFromCoordinates(m_Spritesheet, { 1, 3 }, { 128, 128 }, { 1, 1 });
 		m_LargeTree = SubTexture2D::CreateFromCoordinates(m_Spritesheet, { 1, 1 }, { 128, 128 }, { 1, 2 });
 
+		RenderPassSpecification renderPassSpec;
+		renderPassSpec.Attachments = { ImageFormat::RGBA8, ImageFormat::Depth };
+		renderPassSpec.clearColor = glm::vec4{ 0.1f, 0.1f, 0.1f, 1.0f };
+		m_RenderPass = RenderPass::Create(renderPassSpec);
+
 		FramebufferSpecification spec;
-		spec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };
 		spec.width = 1280;
 		spec.height = 720;
-		spec.clearColor = glm::vec4{ 0.1f, 0.1f, 0.1f, 1.0f };
+		spec.renderPass = m_RenderPass;
 
 		m_Framebuffer = Framebuffer::Create(spec);
 
 		m_ViewportSize = { spec.width, spec.height };
-
-		RenderPassSpecification renderPassSpec;
-		renderPassSpec.TargetFramebuffer = m_Framebuffer;
-		m_RenderPass = RenderPass::Create(renderPassSpec);
 
 		m_ActiveScene = std::make_shared<Scene>();
 

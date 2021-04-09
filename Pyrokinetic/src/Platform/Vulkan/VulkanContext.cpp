@@ -2,7 +2,6 @@
 #include "VulkanContext.h"
 #include "VulkanPipelineBuilder.h"
 #include "Pyrokinetic/Rendering/RenderCommand.h"
-#include "VulkanInitializer.h"
 #include "VkBootstrap.h"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -64,11 +63,9 @@ namespace pk
 		m_Instance = vkb_instance;
 		m_DebugMessenger = vkb_instance.debug_messenger;
 
-		VkSurfaceKHR surface;
-
 		m_Swapchain.CreateSurface();
 
-		m_PhysicalDevice = std::make_shared<VulkanPhysicalDevice>();
+		m_PhysicalDevice = std::make_shared<VulkanPhysicalDevice>(m_Swapchain.GetVulkanSurface());
 		
 		m_Device = std::make_shared<VulkanDevice>(m_PhysicalDevice);
 
@@ -87,6 +84,32 @@ namespace pk
 	//this is for Dear ImGui integration
 	InitInfo VulkanContext::CreateImGuiImplInfo()
 	{
+		VkDescriptorPoolSize pool_sizes[] =
+		{
+			{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+		};
+
+		VkDescriptorPoolCreateInfo pool_info = {};
+		pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+		pool_info.maxSets = 1000;
+		pool_info.poolSizeCount = std::size(pool_sizes);
+		pool_info.pPoolSizes = pool_sizes;
+
+		VkDescriptorPool imguiPool;
+		CHECK_VULKAN(vkCreateDescriptorPool(m_Device->GetVulkanDevice(), &pool_info, nullptr, &imguiPool));
+
+
 		InitInfo info{};
 		info.Instance = m_Instance.instance;
 		info.PhysicalDevice = m_PhysicalDevice->GetVulkanPhysicalDevice();
@@ -94,7 +117,7 @@ namespace pk
 		info.QueueFamily = m_Device->GetGraphicsQueueFamily();
 		info.Queue = m_Device->GetGraphicsQueue();
 		info.PipelineCache = VK_NULL_HANDLE;
-		info.DescriptorPool = descriptorPool;
+		info.DescriptorPool = imguiPool;
 		info.Subpass = 0;
 		info.MinImageCount = FRAME_OVERLAP;
 		info.ImageCount = FRAME_OVERLAP;
