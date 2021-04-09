@@ -7,6 +7,8 @@
 
 #include "Pyrokinetic/Rendering/Renderer.h"
 
+#include "Pyrokinetic/Rendering/WindowIcon.h"
+
 namespace pk
 {
 	static bool s_GLFWInitialized = false;
@@ -54,6 +56,8 @@ namespace pk
 		m_Context = Renderer::GetContext();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
+
+		glfwSetWindowIcon(m_Window, 1, &CreateIcon("assets/textures/pkicon.png"));
 		//SetVSync(true);
 
 		// Set GLFW callbacks
