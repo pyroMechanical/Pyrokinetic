@@ -19,7 +19,7 @@ namespace pk
 		glfwGetWindowSize(m_Window, &width, &height);
 		m_Extent = { (uint32_t)width, (uint32_t)height };
 
-		vkb::Swapchain vkb_swapchain = builder.use_default_format_selection()
+		vkb::Swapchain vkb_swapchain = builder.set_desired_format({ VK_FORMAT_R8G8B8A8_UNORM, VK_COLORSPACE_SRGB_NONLINEAR_KHR })
 			.set_image_usage_flags(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT)
 			.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR) //change this in future to change with VSync!
 			.set_desired_extent(m_Extent.width, m_Extent.height)
@@ -30,5 +30,16 @@ namespace pk
 		m_SwapchainImages = vkb_swapchain.get_images().value();
 		m_SwapchainImageViews = vkb_swapchain.get_image_views().value();
 		m_SwapchainImageFormat = vkb_swapchain.image_format;
+	}
+
+	void VulkanSwapchain::CreateFramebuffers(const FramebufferSpecification& spec)
+	{
+		VulkanDevice* device = VulkanContext::Get()->GetDevice().get();
+
+		for (size_t i = 0; i < m_SwapchainImageViews.size(); i++)
+		{
+			m_Framebuffers.push_back(VulkanFramebuffer(spec, m_SwapchainImages[i], m_SwapchainImageViews[i]));
+			m_FrameCommandBuffers.push_back(device->GetCommandBuffer(false, false));
+		}
 	}
 }

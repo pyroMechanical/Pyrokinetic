@@ -73,6 +73,8 @@ namespace pk
 
 		//FrameData& GetCurrentFrame(unsigned int currentFrame) { return frameData[currentFrame % FRAME_OVERLAP]; };
 
+		static VulkanContext* Get() { return s_Context; }
+
 		VmaAllocator* GetAllocator() { return &m_Allocator; }
 
 		InitInfo CreateImGuiImplInfo();
@@ -92,6 +94,8 @@ namespace pk
 		std::shared_ptr<VulkanDevice> m_Device;
 
 		DeletionQueue m_MainDeletionQueue;
+
+		inline static VulkanContext* s_Context;
 
 		inline static vkb::Instance m_Instance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;

@@ -27,7 +27,7 @@ namespace pk
 
 	Application* CreateApplication()
 	{
-		RendererAPI::SetAPI(RendererAPI::API::OpenGL);
+		RendererAPI::SetAPI(RendererAPI::API::Vulkan);
 		return new Editor();
 	}
 }

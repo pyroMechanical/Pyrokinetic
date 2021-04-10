@@ -57,7 +57,7 @@ namespace pk
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 
-		glfwSetWindowIcon(m_Window, 1, &CreateIcon("assets/textures/pkicon.png"));
+		//glfwSetWindowIcon(m_Window, 1, &CreateIcon("assets/textures/pkicon.png"));
 		//SetVSync(true);
 
 		// Set GLFW callbacks

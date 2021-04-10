@@ -10,6 +10,7 @@ namespace pk
 	{
 	public:
 		VulkanRenderPass(const RenderPassSpecification& spec);
+		VulkanRenderPass();
 		virtual ~VulkanRenderPass() override;
 
 		virtual RenderPassSpecification GetSpecification() const override { return m_Spec; }
@@ -24,6 +25,9 @@ namespace pk
 	private:
 		RenderPassSpecification m_Spec;
 		VkRenderPass m_RenderPass;
+		VkFormat m_Format;
 		std::unordered_set<VulkanFramebuffer*> m_Framebuffers;
+		std::vector<FramebufferTextureSpecification> m_ColorSpecifications;
+		FramebufferTextureSpecification m_DepthSpecification;
 	};
 }

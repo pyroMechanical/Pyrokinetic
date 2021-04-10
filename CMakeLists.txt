@@ -89,7 +89,7 @@ target_compile_options(Pyrokinetic PUBLIC ${Vulkan_CFLAGS_OTHER})
 #target_link_libraries(Pyrokinetic PUBLIC VMA)
 #target_compile_options(Pyrokinetic PUBLIC -DVMA_IMPLEMENTATION)
 
-file(GLOB_RECURSE editor_sources RELATIVE ${PROJECT_SOURCE_DIR} "Editor/src/*.cpp" "Editor/src/*.h")
+file(GLOB_RECURSE editor_sources RELATIVE ${PROJECT_SOURCE_DIR} "Editor/src/*.cpp" "Editor/src/*.h" "Editor/src/*.rc")
 add_executable(Editor ${editor_sources})
 
 foreach(_source IN ITEMS ${editor_sources})

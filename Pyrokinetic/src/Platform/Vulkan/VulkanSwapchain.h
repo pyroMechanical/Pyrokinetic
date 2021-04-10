@@ -14,7 +14,6 @@ namespace pk
 			: m_Window(window) {}
 		void CreateSurface();
 		void CreateSwapchain(const std::shared_ptr<VulkanDevice>& device);
-		void CreateRenderPass(const RenderPassSpecification& spec);
 		void CreateFramebuffers(const FramebufferSpecification& spec);
 
 		const VkSurfaceKHR& GetVulkanSurface() const { return m_Surface; }
@@ -24,7 +23,7 @@ namespace pk
 		VkExtent2D GetExtent() { return m_Extent; }
 		VkFormat GetSwapchainImageFormat() { return m_SwapchainImageFormat; }
 
-		VkRenderPass GetRenderPass() { return m_RenderPass; }
+		VulkanRenderPass* GetRenderPass() { return m_RenderPass.get(); }
 		VkClearValue GetClearValue() { return m_ClearValue; }
 		VulkanFramebuffer GetCurrentFramebuffer() { return m_Framebuffers[m_CurrentFramebuffer]; }
 		std::vector<VulkanFramebuffer>& GetFramebuffers() { return m_Framebuffers; }
@@ -35,7 +34,7 @@ namespace pk
 		VkSurfaceKHR m_Surface = nullptr;
 		VkSwapchainKHR m_Swapchain;
 
-		VkRenderPass m_RenderPass;
+		std::shared_ptr<VulkanRenderPass> m_RenderPass = nullptr;
 		VkClearValue m_ClearValue;
 
 		VkExtent2D m_Extent;

@@ -72,7 +72,7 @@ namespace pk
 			VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
 			ImGui_ImplVulkan_InitInfo* info = (ImGui_ImplVulkan_InitInfo*) &(context->CreateImGuiImplInfo());
 			ImGui_ImplGlfw_InitForVulkan(window, true);
-			ImGui_ImplVulkan_Init(info, context->GetSwapchain().GetRenderPass());
+			ImGui_ImplVulkan_Init(info, context->GetSwapchain().GetRenderPass()->GetVulkanRenderPass());
 			
 			
 			auto cmd = context->GetDevice()->GetCommandBuffer(true);
@@ -149,8 +149,6 @@ namespace pk
 		ImDrawData* drawData = ImGui::GetDrawData();
 		if (RendererAPI::GetAPI() == RendererAPI::API::Vulkan)
 		{
-			
-
 			VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
 			auto cmd = context->GetDevice()->GetCommandBuffer(true);
 			VkClearValue clearValue;
@@ -159,7 +157,7 @@ namespace pk
 			VkRenderPassBeginInfo renderPassBeginInfo = {};
 			renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			renderPassBeginInfo.pNext = nullptr;
-			renderPassBeginInfo.renderPass = context->GetSwapchain().GetRenderPass();
+			renderPassBeginInfo.renderPass = context->GetSwapchain().GetRenderPass()->GetVulkanRenderPass();
 			renderPassBeginInfo.renderArea.offset.x = 0;
 			renderPassBeginInfo.renderArea.offset.y = 0;
 			renderPassBeginInfo.renderArea.extent.width = context->GetSwapchain().GetWidth();

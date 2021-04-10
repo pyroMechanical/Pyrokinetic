@@ -9,6 +9,7 @@ namespace pk
 	{
 	public:
 		VulkanFramebuffer(const FramebufferSpecification& spec);
+		VulkanFramebuffer(const FramebufferSpecification& spec, VkImage image, VkImageView imageView);
 		virtual ~VulkanFramebuffer() override;
 
 		virtual void Bind() override {};
@@ -27,6 +28,8 @@ namespace pk
 	private:
 		uint32_t m_RendererID;
 		FramebufferSpecification m_Spec;
+		VkImage m_Image;
+		VkImageView m_ImageView;
 		VkFramebuffer m_Framebuffer;
 	};
 }

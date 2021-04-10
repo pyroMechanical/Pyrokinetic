@@ -18,6 +18,7 @@ namespace pk
 		: m_WindowHandle(windowHandle)
 	{
 		PK_CORE_ASSERT(m_WindowHandle, "Handle is null!");
+		s_Context = this;
 	}
 
 	void VulkanContext::Init()
@@ -66,16 +67,33 @@ namespace pk
 		m_Swapchain.CreateSurface();
 
 		m_PhysicalDevice = std::make_shared<VulkanPhysicalDevice>(m_Swapchain.GetVulkanSurface());
-		
+
 		m_Device = std::make_shared<VulkanDevice>(m_PhysicalDevice);
 
+		m_Swapchain.CreateSwapchain(m_Device);
 
+		RenderPassSpecification renderPassSpec = {};
+		renderPassSpec.samples = 1;
+		renderPassSpec.clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		renderPassSpec.Attachments = { ImageFormat::RGBA8 };
+
+		auto renderPass = RenderPass::Create(renderPassSpec);
+
+		FramebufferSpecification framebufferSpec = {};
+		framebufferSpec.renderPass = renderPass;
+		framebufferSpec.width = 1280;
+		framebufferSpec.height = 720;
+		framebufferSpec.SwapchainTarget = true;
+
+		m_Swapchain.CreateFramebuffers(framebufferSpec);
 
 		VmaAllocatorCreateInfo allocatorInfo = {};
 		allocatorInfo.physicalDevice = m_PhysicalDevice->GetVulkanPhysicalDevice();
 		allocatorInfo.device = m_Device->GetVulkanDevice();
 		allocatorInfo.instance = m_Instance.instance;
 		vmaCreateAllocator(&allocatorInfo, &m_Allocator);
+
+
 	}
 
 
