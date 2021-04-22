@@ -65,13 +65,12 @@ namespace pk
 
 	public:
 		VulkanContext(GLFWwindow* windowHandle);
+		~VulkanContext();
 
 		virtual void Init() override;
-		virtual void SwapBuffers() override {};
+		virtual void SwapBuffers() override;
 		virtual void SetVSync(bool enabled) override {};
 		void SetViewport(VkExtent2D extent){};
-
-		//FrameData& GetCurrentFrame(unsigned int currentFrame) { return frameData[currentFrame % FRAME_OVERLAP]; };
 
 		static VulkanContext* Get() { return s_Context; }
 
@@ -85,6 +84,8 @@ namespace pk
 
 		static vkb::Instance GetVkbInstance() { return m_Instance; }
 		static VkInstance GetVulkanInstance() { return m_Instance.instance; }
+
+		VkDescriptorSetLayout* GetDescriptorSetLayout() { return &m_GlobalDescriptorLayout; }
 
 	private:
 
@@ -103,5 +104,8 @@ namespace pk
 		
 		VmaAllocator m_Allocator;
 		VulkanSwapchain m_Swapchain{ m_WindowHandle };
+
+		VkDescriptorSetLayout m_GlobalDescriptorLayout;
+		VkDescriptorPool m_DescriptorPool;
 	};
 }

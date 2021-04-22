@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderPass.h"
+#include "imgui.h"
 
 namespace pk
 {
@@ -22,7 +23,7 @@ namespace pk
 
 		virtual void Resize(const uint32_t width, const uint32_t height) = 0;
 
-		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
+		virtual void* GetColorAttachment(uint32_t index = 0) const = 0;
 
 		virtual const FramebufferSpecification& GetSpecification() const = 0;
 		//REMINDER: set spec/rebuild

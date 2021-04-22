@@ -12,6 +12,8 @@
 
 #include "RenderCommandBuffer.h"
 
+#include <unordered_map>
+
 namespace pk
 {
 
@@ -37,6 +39,9 @@ namespace pk
 		static GraphicsContext* GetContext() { return s_Context; }
 
 		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+		
+		static void AddRenderPass(const std::string& name, std::shared_ptr<RenderPass> renderPass) { s_RenderPasses.insert(std::pair<std::string, std::shared_ptr<RenderPass>>(name, renderPass)); }
+		static std::shared_ptr<RenderPass> GetRenderPass(const std::string& name) { return s_RenderPasses.at(name); }
 
 	private:
 		struct SceneData
@@ -49,5 +54,7 @@ namespace pk
 		inline static GraphicsContext* s_Context;
 
 		inline static std::shared_ptr<RenderCommandBuffer> s_RenderCommandBuffer;
+
+		inline static std::unordered_map <std::string, std::shared_ptr<RenderPass>> s_RenderPasses;
 	};
 }

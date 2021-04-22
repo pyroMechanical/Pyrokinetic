@@ -24,10 +24,7 @@ namespace pk
 		m_StairSprite = SubTexture2D::CreateFromCoordinates(m_Spritesheet, { 1, 3 }, { 128, 128 }, { 1, 1 });
 		m_LargeTree = SubTexture2D::CreateFromCoordinates(m_Spritesheet, { 1, 1 }, { 128, 128 }, { 1, 2 });
 
-		RenderPassSpecification renderPassSpec;
-		renderPassSpec.Attachments = { ImageFormat::RGBA8, ImageFormat::Depth };
-		renderPassSpec.clearColor = glm::vec4{ 0.1f, 0.1f, 0.1f, 1.0f };
-		m_RenderPass = RenderPass::Create(renderPassSpec);
+		m_RenderPass = Renderer::GetRenderPass("SceneView");
 
 		FramebufferSpecification spec;
 		spec.width = 1280;
@@ -166,8 +163,7 @@ namespace pk
 			m_ViewportSize = viewportPanelSize;
 		}
 
-		uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);
-		ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+		ImGui::Image(m_Framebuffer->GetColorAttachment(0), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 		ImGui::End();
 		ImGui::PopStyleVar(ImGuiStyleVar_WindowPadding);
 

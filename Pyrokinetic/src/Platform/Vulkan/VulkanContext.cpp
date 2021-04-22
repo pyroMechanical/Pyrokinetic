@@ -14,11 +14,17 @@
 namespace pk 
 {
 
-	VulkanContext::VulkanContext(GLFWwindow* windowHandle) 
+	VulkanContext::VulkanContext(GLFWwindow* windowHandle)
 		: m_WindowHandle(windowHandle)
 	{
 		PK_CORE_ASSERT(m_WindowHandle, "Handle is null!");
 		s_Context = this;
+	}
+
+	VulkanContext::~VulkanContext()
+	{
+		m_Swapchain.DestroyFramebuffers();
+		//vmaDestroyAllocator(m_Allocator);
 	}
 
 	void VulkanContext::Init()
@@ -74,7 +80,7 @@ namespace pk
 
 		RenderPassSpecification renderPassSpec = {};
 		renderPassSpec.samples = 1;
-		renderPassSpec.clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		renderPassSpec.clearColor = { 0.5f, 0.0f, 0.0f, 1.0f };
 		renderPassSpec.Attachments = { ImageFormat::RGBA8 };
 
 		auto renderPass = RenderPass::Create(renderPassSpec);
@@ -93,11 +99,42 @@ namespace pk
 		allocatorInfo.instance = m_Instance.instance;
 		vmaCreateAllocator(&allocatorInfo, &m_Allocator);
 
+		VkDescriptorSetLayoutBinding cameraMatrixBinding = {};
+		cameraMatrixBinding.binding = 0;
+		cameraMatrixBinding.descriptorCount = 1;
+		cameraMatrixBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		cameraMatrixBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
+		VkDescriptorSetLayoutCreateInfo setInfo = {};
+		setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		setInfo.pNext = nullptr;
+		
+		setInfo.bindingCount = 1;
+
+		setInfo.flags = 0;
+		setInfo.pBindings = &cameraMatrixBinding;
+
+		vkCreateDescriptorSetLayout(m_Device->GetVulkanDevice(), &setInfo, nullptr, &m_GlobalDescriptorLayout);
+
+		/*std::vector<VkDescriptorPoolSize> sizes =
+		{
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10}
+		};
+
+		VkDescriptorPoolCreateInfo pool_info = {};
+		pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		pool_info.flags = 0;
+		pool_info.maxSets = 10;
+		pool_info.poolSizeCount = (uint32_t)sizes.data();
+		pool_info.pPoolSizes = sizes.data();
+
+		vkCreateDescriptorPool(m_Device->GetVulkanDevice(), &pool_info, nullptr, &m_DescriptorPool);*/
 	}
 
-
-
+	void VulkanContext::SwapBuffers()
+	{
+		m_Swapchain.SwapBuffers();
+	}
 
 	//this is for Dear ImGui integration
 	InitInfo VulkanContext::CreateImGuiImplInfo()

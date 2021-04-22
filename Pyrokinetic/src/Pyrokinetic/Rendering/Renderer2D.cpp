@@ -110,6 +110,15 @@ namespace pk
 			std::string shader = "assets/shaders/Texture.glsl";
 			spec.Shader = Shader::Create(shader);
 		}
+		RenderPassSpecification renderPassSpec;
+		renderPassSpec.Attachments = { ImageFormat::RGBA8
+			//, ImageFormat::Depth 
+		};
+		renderPassSpec.layout = ImageLayout::ShaderReadOnly;
+		renderPassSpec.clearColor = glm::vec4{ 0.1f, 0.1f, 0.1f, 1.0f };
+		auto renderPass = RenderPass::Create(renderPassSpec);
+		Renderer::AddRenderPass("SceneView", renderPass);
+		spec.RenderPass = renderPass;
 		spec.vertexBufferLayout =
 		{
 			{ ShaderDataType::Float3, "a_Position" },
@@ -153,7 +162,7 @@ namespace pk
 		cameraUB.Transform = transform;*/
 		//s_Data.quadPipeline->GetSpecification().Shader->SetUniformBuffer(&cameraUB, sizeof(cameraUB));
 
-		glm::mat4 viewProj = camera.GetProjection() * glm::inverse(transform);
+		glm::mat4 viewProj =  camera.GetProjection() * glm::inverse(transform);
 		s_Data.quadPipeline->GetSpecification().Shader->SetMat4("u_ViewProjection", viewProj);
 	}
 

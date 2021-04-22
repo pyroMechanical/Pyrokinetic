@@ -3,13 +3,15 @@
 #include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 
+#include <map>
+
 namespace pk
 {
 	class VulkanShader : public Shader
 	{
 	public:
 		VulkanShader(const std::string& path);
-		VulkanShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
+		VulkanShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath);
 
 		virtual ~VulkanShader();
 
@@ -44,17 +46,22 @@ namespace pk
 		VkPipelineLayout GetPipelineLayout() { return m_Layout; };
 		VkDescriptorSet& GetDescriptorSet() { return m_DescriptorSet; };
 
+		std::map<VkShaderStageFlagBits, VkShaderModule> GetShaderModules() { return m_ShaderModules; }
+		VkPipelineLayout GetLayout() { return m_Layout; }
+
 	private:
 		std::string ReadFile(const std::string& path);
 		std::unordered_map<VkShaderStageFlagBits, std::string> PreProcess(const std::string& src);
 		void Compile(const std::unordered_map<VkShaderStageFlagBits, std::string>& sources);
 	private:
-		uint32_t m_RendererID;
 		std::string m_Name;
 
 		std::shared_ptr<Texture2D> m_Texture;
 
+		std::map<VkShaderStageFlagBits, VkShaderModule> m_ShaderModules;
+
 		VkPipelineLayout m_Layout;
+		VkDescriptorSetLayout m_DescriptorLayout;
 		VkDescriptorSet m_DescriptorSet;
 	};
 }

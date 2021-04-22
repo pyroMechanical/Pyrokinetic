@@ -149,6 +149,8 @@ namespace pk
 		ImDrawData* drawData = ImGui::GetDrawData();
 		if (RendererAPI::GetAPI() == RendererAPI::API::Vulkan)
 		{
+
+			
 			VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
 			auto cmd = context->GetDevice()->GetCommandBuffer(true);
 			VkClearValue clearValue;
@@ -164,7 +166,7 @@ namespace pk
 			renderPassBeginInfo.renderArea.extent.height = context->GetSwapchain().GetHeight();
 			renderPassBeginInfo.clearValueCount = 1;
 			renderPassBeginInfo.pClearValues = &clearValue;
-			renderPassBeginInfo.framebuffer = context->GetSwapchain().GetCurrentFramebuffer().GetVulkanFramebuffer();
+			renderPassBeginInfo.framebuffer = context->GetSwapchain().GetCurrentFramebuffer()->GetVulkanFramebuffer();
 			vkCmdBeginRenderPass(cmd.buffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 			ImGui_ImplVulkan_RenderDrawData(drawData, cmd.buffer);
 			vkCmdEndRenderPass(cmd.buffer);

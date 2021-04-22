@@ -1,11 +1,14 @@
 #include "pkpch.h"
 #include "VulkanPipelineBuilder.h"
+#include "VulkanContext.h"
 
 #include <vulkan/vulkan.h>
 namespace pk
 {
 	VkPipeline VulkanPipelineBuilder::BuildPipeline(VkDevice device, VkRenderPass pass)
 	{
+		VulkanContext* context = VulkanContext::Get();
+
 		VkPipelineViewportStateCreateInfo viewportState = {};
 		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 		viewportState.pNext = nullptr;
@@ -42,11 +45,7 @@ namespace pk
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
 		VkPipeline newPipeline;
-		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &newPipeline) != VK_SUCCESS)
-		{
-			PK_CORE_ERROR("Failed to create pipeline!");
-			return VK_NULL_HANDLE;
-		}
-		else return newPipeline;
+		CHECK_VULKAN(vkCreateGraphicsPipelines(context->GetDevice()->GetVulkanDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &newPipeline));
+		return newPipeline;
 	}
 }

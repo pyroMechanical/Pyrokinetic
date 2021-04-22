@@ -1,13 +1,51 @@
 #include "pkpch.h"
 #include "VulkanShader.h"
+#include "VulkanContext.h"
 
 #include <fstream>
 #include <vulkan/vulkan.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <shaderc/shaderc.hpp>
+
 namespace pk
 {
+
+	namespace util
+	{
+		static VkShaderModule LoadShaderModuleFromFile(const std::string& filePath)
+		{
+			VulkanContext* context = VulkanContext::Get();
+
+			std::ifstream file(filePath, std::ios::ate | std::ios::binary);
+
+			PK_CORE_ASSERT(file.is_open(), "Failed to open file!");
+
+			size_t fileSize = (size_t)file.tellg();
+
+			std::vector<uint32_t> buffer(fileSize / sizeof(uint32_t));
+
+			file.seekg(0);
+
+			file.read((char*)buffer.data(), fileSize);
+
+			file.close();
+
+			VkShaderModuleCreateInfo createInfo = {};
+			createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+			createInfo.pNext = nullptr;
+
+			createInfo.codeSize = buffer.size() * sizeof(uint32_t);
+			createInfo.pCode = buffer.data();
+
+			VkShaderModule shaderModule;
+
+			CHECK_VULKAN(vkCreateShaderModule(context->GetDevice()->GetVulkanDevice(), &createInfo, nullptr, &shaderModule));
+
+			return shaderModule;
+		}
+	}
 
 	static VkShaderStageFlagBits ShaderTypeFromString(const std::string& type)
 	{
@@ -35,15 +73,27 @@ namespace pk
 		m_Name = path.substr(lastSlash, count);
 	}
 
-	VulkanShader::VulkanShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
-		: m_Name(name)
+	VulkanShader::VulkanShader(const std::string& name, const std::string& vertexPath, const std::string& fragmentPath)
 	{
 		PROFILE_FUNCTION();
 
-		std::unordered_map<VkShaderStageFlagBits, std::string> sources;
-		sources[VK_SHADER_STAGE_VERTEX_BIT] = vertexSrc;
-		sources[VK_SHADER_STAGE_FRAGMENT_BIT] = fragmentSrc;
-		Compile(sources);
+		m_Name = name;
+
+		m_ShaderModules[VK_SHADER_STAGE_VERTEX_BIT] = util::LoadShaderModuleFromFile(vertexPath);
+		m_ShaderModules[VK_SHADER_STAGE_FRAGMENT_BIT] = util::LoadShaderModuleFromFile(fragmentPath);
+
+		VkPipelineLayoutCreateInfo layoutCreateInfo = {};
+		layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		layoutCreateInfo.pNext = nullptr;
+		layoutCreateInfo.flags = 0;
+		//layoutCreateInfo.setLayoutCount = 1;
+		//layoutCreateInfo.pSetLayouts = &m_DescriptorLayout;
+		layoutCreateInfo.setLayoutCount = 0;
+		layoutCreateInfo.pSetLayouts = nullptr;
+		layoutCreateInfo.pushConstantRangeCount = 0;
+		layoutCreateInfo.pPushConstantRanges = nullptr;
+
+		CHECK_VULKAN(vkCreatePipelineLayout(VulkanContext::Get()->GetDevice()->GetVulkanDevice(), &layoutCreateInfo, nullptr, &m_Layout));
 	}
 
 	VulkanShader::~VulkanShader()
@@ -104,73 +154,7 @@ namespace pk
 	void VulkanShader::Compile(const std::unordered_map<VkShaderStageFlagBits, std::string>& sources)
 	{
 		PROFILE_FUNCTION();
-
-		/*GLuint program = glCreateProgram();
-		PK_CORE_ASSERT(sources.size() <= 2, "Too many shaders too compile!");
-		std::array<GLenum, 2> glShaderIDs;
-		int glShaderIDIndex = 0;
-		for (auto& kv : sources)
-		{
-			GLenum type = kv.first;
-			const std::string& source = kv.second;
-
-			GLuint shader = glCreateShader(type);
-
-			const char* sourceCStr = source.c_str();
-			glShaderSource(shader, 1, &sourceCStr, 0);
-
-			glCompileShader(shader);
-
-			int isCompiled = 0;
-			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
-			if (isCompiled == GL_FALSE)
-			{
-				int maxLength = 0;
-				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-
-				std::vector<char> infoLog(maxLength);
-				glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
-
-				glDeleteShader(shader);
-
-				PK_CORE_ERROR("{0}", infoLog.data());
-				PK_CORE_ASSERT(false, "Shader compilation failure!");
-				return;
-			}
-			glAttachShader(program, shader);
-			glShaderIDs[glShaderIDIndex++] = shader;
-		}
-
-		glLinkProgram(program);
-
-		int isLinked = 0;
-		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
-		if (isLinked == GL_FALSE)
-		{
-			int maxLength = 0;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
-
-			std::vector<char> infoLog(maxLength);
-			glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
-
-			glDeleteProgram(program);
-			for (auto id : glShaderIDs)
-			{
-				glDeleteShader(id);
-			}
-
-			PK_CORE_ERROR("{0}", infoLog.data());
-			PK_CORE_ASSERT(false, "Shader link failure!");
-			return;
-		}
-
-		for (auto id : glShaderIDs)
-		{
-			glDetachShader(m_RendererID, id);
-			glDeleteShader(id);
-		}
-
-		m_RendererID = program;*/
+		
 	}
 
 
@@ -272,8 +256,7 @@ namespace pk
 
 	void VulkanShader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
-		//GLint location = glGetUniformLocation(m_RendererID, name.c_str());
-		//glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+		
 	}
 
 }

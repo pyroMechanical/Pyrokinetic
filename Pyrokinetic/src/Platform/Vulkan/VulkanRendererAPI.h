@@ -3,7 +3,6 @@
 #include "Platform/Vulkan/VulkanContext.h"
 #include "Pyrokinetic/Core/Window.h"
 
-
 namespace pk
 {
 
@@ -25,6 +24,7 @@ namespace pk
 		void SetContext(VulkanContext* context) { m_Context = context; }
 	private:
 		VulkanContext* m_Context;
+
 	};
 
 }

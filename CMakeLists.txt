@@ -63,6 +63,9 @@ target_include_directories(Pyrokinetic PUBLIC
 	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/stb_image"
 	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/vulkanmemoryallocator/src"
 	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/entt/src"
+	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/SPIRV-Tools/include"
+	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/SPIRV-Cross/include"
+	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/shaderc/libshaderc/include"
 )
 
 add_subdirectory(Pyrokinetic/ext/GLFW)
@@ -80,6 +83,19 @@ target_link_libraries(Pyrokinetic PUBLIC ImPlot)
 
 add_subdirectory(Pyrokinetic/ext/entt)
 target_link_libraries(Pyrokinetic PUBLIC EnTT)
+
+add_subdirectory(Pyrokinetic/ext/SPIRV-Tools)
+target_link_libraries(Pyrokinetic PUBLIC SPIRV-Tools)
+
+add_subdirectory(Pyrokinetic/ext/glslang)
+target_link_libraries(Pyrokinetic PUBLIC glslang)
+
+#add_subdirectory(Pyrokinetic/ext/SPIRV-Cross)
+#target_compile_options(spirv-cross-core PUBLIC -DSPIRV_CROSS_SHARED=ON)
+#target_link_libraries(Pyrokinetic PUBLIC spirv-cross-core)
+
+add_subdirectory(Pyrokinetic/ext/shaderc)
+target_link_libraries(Pyrokinetic PUBLIC shaderc)
 
 target_link_libraries(Pyrokinetic PUBLIC ${Vulkan_LIBRARIES})
 target_include_directories(Pyrokinetic PUBLIC ${Vulkan_INCLUDE_DIRS})
@@ -104,6 +120,8 @@ target_include_directories(Editor PUBLIC
  "${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/glm"
  "${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/vulkan"
  "${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/entt/src"
+ "${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/SPIRV-Tools/include"
+ "${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/SPIRV-Cross/include"
  )
 
 target_link_libraries(Editor PRIVATE Pyrokinetic)

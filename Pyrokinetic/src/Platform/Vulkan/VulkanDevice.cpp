@@ -44,7 +44,6 @@ namespace pk
 
 	VulkanDevice::~VulkanDevice()
 	{
-		vkDestroyDevice(m_LogicalDevice.device, nullptr);
 	}
 
 	VulkanDevice::VulkanCommandBuffer VulkanDevice::GetCommandBuffer(bool begin, bool compute)
@@ -66,14 +65,13 @@ namespace pk
 			CHECK_VULKAN(vkBeginCommandBuffer(buffer, &info));
 		}
 
-		
-
-		return VulkanDevice::VulkanCommandBuffer{ buffer, queue, pool };
+		VulkanCommandBuffer bufferWrap{ buffer, queue, pool };
+		return bufferWrap;
 	}
 
-	void VulkanDevice::EndCommandBuffer(VulkanDevice::VulkanCommandBuffer& buffer, bool flush)
+	void VulkanDevice::EndCommandBuffer(VulkanDevice::VulkanCommandBuffer buffer, bool flush)
 	{
-		PK_CORE_ASSERT(buffer != VK_NULL_HANDLE, "Buffer does not exist!");
+		PK_CORE_ASSERT(buffer.buffer != VK_NULL_HANDLE, "Buffer does not exist!");
 
 		CHECK_VULKAN(vkEndCommandBuffer(buffer.buffer));
 

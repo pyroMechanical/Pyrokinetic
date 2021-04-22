@@ -40,10 +40,17 @@ namespace pk
 		std::vector<FramebufferTextureSpecification> Attachments;
 	};
 
+	enum class ImageLayout
+	{
+		SwapchainPresent = 0,
+		ShaderReadOnly
+	};
+
 	struct RenderPassSpecification
 	{
 		FramebufferAttachmentSpecification Attachments;
 		uint32_t samples = 1;
+		ImageLayout layout = ImageLayout::SwapchainPresent;
 		glm::vec4 clearColor;
 	};
 

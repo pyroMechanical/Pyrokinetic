@@ -51,6 +51,7 @@ namespace pk
 		std::string ReadFile(const std::string& path);
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& src);
 		void Compile(const std::unordered_map<GLenum, std::string>& sources);
+		void Load(const std::string& source, bool compile);
 
 	private:
 		uint32_t m_RendererID;

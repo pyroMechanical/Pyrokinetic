@@ -83,51 +83,8 @@ namespace pk
 		void* region;
 
 		vmaMapMemory(*allocator, m_Buffer.allocation, &region);
-		memcpy(region, (const void*)m_LocalBuffer, size);
+		memcpy(region, m_LocalBuffer, size);
 		vmaUnmapMemory(*allocator, m_Buffer.allocation);
-	}
-
-	VulkanVertexBuffer::VertexInputDescription VulkanVertexBuffer::GetVertexInputDescription()
-	{
-		VertexInputDescription description;
-
-		VkVertexInputBindingDescription mainBinding = {};
-		mainBinding.binding = 0;
-		mainBinding.stride = m_Layout.GetStride();
-		mainBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-		description.m_Bindings.push_back(mainBinding);
-		uint32_t location = 0;
-		uint32_t offset = 0;
-		for(BufferElement& element : m_Layout)
-		{
-			VkFormat format;
-			uint8_t size = 0;
-			uint8_t repeats = 0;
-			switch(element.Type)
-			{
-				case ShaderDataType::Float:  format = VK_FORMAT_R32_SFLOAT;          size = 4;                  break;
-				case ShaderDataType::Float2: format = VK_FORMAT_R32G32_SFLOAT;       size = 4 * 2;              break;
-				case ShaderDataType::Float3: format = VK_FORMAT_R32G32B32_SFLOAT;    size = 4 * 3;              break;
-				case ShaderDataType::Float4: format = VK_FORMAT_R32G32B32A32_SFLOAT; size = 4 * 4;              break;
-				case ShaderDataType::Int:    format = VK_FORMAT_R32_SINT;            size = 4;                  break;
-				case ShaderDataType::Int2:   format = VK_FORMAT_R32G32_SINT;         size = 4 * 2;              break;
-				case ShaderDataType::Int3:   format = VK_FORMAT_R32G32B32_SINT;      size = 4 * 3;              break;
-				case ShaderDataType::Int4:   format = VK_FORMAT_R32G32B32A32_SINT;   size = 4 * 4;              break;
-				case ShaderDataType::Bool:   format = VK_FORMAT_R8_UINT;			 size = 1;                  break;
-			}
-			VkVertexInputAttributeDescription attribute = {};
-			attribute.binding = 0;
-			attribute.location = location;
-			attribute.format = format;
-			attribute.offset = offset + size;
-			description.m_Attributes.push_back(attribute);
-			++location;
-			--repeats;
-			offset += size;
-		}
-
-		return description;
 	}
 
 
@@ -156,6 +113,12 @@ namespace pk
 		vmaallocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 
 		CHECK_VULKAN(vmaCreateBuffer(*allocator, &bufferInfo, &vmaallocInfo, &m_Buffer.buffer, &m_Buffer.allocation, nullptr));
+
+		void* region;
+
+		vmaMapMemory(*allocator, m_Buffer.allocation, &region);
+		memcpy(region, indices, count*sizeof(uint32_t));
+		vmaUnmapMemory(*allocator, m_Buffer.allocation);
 
 	}
 

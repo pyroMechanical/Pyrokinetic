@@ -35,8 +35,8 @@ namespace pk
 		struct VulkanCommandBuffer
 		{
 			VkCommandBuffer buffer;
-			VkQueue& queue;
-			VkCommandPool& pool;
+			VkQueue queue;
+			VkCommandPool pool;
 		};
 	public:
 		VulkanDevice(const std::shared_ptr<VulkanPhysicalDevice>& physicalDevice);
@@ -50,7 +50,7 @@ namespace pk
 
 		VulkanCommandBuffer GetCommandBuffer(bool begin, bool compute = false);
 		
-		void EndCommandBuffer(VulkanCommandBuffer& buffer, bool flush = false);
+		void EndCommandBuffer(VulkanCommandBuffer buffer, bool flush = false);
 
 		void FlushCommandBuffer(VulkanCommandBuffer buffer);
 

@@ -15,6 +15,16 @@ namespace pk
 
 			return false;
 		}
+
+		static VkImageLayout GetSpecificationLayout(ImageLayout layout)
+		{
+			switch(layout)
+			{
+			case ImageLayout::SwapchainPresent: return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			case ImageLayout::ShaderReadOnly:   return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			}
+			return VK_IMAGE_LAYOUT_UNDEFINED;
+		}
 	}
 	VulkanRenderPass::VulkanRenderPass(const RenderPassSpecification& spec)
 		: m_Spec(spec)
@@ -39,15 +49,15 @@ namespace pk
 				//the attachment will have the format needed by the swapchain
 				switch(attachment.TextureFormat)
 				{
-					case ImageFormat::RGBA8: color_attachment.format = VK_FORMAT_R8G8B8A8_UNORM;
+					case ImageFormat::RGBA8: color_attachment.format = context->GetSwapchain().GetSwapchainImageFormat();
 				}
 				PK_CORE_ASSERT(color_attachment.format, "Invalid Texture Format!");
 				switch(spec.samples)
 				{
-				case 1: color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-				case 2: color_attachment.samples = VK_SAMPLE_COUNT_2_BIT;
-				case 4: color_attachment.samples = VK_SAMPLE_COUNT_4_BIT;
-				case 8: color_attachment.samples = VK_SAMPLE_COUNT_8_BIT;
+				case 1: color_attachment.samples = VK_SAMPLE_COUNT_1_BIT; break;
+				case 2: color_attachment.samples = VK_SAMPLE_COUNT_2_BIT; break;
+				case 4: color_attachment.samples = VK_SAMPLE_COUNT_4_BIT; break;
+				case 8: color_attachment.samples = VK_SAMPLE_COUNT_8_BIT; break;
 				}
 				PK_CORE_ASSERT(color_attachment.samples, "Invalid Sample Count!");
 				
@@ -61,7 +71,7 @@ namespace pk
 				//we don't know or care about the starting layout of the attachment
 				color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 				//after the renderpass ends, the image has to be on a layout ready for display
-				color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+				color_attachment.finalLayout = util::GetSpecificationLayout(spec.layout);
 
 				VkAttachmentReference color_attachment_ref = {};
 				color_attachment_ref.attachment = attachmentDescriptions.size();
@@ -119,7 +129,7 @@ namespace pk
 				//we don't know or care about the starting layout of the attachment
 				depth_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 				//after the renderpass ends, the image has to be on a layout ready for display
-				depth_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+				depth_attachment.finalLayout = util::GetSpecificationLayout(spec.layout);
 
 
 				VkAttachmentReference depthAttachmentReference = {};
@@ -145,10 +155,13 @@ namespace pk
 		render_pass_info.subpassCount = 1;
 		render_pass_info.pSubpasses = &subpass;
 
+		PK_CORE_INFO("{0}", attachmentDescriptions.size());
+
 		CHECK_VULKAN(vkCreateRenderPass(device, &render_pass_info, nullptr, &m_RenderPass));
 	}
 
 	VulkanRenderPass::~VulkanRenderPass()
 	{
+		
 	}
 }

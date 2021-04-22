@@ -28,3 +28,15 @@
 	url = https://github.com/ocornut/imgui
 [submodule "https://github.com/skypjack/entt/commit/bf0160adbd8fb405d758808f879de917e81465ca"]
 	branch = bf0160adbd8fb405d758808f879de917e81465ca
+[submodule "Pyrokinetic/ext/SPIRV-Cross"]
+	path = Pyrokinetic/ext/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross
+[submodule "Pyrokinetic/ext/shaderc"]
+	path = Pyrokinetic/ext/shaderc
+	url = https://github.com/google/shaderc/
+[submodule "Pyrokinetic/ext/SPIRV-Tools"]
+	path = Pyrokinetic/ext/SPIRV-Tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools
+[submodule "Pyrokinetic/ext/glslang"]
+	path = Pyrokinetic/ext/glslang
+	url = https://github.com/KhronosGroup/glslang

@@ -7,11 +7,6 @@ namespace pk
 {
 	class VulkanVertexBuffer : public VertexBuffer
 	{
-		struct VertexInputDescription
-		{
-			std::vector<VkVertexInputBindingDescription> m_Bindings;
-			std::vector<VkVertexInputAttributeDescription> m_Attributes;
-		};
 
 	public:
 		VulkanVertexBuffer(uint32_t size);
@@ -26,9 +21,6 @@ namespace pk
 
 		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
 		virtual const BufferLayout& GetLayout() const override { return m_Layout; }
-
-
-		VertexInputDescription GetVertexInputDescription();
 
 		VkBuffer& GetDeviceBuffer() { return m_Buffer.buffer; }
 

@@ -5,7 +5,6 @@
 #include "VulkanBuffer.h"
 #include "VulkanShader.h"
 #include "VulkanTexture.h"
-#include "VulkanRenderPass.h"
 
 #include <vulkan/vulkan.h>
 #include "Pyrokinetic/Rendering/Renderer.h"
@@ -28,6 +27,8 @@ namespace pk
 	void VulkanRenderCommandBuffer::BeginRenderPass(const std::shared_ptr<RenderPass>& renderPass)
 	{
 		VulkanRenderPass* vkRenderPass = static_cast<VulkanRenderPass*>(renderPass.get());
+
+		m_RenderPasses.push_back(vkRenderPass);
 
 		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VulkanFramebuffer& framebuffer)
 			{
@@ -59,8 +60,6 @@ namespace pk
 	{
 		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VulkanFramebuffer& framebuffer)
 			{
-				//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), drawCommandBuffer);
-
 				vkCmdEndRenderPass(drawCommandBuffer);
 			});
 	}
@@ -102,7 +101,7 @@ namespace pk
 				VulkanIndexBuffer* vkIndexBuffer = static_cast<VulkanIndexBuffer*>(indexBuffer.get());
 				vkCmdBindIndexBuffer(drawCommandBuffer, vkIndexBuffer->GetDeviceBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
-				vkCmdDrawIndexed(drawCommandBuffer, indexCount == 0 ? indexBuffer->GetCount() : indexCount, 1, 0, 0, 1);
+				vkCmdDrawIndexed(drawCommandBuffer, indexCount, 1, 0, 0, 1);
 			});
 	}
 
@@ -118,14 +117,18 @@ namespace pk
 		auto& drawCmdBuffers = context->GetSwapchain().GetCommandBuffers();
 		auto& framebuffers = context->GetSwapchain().GetFramebuffers();
 
-		for (int32_t i = 0; i < drawCmdBuffers.size(); ++i)
+		for (auto renderPass : m_RenderPasses)
 		{
-			CHECK_VULKAN(vkBeginCommandBuffer(drawCmdBuffers[i].buffer, &cmdBeginInfo));
+			auto& framebuffers = renderPass->GetFramebuffers();
+			for (auto framebuffer : framebuffers)
+			{
+				auto cmd = device->GetCommandBuffer(true, false);
 
-			for (auto& func : m_Queue)
-				func(drawCmdBuffers[i].buffer, framebuffers[i]);
+				for (auto& func : m_Queue)
+					func(cmd.buffer, *framebuffer);
 
-			CHECK_VULKAN(vkEndCommandBuffer(drawCmdBuffers[i].buffer));
+				device->EndCommandBuffer(cmd, true);
+			}
 		}
 
 		m_Queue.clear();

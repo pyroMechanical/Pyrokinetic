@@ -15,6 +15,8 @@ namespace pk
 		void CreateSurface();
 		void CreateSwapchain(const std::shared_ptr<VulkanDevice>& device);
 		void CreateFramebuffers(const FramebufferSpecification& spec);
+		void DestroyFramebuffers();
+		void SwapBuffers();
 
 		const VkSurfaceKHR& GetVulkanSurface() const { return m_Surface; }
 
@@ -25,9 +27,10 @@ namespace pk
 
 		VulkanRenderPass* GetRenderPass() { return m_RenderPass.get(); }
 		VkClearValue GetClearValue() { return m_ClearValue; }
-		VulkanFramebuffer GetCurrentFramebuffer() { return m_Framebuffers[m_CurrentFramebuffer]; }
-		std::vector<VulkanFramebuffer>& GetFramebuffers() { return m_Framebuffers; }
-		std::vector<VulkanDevice::VulkanCommandBuffer> GetCommandBuffers() { return m_FrameCommandBuffers; }
+		VulkanFramebuffer* GetCurrentFramebuffer() { return m_Framebuffers[m_CurrentFramebuffer].get(); }
+		std::vector<std::shared_ptr<VulkanFramebuffer>>& GetFramebuffers() { return m_Framebuffers; }
+		VulkanDevice::VulkanCommandBuffer& GetCurrentCommandBuffer() { return m_FrameCommandBuffers[m_CurrentFramebuffer]; }
+		std::vector<VulkanDevice::VulkanCommandBuffer>& GetCommandBuffers() { return m_FrameCommandBuffers; }
 
 	private:
 		GLFWwindow* m_Window = nullptr;
@@ -43,7 +46,7 @@ namespace pk
 		uint32_t m_CurrentFramebuffer = 0;
 		std::vector<VkImage> m_SwapchainImages;
 		std::vector<VkImageView> m_SwapchainImageViews;
-		std::vector<VulkanFramebuffer> m_Framebuffers;
+		std::vector<std::shared_ptr<VulkanFramebuffer>> m_Framebuffers;
 		std::vector<VulkanDevice::VulkanCommandBuffer> m_FrameCommandBuffers;
 	};
 }

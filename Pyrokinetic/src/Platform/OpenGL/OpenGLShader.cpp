@@ -6,6 +6,8 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include <shaderc/shaderc.hpp>
+
 namespace pk
 {
 
@@ -23,16 +25,15 @@ namespace pk
 	{
 		PROFILE_FUNCTION();
 
-		std::string src = ReadFile(path);
-		auto shaderSources = PreProcess(src);
-		Compile(shaderSources);
-
 		// assets/shaders/Texture.glsl
 		auto lastSlash = path.find_last_of("/\\");
 		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
 		auto lastDot = path.rfind(".");
 		auto count = lastDot == std::string::npos ? path.size() - lastSlash : lastDot - lastSlash;
 		m_Name = path.substr(lastSlash, count);
+
+		std::string src = ReadFile(path);
+		Load(src, true);
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
@@ -51,6 +52,12 @@ namespace pk
 		PROFILE_FUNCTION();
 
 		glDeleteProgram(m_RendererID);
+	}
+
+	void OpenGLShader::Load(const std::string& source, bool compile)
+	{
+		auto shaderSources = PreProcess(source);
+		Compile(shaderSources);
 	}
 
 	std::string OpenGLShader::ReadFile(const std::string& path)

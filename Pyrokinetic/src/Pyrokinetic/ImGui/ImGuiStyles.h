@@ -31,6 +31,10 @@ namespace ImGui
 		style.Colors[ImGuiCol_TitleBg] = ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
 		style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
 		style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
+
+		style.Colors[ImGuiCol_FrameBg] = ImVec4(0.875f, 0.475f, 0.176f, 1.0f);
+		style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.914f, 0.639f, 0.435f, 1.0f);
+		style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.886f, 0.529f, 0.263f, 1.0f);
 	}
 
 	static void StyleColorsPKLight()
