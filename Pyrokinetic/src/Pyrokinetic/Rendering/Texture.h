@@ -20,6 +20,8 @@ namespace pk
 
 		virtual uint32_t GetRendererID() = 0;
 
+		virtual void* GetImGuiTexture() = 0;
+
 		virtual bool operator == (const Texture& other) const = 0;
 	};
 
@@ -35,16 +37,24 @@ namespace pk
 	class SubTexture2D
 	{
 	public:
-		SubTexture2D(const std::shared_ptr<Texture2D>& texture, const glm::vec2& min, const glm::vec2& max);
-
+		SubTexture2D(const std::shared_ptr<Texture2D>& texture, const std::pair<uint8_t, uint8_t> coords, const std::pair<uint16_t, uint16_t> tileSize, const std::pair<uint8_t, uint8_t> spriteSize);
+		SubTexture2D(const std::shared_ptr<Texture2D>& texture);
+		SubTexture2D(const std::string& path, const std::pair<uint8_t, uint8_t> coords, const std::pair<uint16_t, uint16_t> tileSize, const std::pair<uint8_t, uint8_t> spriteSize);
+		SubTexture2D(const std::string& path);
 
 		const std::shared_ptr<Texture2D>& GetTexture() const { return m_Texture; }
-		const glm::vec2* GetTexCoords() const { return m_TexCoords; }
+		const std::array<glm::vec2, 4> GetTexCoords() const;
+		const glm::vec2 GetMin() const;
+		const glm::vec2 GetMax() const;
+		const glm::vec2 GetTextureRatio() const;
 
-		static std::shared_ptr<SubTexture2D> CreateFromCoordinates(const std::shared_ptr<Texture2D>& texture, const glm::vec2& coords, const glm::vec2& tileSize, const glm::vec2& spriteSize = { 1, 1 });
+		static std::shared_ptr<SubTexture2D> CreateFromCoordinates(const std::shared_ptr<Texture2D>& texture, const std::pair<uint8_t, uint8_t> coords = { 0, 0 }, const std::pair<uint16_t, uint16_t> tileSize = { 0, 0 }, const std::pair<uint8_t, uint8_t> spriteSize = { 1, 1 });
+		static std::shared_ptr<SubTexture2D> CreateFromPath(const std::string& path);
 	private:
 		std::shared_ptr<Texture2D> m_Texture;
-		glm::vec2 m_TexCoords[4];
+		std::pair<uint16_t, uint16_t> m_TileSize;
+		std::pair<uint8_t, uint8_t> m_SpriteCoords;
+		std::pair<uint8_t, uint8_t> m_SpriteSize;
 	};
 
 

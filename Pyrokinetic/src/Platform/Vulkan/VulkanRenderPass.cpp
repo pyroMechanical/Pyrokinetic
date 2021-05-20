@@ -29,6 +29,8 @@ namespace pk
 	VulkanRenderPass::VulkanRenderPass(const RenderPassSpecification& spec)
 		: m_Spec(spec)
 	{
+		PROFILE_FUNCTION();
+
 		VulkanContext* context = VulkanContext::Get();
 
 		VkDevice device = context->GetDevice()->GetVulkanDevice();
@@ -104,10 +106,10 @@ namespace pk
 				PK_CORE_ASSERT(depth_attachment.format, "Invalid Texture Format!");
 				switch (spec.samples)
 				{
-				case 1: depth_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-				case 2: depth_attachment.samples = VK_SAMPLE_COUNT_2_BIT;
-				case 4: depth_attachment.samples = VK_SAMPLE_COUNT_4_BIT;
-				case 8: depth_attachment.samples = VK_SAMPLE_COUNT_8_BIT;
+				case 1: depth_attachment.samples = VK_SAMPLE_COUNT_1_BIT; break;
+				case 2: depth_attachment.samples = VK_SAMPLE_COUNT_2_BIT; break;
+				case 4: depth_attachment.samples = VK_SAMPLE_COUNT_4_BIT; break;
+				case 8: depth_attachment.samples = VK_SAMPLE_COUNT_8_BIT; break;
 				}
 				PK_CORE_ASSERT(depth_attachment.samples, "Invalid Sample Count!");
 
@@ -129,15 +131,10 @@ namespace pk
 				//we don't know or care about the starting layout of the attachment
 				depth_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 				//after the renderpass ends, the image has to be on a layout ready for display
-				depth_attachment.finalLayout = util::GetSpecificationLayout(spec.layout);
+				depth_attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-
-				VkAttachmentReference depthAttachmentReference = {};
 				depthAttachmentReference.attachment = attachmentDescriptions.size();
-				if (hasStencil)
-					depthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-				else
-					depthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+				depthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 				attachmentDescriptions.push_back(depth_attachment);
 			}

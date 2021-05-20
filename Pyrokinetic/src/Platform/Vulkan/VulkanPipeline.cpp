@@ -13,10 +13,39 @@ namespace pk
 
 	void VulkanPipeline::Rebuild()
 	{
+		PROFILE_FUNCTION();
+
 		VulkanContext* context = VulkanContext::Get();
+
+		VkDevice device = context->GetDevice()->GetVulkanDevice();
 
 		auto VkShader = std::dynamic_pointer_cast<VulkanShader>(m_Spec.Shader);
 		auto VkRenderPass = std::dynamic_pointer_cast<VulkanRenderPass>(m_Spec.RenderPass);
+
+		auto descriptorSetLayouts = VkShader->GetAllDescriptorSetLayouts();
+
+		const auto& pushConstantRanges = VkShader->GetPushConstantRanges();
+
+		std::vector<VkPushConstantRange> vkPushConstantRanges(pushConstantRanges.size());
+		for (uint32_t i = 0; i < pushConstantRanges.size(); i++)
+		{
+			const auto& pushConstantRange = pushConstantRanges[i];
+			auto& vkPushConstantRange = vkPushConstantRanges[i];
+
+			vkPushConstantRange.stageFlags = pushConstantRange.ShaderStage;
+			vkPushConstantRange.offset = pushConstantRange.Offset;
+			vkPushConstantRange.size = pushConstantRange.Size;
+		}
+
+		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
+		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutCreateInfo.pNext = nullptr;
+		pipelineLayoutCreateInfo.setLayoutCount = descriptorSetLayouts.size();
+		pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayouts.data();
+		pipelineLayoutCreateInfo.pushConstantRangeCount = vkPushConstantRanges.size();
+		pipelineLayoutCreateInfo.pPushConstantRanges = vkPushConstantRanges.data();
+
+		CHECK_VULKAN(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, nullptr, &m_Layout));
 
 		VkExtent2D viewportExtent = context->GetSwapchain().GetExtent();
 
@@ -25,8 +54,8 @@ namespace pk
 		viewport.y = 0;
 		viewport.width = viewportExtent.width;
 		viewport.height = viewportExtent.height;
-		viewport.minDepth = 1.0f;
-		viewport.maxDepth = 0.0f;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
 		
 		VkRect2D scissor = {};
 		scissor.offset = { 0,0 };
@@ -52,25 +81,16 @@ namespace pk
 		colorBlending.logicOp = VK_LOGIC_OP_COPY;
 		colorBlending.attachmentCount = 1;
 		colorBlending.pAttachments = &attachmentState;
-
-		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
-
-		auto shaderModules = VkShader->GetShaderModules();
-
-		for(auto it = shaderModules.begin(); it != shaderModules.end(); ++it)
-		{
-			VkPipelineShaderStageCreateInfo shaderStageCreateInfo = {};
-			shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-			shaderStageCreateInfo.pNext = nullptr;
-			shaderStageCreateInfo.stage = it->first;
-			shaderStageCreateInfo.module = it->second;
-			shaderStageCreateInfo.flags = 0;
-			shaderStageCreateInfo.pName = "main";
-			shaderStageCreateInfo.pSpecializationInfo = nullptr;
-
-			shaderStages.push_back(shaderStageCreateInfo);
-		}
 		
+		VkPipelineDepthStencilStateCreateInfo depthStencil = {};
+		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depthStencil.depthTestEnable = VK_TRUE;
+		depthStencil.depthWriteEnable = VK_TRUE;
+		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+		depthStencil.depthBoundsTestEnable = VK_FALSE;
+		depthStencil.stencilTestEnable = VK_FALSE;
+
+		std::vector<VkPipelineShaderStageCreateInfo> shaderStages = VkShader->GetPipelineShaderStageCreateInfos();
 		
 		auto inputAssemblyState = vkinit::input_assembly_create_info(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 		auto rasterizationState = vkinit::rasterization_state_create_info(VK_POLYGON_MODE_FILL);
@@ -135,11 +155,65 @@ namespace pk
 		pipelineInfo.pRasterizationState = &rasterizationState;
 		pipelineInfo.pMultisampleState = &multisamplingState;
 		pipelineInfo.pColorBlendState = &colorBlending;
-		pipelineInfo.layout = VkShader->GetPipelineLayout();
+		pipelineInfo.pDepthStencilState = &depthStencil;
+		pipelineInfo.layout = m_Layout;
 		pipelineInfo.renderPass = VkRenderPass->GetVulkanRenderPass();
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-		CHECK_VULKAN(vkCreateGraphicsPipelines(context->GetDevice()->GetVulkanDevice(), nullptr, 1, &pipelineInfo, nullptr, &m_Pipeline)); //current is 0xFFFFFFFFFFFFFFFE?
+		CHECK_VULKAN(vkCreateGraphicsPipelines(device, nullptr, 1, &pipelineInfo, nullptr, &m_Pipeline));
+
+		m_DescriptorSet = VkShader->CreateDescriptorSets();
+		std::vector<VkWriteDescriptorSet> writeDescriptors;
+
+		const auto& shaderDescriptorSets = VkShader->GetShaderDescriptorSets();
+		for (auto&& [set, shaderDescriptorSet] : shaderDescriptorSets)
+		{
+			for (auto&& [binding, uniformBuffer] : shaderDescriptorSet.UniformBuffers)
+			{
+				VkWriteDescriptorSet writeDescriptorSet = {};
+				writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				writeDescriptorSet.descriptorCount = 1;
+				writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				writeDescriptorSet.pBufferInfo = &uniformBuffer->Descriptor;
+				writeDescriptorSet.dstBinding = binding;
+				writeDescriptorSet.dstSet = m_DescriptorSet.DescriptorSets[0];
+				writeDescriptors.push_back(writeDescriptorSet);
+			}
+		}
+
+		PK_CORE_WARN("Vulkan Pipeline - Updating {0} descriptor sets", writeDescriptors.size());
+		vkUpdateDescriptorSets(device, writeDescriptors.size(), writeDescriptors.data(), 0, nullptr);
+	}
+
+	void VulkanPipeline::WriteImageSamplers()
+	{
+		PROFILE_FUNCTION();
+		VkDevice device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+
+		auto VkShader = std::dynamic_pointer_cast<VulkanShader>(m_Spec.Shader);
+
+		auto imageInfos = VkShader->GetImageInfos();
+		const auto& shaderDescriptorSets = VkShader->GetShaderDescriptorSets();
+		std::vector<VkWriteDescriptorSet> writeDescriptors;
+
+		for (auto&& [set, shaderDescriptorSet] : shaderDescriptorSets)
+		{
+			for (auto&& [binding, imageSampler] : shaderDescriptorSet.ImageSamplers)
+			{
+				VkWriteDescriptorSet writeDescriptorSet = {};
+				writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				writeDescriptorSet.pNext = nullptr;
+				writeDescriptorSet.dstBinding = imageSampler.Binding;
+				writeDescriptorSet.dstSet = m_DescriptorSet.DescriptorSets[imageSampler.DescriptorSet];
+				writeDescriptorSet.descriptorCount = imageInfos.size() <= imageSampler.Count ? imageInfos.size() : imageSampler.Count;
+				writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				writeDescriptorSet.pImageInfo = imageInfos.data();
+				writeDescriptors.push_back(writeDescriptorSet);
+			}
+		}
+
+		PK_CORE_WARN("Vulkan Pipeline - Updating {0} descriptor sets", writeDescriptors.size());
+		vkUpdateDescriptorSets(device, writeDescriptors.size(), writeDescriptors.data(), 0, nullptr);
 	}
 }

@@ -24,6 +24,8 @@ namespace pk
 
 		virtual uint32_t GetRendererID() override { return m_RendererID; }
 
+		virtual void* GetImGuiTexture() override { return (void*) m_RendererID; }
+
 		virtual bool operator == (const Texture& other) const override 
 		{ 
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID; 

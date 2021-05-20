@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include "VkBootstrap.h"
+#include "VkTypes.h"
 
 namespace pk
 {
@@ -53,6 +54,8 @@ namespace pk
 		void EndCommandBuffer(VulkanCommandBuffer buffer, bool flush = false);
 
 		void FlushCommandBuffer(VulkanCommandBuffer buffer);
+
+		UploadContext CreateUploadContext();
 
 		const std::shared_ptr<VulkanPhysicalDevice>& GetPhysicalDevice() const { return m_PhysicalDevice; }
 

@@ -31,7 +31,7 @@ namespace pk
 		std::shared_ptr<RenderPass> m_RenderPass;
 
 		//TODO: put in renderer
-		std::shared_ptr<Texture2D> m_Texture;
+		std::shared_ptr<SubTexture2D> m_Texture;
 		std::shared_ptr<Texture2D> m_Spritesheet;
 		std::shared_ptr<SubTexture2D> m_StairSprite;
 		std::shared_ptr<SubTexture2D> m_LargeTree;

@@ -19,35 +19,6 @@ namespace pk
 
 		PK_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
-
-	}
-
-	std::shared_ptr<Shader> Shader::Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
-	{
-		switch (RendererAPI::GetAPI())
-		{
-			case RendererAPI::API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
-			case RendererAPI::API::OpenGL:     return std::make_shared<OpenGLShader>(name, vertexSrc, fragmentSrc);
-			case RendererAPI::API::Vulkan:     return std::make_shared<VulkanShader>(name, vertexSrc, fragmentSrc);
-		}
-
-		PK_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
-
-	}
-
-	std::shared_ptr<Shader> Shader::Create(const std::string& vertexPath, const std::string& fragmentPath)
-	{
-		switch (RendererAPI::GetAPI())
-		{
-		case RendererAPI::API::None:       PK_CORE_ASSERT(false, "RenderAPI::None is currently not supported!"); return nullptr;
-		//case RendererAPI::API::OpenGL:     return std::make_shared<OpenGLShader>(vertexPath, fragmentPath);
-		//case RendererAPI::API::Vulkan:     return std::make_shared<VulkanShader>(vertexPath, fragmentPath);
-		}
-
-		PK_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
-
 	}
 
 	void ShaderLibrary::Add(const std::shared_ptr<Shader>& shader)
@@ -81,4 +52,27 @@ namespace pk
 		PK_CORE_ASSERT(m_Shaders.find(name) != m_Shaders.end(), "Shader not found!");
 		return m_Shaders[name];
 	}
+
+ShaderUniform::ShaderUniform(const std::string& name, ShaderUniformType type, uint32_t size, uint32_t offset)
+	: m_Name(name), m_Type(type), m_Size(size), m_Offset(offset)
+{
+}
+
+const std::string& ShaderUniform::UniformTypeToString(ShaderUniformType type)
+{
+	if (type == ShaderUniformType::Bool)
+	{
+		return "Boolean";
+	}
+	else if (type == ShaderUniformType::Int)
+	{
+		return "Integer";
+	}
+	else if (type == ShaderUniformType::Float)
+	{
+		return "Float";
+	}
+
+	return "None";
+}
 }

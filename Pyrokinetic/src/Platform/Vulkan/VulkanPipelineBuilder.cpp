@@ -7,6 +7,7 @@ namespace pk
 {
 	VkPipeline VulkanPipelineBuilder::BuildPipeline(VkDevice device, VkRenderPass pass)
 	{
+		PROFILE_FUNCTION();
 		VulkanContext* context = VulkanContext::Get();
 
 		VkPipelineViewportStateCreateInfo viewportState = {};

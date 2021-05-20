@@ -6,11 +6,15 @@ namespace pk
 {
 	void VulkanSwapchain::CreateSurface()
 	{
+		PROFILE_FUNCTION();
+
 		glfwCreateWindowSurface(VulkanContext::GetVulkanInstance(), m_Window, nullptr, &m_Surface);
 	}
 
 	void VulkanSwapchain::CreateSwapchain(const std::shared_ptr<VulkanDevice>& device)
 	{
+		PROFILE_FUNCTION();
+
 		VkDevice _device = device->GetVulkanDevice();
 		VkPhysicalDevice _physicalDevice = device->GetPhysicalDevice()->GetVulkanPhysicalDevice();
 		vkb::SwapchainBuilder builder{ _physicalDevice, _device, m_Surface };
@@ -34,6 +38,8 @@ namespace pk
 
 	void VulkanSwapchain::CreateFramebuffers(const FramebufferSpecification& spec)
 	{
+		PROFILE_FUNCTION();
+
 		std::shared_ptr<VulkanDevice> device = VulkanContext::Get()->GetDevice();
 
 		for (size_t i = 0; i < m_SwapchainImageViews.size(); i++)
@@ -48,18 +54,22 @@ namespace pk
 
 	void VulkanSwapchain::DestroyFramebuffers()
 	{
+		PROFILE_FUNCTION();
+
 		std::shared_ptr<VulkanDevice> device = VulkanContext::Get()->GetDevice();
 
-		m_Framebuffers.clear();
 		for (auto& cmd : m_FrameCommandBuffers)
 		{
 			device->FlushCommandBuffer(cmd);
 		}
 		m_FrameCommandBuffers.clear();
+		m_Framebuffers.clear();
 	}
 
 	void VulkanSwapchain::SwapBuffers()
 	{
+		PROFILE_FUNCTION();
+
 		std::shared_ptr<VulkanDevice> device = VulkanContext::Get()->GetDevice();
 
 		auto& currentFramebuffer = m_Framebuffers[m_CurrentFramebuffer];

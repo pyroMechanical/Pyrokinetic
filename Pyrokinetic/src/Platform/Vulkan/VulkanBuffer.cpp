@@ -22,10 +22,10 @@ namespace pk
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.size = size;
-		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
 		VmaAllocationCreateInfo vmaallocInfo = {};
-		vmaallocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+		vmaallocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
 		CHECK_VULKAN(vmaCreateBuffer(*allocator, &bufferInfo, &vmaallocInfo, &m_Buffer.buffer, &m_Buffer.allocation, nullptr));
 	}
@@ -36,23 +36,46 @@ namespace pk
 		
 		VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
 
+		std::shared_ptr<VulkanDevice> device = context->GetDevice();
+
 		allocator = context->GetAllocator();
+
+		VkBufferCreateInfo stagingBufferInfo = {};
+		stagingBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		stagingBufferInfo.size = size;
+		stagingBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+		VmaAllocationCreateInfo stagingBufferAllocInfo = {};
+		stagingBufferAllocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+
+		AllocatedBuffer stagingBuffer;
+
+		CHECK_VULKAN(vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingBufferAllocInfo, &stagingBuffer.buffer, &stagingBuffer.allocation, nullptr));
+
+		void* region;
+
+		vmaMapMemory(*allocator, stagingBuffer.allocation, &region);
+		memcpy(region, vertices, size);
+		vmaUnmapMemory(*allocator, stagingBuffer.allocation);
 
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.size = size;
-		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
 		VmaAllocationCreateInfo vmaallocInfo = {};
-		vmaallocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+		vmaallocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
 		CHECK_VULKAN(vmaCreateBuffer(*allocator, &bufferInfo, &vmaallocInfo, &m_Buffer.buffer, &m_Buffer.allocation, nullptr));
 
-		void* region;
-
-		vmaMapMemory(*allocator, m_Buffer.allocation, &region);
-		memcpy(region, vertices, size);
-		vmaUnmapMemory(*allocator, m_Buffer.allocation);
+		auto cmd = device->GetCommandBuffer(true);
+		VkBufferCopy copy;
+		copy.dstOffset = 0;
+		copy.srcOffset = 0;
+		copy.size = size;
+		vkCmdCopyBuffer(cmd.buffer, stagingBuffer.buffer, m_Buffer.buffer, 1, &copy);
+		device->EndCommandBuffer(cmd, true);
+		vmaDestroyBuffer(*allocator, stagingBuffer.buffer, stagingBuffer.allocation);
 	}
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()
@@ -80,11 +103,38 @@ namespace pk
 
 	void VulkanVertexBuffer::Unmap(uint32_t size)
 	{
+		VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
+
+		std::shared_ptr<VulkanDevice> device = context->GetDevice();
+
+		allocator = context->GetAllocator();
+
+		VkBufferCreateInfo stagingBufferInfo = {};
+		stagingBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		stagingBufferInfo.size = size;
+		stagingBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+		VmaAllocationCreateInfo stagingBufferAllocInfo = {};
+		stagingBufferAllocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+
+		AllocatedBuffer stagingBuffer;
+
+		CHECK_VULKAN(vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingBufferAllocInfo, &stagingBuffer.buffer, &stagingBuffer.allocation, nullptr));
+
 		void* region;
 
-		vmaMapMemory(*allocator, m_Buffer.allocation, &region);
+		vmaMapMemory(*allocator, stagingBuffer.allocation, &region);
 		memcpy(region, m_LocalBuffer, size);
-		vmaUnmapMemory(*allocator, m_Buffer.allocation);
+		vmaUnmapMemory(*allocator, stagingBuffer.allocation);
+		auto cmd = device->GetCommandBuffer(true);
+		VkBufferCopy copy;
+		copy.dstOffset = 0;
+		copy.srcOffset = 0;
+		copy.size = size;
+		vkCmdCopyBuffer(cmd.buffer, stagingBuffer.buffer, m_Buffer.buffer, 1, &copy);
+		device->EndCommandBuffer(cmd, true);
+		vmaDestroyBuffer(*allocator, stagingBuffer.buffer, stagingBuffer.allocation);
+
 	}
 
 
@@ -102,23 +152,46 @@ namespace pk
 
 		VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
 
+		std::shared_ptr<VulkanDevice> device = context->GetDevice();
+
 		allocator = context->GetAllocator();
+
+		VkBufferCreateInfo stagingBufferInfo = {};
+		stagingBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		stagingBufferInfo.size = count * sizeof(uint32_t);
+		stagingBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+		VmaAllocationCreateInfo stagingBufferAllocInfo = {};
+		stagingBufferAllocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+
+		AllocatedBuffer stagingBuffer;
+
+		CHECK_VULKAN(vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingBufferAllocInfo, &stagingBuffer.buffer, &stagingBuffer.allocation, nullptr));
+
+		void* region;
+
+		vmaMapMemory(*allocator, stagingBuffer.allocation, &region);
+		memcpy(region, indices, count * sizeof(uint32_t));
+		vmaUnmapMemory(*allocator, stagingBuffer.allocation);
 
 		VkBufferCreateInfo bufferInfo = {};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.size = count * sizeof(uint32_t);
-		bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+		bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
 		VmaAllocationCreateInfo vmaallocInfo = {};
-		vmaallocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+		vmaallocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
 		CHECK_VULKAN(vmaCreateBuffer(*allocator, &bufferInfo, &vmaallocInfo, &m_Buffer.buffer, &m_Buffer.allocation, nullptr));
 
-		void* region;
-
-		vmaMapMemory(*allocator, m_Buffer.allocation, &region);
-		memcpy(region, indices, count*sizeof(uint32_t));
-		vmaUnmapMemory(*allocator, m_Buffer.allocation);
+		auto cmd = device->GetCommandBuffer(true);
+		VkBufferCopy copy;
+		copy.dstOffset = 0;
+		copy.srcOffset = 0;
+		copy.size = count * sizeof(uint32_t);
+		vkCmdCopyBuffer(cmd.buffer, stagingBuffer.buffer, m_Buffer.buffer, 1, &copy);
+		device->EndCommandBuffer(cmd, true);
+		vmaDestroyBuffer(*allocator, stagingBuffer.buffer, stagingBuffer.allocation);
 
 	}
 

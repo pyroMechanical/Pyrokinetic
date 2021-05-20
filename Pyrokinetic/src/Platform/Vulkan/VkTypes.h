@@ -16,4 +16,10 @@ namespace pk {
 		VkCommandPool commandPool;
 		VkCommandBuffer mainCommandBuffer;
 	};
+
+	struct UploadContext
+	{
+		VkFence Fence;
+		VkCommandPool CommandPool;
+	};
 }

@@ -70,7 +70,7 @@ namespace pk
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 		virtual void SetVSync(bool enabled) override {};
-		void SetViewport(VkExtent2D extent){};
+		void SetViewport(VkExtent2D extent);
 
 		static VulkanContext* Get() { return s_Context; }
 

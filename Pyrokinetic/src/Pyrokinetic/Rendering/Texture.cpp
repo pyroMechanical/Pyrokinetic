@@ -34,21 +34,73 @@ namespace pk
 		return nullptr;
 	}
 
-	SubTexture2D::SubTexture2D(const std::shared_ptr<Texture2D>& texture, const glm::vec2& min, const glm::vec2& max)
-		: m_Texture(texture)
+	SubTexture2D::SubTexture2D(const std::shared_ptr<Texture2D>& texture, const std::pair<uint8_t, uint8_t> coords, const std::pair<uint16_t, uint16_t> tileSize, const std::pair<uint8_t, uint8_t> spriteSize)
+		: m_Texture(texture), m_SpriteCoords(coords), m_TileSize(tileSize), m_SpriteSize(spriteSize)
+	{}
+
+	SubTexture2D::SubTexture2D(const std::shared_ptr<Texture2D>& texture)
+		: m_Texture(texture), m_SpriteCoords(0, 0), m_TileSize(texture->GetWidth(), texture->GetHeight()), m_SpriteSize(1, 1)
+	{}
+
+	SubTexture2D::SubTexture2D(const std::string& path, const std::pair<uint8_t, uint8_t> coords, const std::pair<uint16_t, uint16_t> tileSize, const std::pair<uint8_t, uint8_t> spriteSize)
+		: m_Texture(Texture2D::Create(path)), m_SpriteCoords(coords), m_TileSize(tileSize), m_SpriteSize(spriteSize)
+	{}
+
+	SubTexture2D::SubTexture2D(const std::string& path)
+		: m_Texture(Texture2D::Create(path)), m_SpriteCoords(0, 0), m_SpriteSize(1, 1)
 	{
-		m_TexCoords[0] = { min.x, min.y };
-		m_TexCoords[1] = { max.x, min.y };
-		m_TexCoords[2] = { max.x, max.y };
-		m_TexCoords[3] = { min.x, max.y };
+		m_TileSize = { (uint16_t) m_Texture->GetWidth(), (uint16_t) m_Texture->GetHeight() };
 	}
 
-	std::shared_ptr<SubTexture2D> SubTexture2D::CreateFromCoordinates(const std::shared_ptr<Texture2D>& texture, const glm::vec2& coords, const glm::vec2& tileSize, const glm::vec2& spriteSize)
+	const std::array<glm::vec2, 4> SubTexture2D::GetTexCoords() const
 	{
-		glm::vec2 min = { coords.x * tileSize.x / texture->GetWidth(), coords.y * tileSize.y / texture->GetHeight() };
-		glm::vec2 max = { (coords.x + spriteSize.x) * tileSize.x / texture->GetWidth(), (coords.y + spriteSize.y) * tileSize.y / texture->GetHeight() };
-		PK_CORE_INFO("{0}", (coords.y + spriteSize.y) * tileSize.y);
+		std::array<glm::vec2, 4> texCoords;
+		glm::vec2 min = { ((double)(m_SpriteCoords.first * m_TileSize.first)) / (double)m_Texture->GetWidth(), ((double)(m_SpriteCoords.second * m_TileSize.second)) / (double)m_Texture->GetHeight() };
+		glm::vec2 max = { ((double)((m_SpriteCoords.first + m_SpriteSize.first) * m_TileSize.first)) / (double)m_Texture->GetWidth(), ((double)((m_SpriteCoords.second + m_SpriteSize.second) * m_TileSize.second)) / (double)m_Texture->GetHeight()};
 
-		return std::make_shared<SubTexture2D>(texture, min, max);
+		//glm::vec2 min = { ((double)(m_SpriteCoords.first * m_TileSize.first) + 0.5) / (double)m_Texture->GetWidth(), ((double)(m_SpriteCoords.second * m_TileSize.second) + 0.5) / (double)m_Texture->GetHeight() };
+		//glm::vec2 max = { ((double)((m_SpriteCoords.first + m_SpriteSize.first) * m_TileSize.first) - 0.5) / (double)m_Texture->GetWidth(), ((double)((m_SpriteCoords.second + m_SpriteSize.second) * m_TileSize.second) - 0.5) / (double)m_Texture->GetHeight() };
+
+		texCoords[0] = { min.x, min.y };
+		texCoords[1] = { max.x, min.y };
+		texCoords[2] = { max.x, max.y };
+		texCoords[3] = { min.x, max.y };
+		
+		return texCoords;
+	}
+
+	const glm::vec2 SubTexture2D::GetMin() const
+	{
+		return { (double)(m_SpriteCoords.first * m_TileSize.first) / (double)m_Texture->GetWidth(), (double)(m_SpriteCoords.second * m_TileSize.second) / (double)m_Texture->GetHeight() };
+	}
+
+	const glm::vec2 SubTexture2D::GetMax() const
+	{
+		return { (double)((m_SpriteCoords.first + m_SpriteSize.first) * m_TileSize.first) / (double)m_Texture->GetWidth(), (double)((m_SpriteCoords.second + m_SpriteSize.second) * m_TileSize.second) / (double)m_Texture->GetHeight() };
+	}
+
+	const glm::vec2 SubTexture2D::GetTextureRatio() const
+	{
+		double widest;
+		if(m_SpriteSize.first * m_TileSize.first >= m_SpriteSize.second * m_TileSize.second)
+		{
+			widest = (double)(m_SpriteSize.first * m_TileSize.first);
+		}
+		else
+		{
+			widest = (double)(m_SpriteSize.second * m_TileSize.second);
+		}
+
+		return { (double)(m_SpriteSize.first * m_TileSize.first) / widest, (double)(m_SpriteSize.second * m_TileSize.second) / widest };
+	}
+
+	std::shared_ptr<SubTexture2D> SubTexture2D::CreateFromCoordinates(const std::shared_ptr<Texture2D>& texture, const std::pair<uint8_t, uint8_t> coords, const std::pair<uint16_t, uint16_t> tileSize, const std::pair<uint8_t, uint8_t> spriteSize)
+	{
+		return std::make_shared<SubTexture2D>(texture, coords, tileSize, spriteSize);
+	}
+
+	std::shared_ptr<SubTexture2D> SubTexture2D::CreateFromPath(const std::string& path)
+	{
+		return std::make_shared<SubTexture2D>(path);
 	}
 }

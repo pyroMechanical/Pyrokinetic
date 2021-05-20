@@ -15,7 +15,7 @@ namespace pk
 		glm::vec3 pos;
 		glm::vec4 color;
 		glm::vec2 texCoords;
-		int texIndex;
+		float texIndex;
 		float tileFactor;
 	};
 
@@ -44,7 +44,7 @@ namespace pk
 		QuadVertex* quadVertexBufferData = nullptr;
 		QuadVertex* quadVertexBufferPtr = nullptr;
 
-		std::array<std::shared_ptr<Texture2D>, maxTextureSlots> textureSlots;
+		inline static std::array<std::shared_ptr<Texture2D>, maxTextureSlots> textureSlots;
 		uint32_t textureSlotIndex = 1; //0 is basic white texture
 
 		glm::vec4 quadVertexPositions[4];
@@ -65,7 +65,7 @@ namespace pk
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" }, 
 			{ ShaderDataType::Float2, "a_TexCoords" },
-			{ ShaderDataType::Int, "a_TexIndex" },
+			{ ShaderDataType::Float, "a_TexIndex" },
 			{ ShaderDataType::Float, "a_TileFactor"}
 		};
 		s_Data.quadVertexBuffer->SetLayout(quadVBLayout);
@@ -98,21 +98,11 @@ namespace pk
 			samplers[i] = i;
 
 		PipelineSpecification spec;
-		if(RendererAPI::GetAPI() == RendererAPI::API::Vulkan)
-		{
-			std::string vertShader = "assets/shaders/Texture.vert.spv";
-			std::string fragShader = "assets/shaders/Texture.frag.spv";
+		spec.Shader = Shader::Create("assets/shaders/Texture.glsl");
 
-			spec.Shader = Shader::Create("Texture", vertShader, fragShader);
-		}
-		if(RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
-		{
-			std::string shader = "assets/shaders/Texture.glsl";
-			spec.Shader = Shader::Create(shader);
-		}
 		RenderPassSpecification renderPassSpec;
 		renderPassSpec.Attachments = { ImageFormat::RGBA8
-			//, ImageFormat::Depth 
+			, ImageFormat::Depth
 		};
 		renderPassSpec.layout = ImageLayout::ShaderReadOnly;
 		renderPassSpec.clearColor = glm::vec4{ 0.1f, 0.1f, 0.1f, 1.0f };
@@ -124,10 +114,10 @@ namespace pk
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
 			{ ShaderDataType::Float2, "a_TexCoords" },
-			{ ShaderDataType::Int, "a_TexIndex" },
-			{ ShaderDataType::Float, "a_TileFactor"}
+			{ ShaderDataType::Float, "a_TexIndex" },
+			{ ShaderDataType::Float, "a_TileFactor" }
 		};
-		spec.Shader->SetTexture(s_Data.whiteTexture);
+		spec.Shader->AddResource(s_Data.whiteTexture);
 		s_Data.quadPipeline = Pipeline::Create(spec);
 
 		s_Data.textureSlots[0] = s_Data.whiteTexture;
@@ -152,18 +142,14 @@ namespace pk
 		s_Data.quadVertexBufferData = (QuadVertex*)s_Data.quadVertexBuffer->Map();
 		s_Data.quadVertexBufferPtr = s_Data.quadVertexBufferData;
 
-		/*struct
-		{
-			glm::mat4 ViewProj;
-			glm::mat4 Transform;
-		} cameraUB;
+		struct{
+			glm::mat4 view;
+			glm::mat4 projection;
+		} cameraBuffer;
+		cameraBuffer.view = glm::inverse(transform);
+		cameraBuffer.projection = camera.GetProjection();
 
-		cameraUB.ViewProj = camera.GetProjection();
-		cameraUB.Transform = transform;*/
-		//s_Data.quadPipeline->GetSpecification().Shader->SetUniformBuffer(&cameraUB, sizeof(cameraUB));
-
-		glm::mat4 viewProj =  camera.GetProjection() * glm::inverse(transform);
-		s_Data.quadPipeline->GetSpecification().Shader->SetMat4("u_ViewProjection", viewProj);
+		s_Data.quadPipeline->GetSpecification().Shader->SetUniformBuffer("Camera", &cameraBuffer, sizeof(cameraBuffer));
 	}
 
 	void Renderer2D::BeginScene(const OrthographicCamera& camera)
@@ -189,10 +175,10 @@ namespace pk
 	{
 		PROFILE_FUNCTION();
 
-		for (uint32_t i = 0; i < s_Data.textureSlotIndex; i++)
+		/*for (uint32_t i = 0; i < s_Data.textureSlotIndex; i++)
 		{
 			s_Data.textureSlots[i]->Bind(i);
-		}
+		}*/
 
 		Renderer::Flush();
 
@@ -231,22 +217,23 @@ namespace pk
 		constexpr size_t quadVertexCount = 4;
 		glm::vec2 textureCoords[] = { {0, 0}, {1, 0}, {1, 1}, {0, 1} };
 
-		float textureIndex = 0.0f;
+		int textureIndex = 0.0f;
 		if(texture != nullptr)
 		{
 			for (uint32_t i = 1; i < s_Data.textureSlotIndex; ++i)
 			{
 				if (*s_Data.textureSlots[i].get() == *texture.get())
 				{
-					textureIndex = (float)i;
+					textureIndex = i;
 					break;
 				}
 			}
 
 			if (textureIndex == 0.0f)
 			{
-				textureIndex = (float)s_Data.textureSlotIndex;
+				textureIndex = s_Data.textureSlotIndex;
 				s_Data.textureSlots[s_Data.textureSlotIndex] = texture;
+				s_Data.quadPipeline->GetSpecification().Shader->AddResource(texture);
 				++s_Data.textureSlotIndex;
 			}
 		}
@@ -275,38 +262,47 @@ namespace pk
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 		if (rotation != 0) transform *= glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f });
 
-		DrawQuad(transform, subtexture, tileFactor);
+		DrawQuad(transform, glm::vec4(1.0f), subtexture, tileFactor);
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const std::shared_ptr<SubTexture2D>& subtexture, float tileFactor)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, const std::shared_ptr<SubTexture2D>& subtexture, float tileFactor)
 	{
 		if (s_Data.quadIndexCount >= RendererData2D::maxIndices)
 		{
 			StartNewBatch();
 		}
 
-		const glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		constexpr size_t quadVertexCount = 4;
-		const glm::vec2* textureCoords = subtexture->GetTexCoords();
+		std::array<glm::vec2, 4> textureCoords = { glm::vec2{0, 0}, glm::vec2{1, 0}, glm::vec2{1, 1}, glm::vec2{0, 1} };
+		if (subtexture)
+		{
+			textureCoords = subtexture->GetTexCoords();
+		}
 
-		const std::shared_ptr<Texture2D> texture = subtexture->GetTexture();
+		std::shared_ptr<Texture2D> texture = nullptr;
+		if(subtexture)
+			texture = subtexture->GetTexture();
 
 		float textureIndex = 0.0f;
 
-		for (uint32_t i = 1; i < s_Data.textureSlotIndex; ++i)
+		if (texture)
 		{
-			if (*s_Data.textureSlots[i].get() == *texture.get())
+			for (uint32_t i = 1; i < s_Data.textureSlotIndex; ++i)
 			{
-				textureIndex = (float)i;
-				break;
+				if (*s_Data.textureSlots[i].get() == *texture.get())
+				{
+					textureIndex = i;
+					break;
+				}
 			}
-		}
 
-		if (textureIndex == 0.0f)
-		{
-			textureIndex = (float)s_Data.textureSlotIndex;
-			s_Data.textureSlots[s_Data.textureSlotIndex] = texture;
-			++s_Data.textureSlotIndex;
+			if (textureIndex == 0.0f)
+			{
+				textureIndex = s_Data.textureSlotIndex;
+				s_Data.textureSlots[s_Data.textureSlotIndex] = texture;
+				s_Data.quadPipeline->GetSpecification().Shader->AddResource(texture);
+				++s_Data.textureSlotIndex;
+			}
 		}
 
 		for (size_t i = 0; i < quadVertexCount; ++i)

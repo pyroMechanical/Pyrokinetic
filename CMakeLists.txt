@@ -90,12 +90,13 @@ target_link_libraries(Pyrokinetic PUBLIC SPIRV-Tools)
 add_subdirectory(Pyrokinetic/ext/glslang)
 target_link_libraries(Pyrokinetic PUBLIC glslang)
 
-#add_subdirectory(Pyrokinetic/ext/SPIRV-Cross)
-#target_compile_options(spirv-cross-core PUBLIC -DSPIRV_CROSS_SHARED=ON)
-#target_link_libraries(Pyrokinetic PUBLIC spirv-cross-core)
-
 add_subdirectory(Pyrokinetic/ext/shaderc)
 target_link_libraries(Pyrokinetic PUBLIC shaderc)
+
+add_subdirectory(Pyrokinetic/ext/SPIRV-Cross)
+option(SPIRV_CROSS_SHARED ON)
+target_link_libraries(Pyrokinetic PUBLIC
+			spirv-cross-c)
 
 target_link_libraries(Pyrokinetic PUBLIC ${Vulkan_LIBRARIES})
 target_include_directories(Pyrokinetic PUBLIC ${Vulkan_INCLUDE_DIRS})

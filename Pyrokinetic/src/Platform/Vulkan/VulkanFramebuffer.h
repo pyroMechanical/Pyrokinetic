@@ -17,27 +17,35 @@ namespace pk
 		virtual void Bind() override {};
 		virtual void Unbind() override {};
 
+		void CreateAttachment(FramebufferTextureSpecification attachmentSpec);
+
 		VkFramebuffer GetVulkanFramebuffer() { return m_Framebuffer; }
 
 		const VkFramebuffer GetVulkanFramebuffer() const { return m_Framebuffer; }
 
-		virtual void Resize(const uint32_t width, const uint32_t height) override {};
+		void DestroyFramebufferImages();
 
-		virtual void* GetColorAttachment(uint32_t index = 0) const override { return (void*)ImGui_ImplVulkan_AddTexture(m_Sampler, m_ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL); };
+		virtual void Resize(const uint32_t width, const uint32_t height) override;
+
+		virtual void* GetColorAttachment(uint32_t index = 0) const override { PK_CORE_ASSERT(index < m_ImTextureIDs.size(), "framebuffer attachment index out of bounds!"); return m_ImTextureIDs[index]; };
 
 		virtual const FramebufferSpecification& GetSpecification() const override { return m_Spec; }
 
 	private:
 		uint32_t m_RendererID;
 		FramebufferSpecification m_Spec;
-		VkImage m_Image;
-		VmaAllocation m_ImageAllocation = nullptr;
-		VkImageView m_ImageView;
+
+		std::vector<FramebufferTextureSpecification> m_AttachmentSpecifications;
+
+		std::vector<VkImage> m_Images;
+		std::vector<VmaAllocation> m_ImageAllocations;
+		std::vector<VkImageView> m_ImageViews;
 		VkFramebuffer m_Framebuffer;
-		VkSampler m_Sampler;
+		std::vector<VkSampler> m_Samplers;
 		VkSemaphore m_RenderSemaphore, m_PresentSemaphore;
 		VkFence m_RenderFence;
-		VkDescriptorSet descriptorSet;
+
+		std::vector<void*> m_ImTextureIDs;
 		friend class VulkanSwapchain;
 	};
 }

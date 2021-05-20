@@ -131,6 +131,11 @@ namespace pk
 		vkCreateDescriptorPool(m_Device->GetVulkanDevice(), &pool_info, nullptr, &m_DescriptorPool);*/
 	}
 
+	void VulkanContext::SetViewport(VkExtent2D extent)
+	{
+		//m_Swapchain
+	}
+
 	void VulkanContext::SwapBuffers()
 	{
 		m_Swapchain.SwapBuffers();
@@ -139,6 +144,8 @@ namespace pk
 	//this is for Dear ImGui integration
 	InitInfo VulkanContext::CreateImGuiImplInfo()
 	{
+		PROFILE_FUNCTION();
+
 		VkDescriptorPoolSize pool_sizes[] =
 		{
 			{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },

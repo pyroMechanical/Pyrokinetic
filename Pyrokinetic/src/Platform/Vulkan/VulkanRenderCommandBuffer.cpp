@@ -26,12 +26,14 @@ namespace pk
 
 	void VulkanRenderCommandBuffer::BeginRenderPass(const std::shared_ptr<RenderPass>& renderPass)
 	{
+		PROFILE_FUNCTION();
 		VulkanRenderPass* vkRenderPass = static_cast<VulkanRenderPass*>(renderPass.get());
 
 		m_RenderPasses.push_back(vkRenderPass);
 
 		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VulkanFramebuffer& framebuffer)
 			{
+				PROFILE_FUNCTION();
 				VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
 
 				auto& clearColor = framebuffer.GetSpecification().renderPass->GetSpecification().clearColor;
@@ -58,8 +60,10 @@ namespace pk
 
 	void VulkanRenderCommandBuffer::EndRenderPass()
 	{
+		PROFILE_FUNCTION();
 		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VulkanFramebuffer& framebuffer)
 			{
+				PROFILE_FUNCTION();
 				vkCmdEndRenderPass(drawCommandBuffer);
 			});
 	}
@@ -68,10 +72,13 @@ namespace pk
 		const std::shared_ptr<VertexBuffer>& vertexBuffer,
 		const std::shared_ptr<IndexBuffer>& indexBuffer, uint32_t indexCount)
 	{
-		VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
+		PROFILE_FUNCTION();
+
+		VulkanContext* context = VulkanContext::Get();
 
 		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VulkanFramebuffer& framebuffer)
 			{
+				PROFILE_FUNCTION();
 				VkViewport viewport = {};
 				viewport.x = 0;
 				viewport.y = (float)context->GetSwapchain().GetHeight();
@@ -89,8 +96,9 @@ namespace pk
 				vkCmdSetScissor(drawCommandBuffer, 0, 1, &scissor);
 
 				VulkanPipeline* vkPipeline = static_cast<VulkanPipeline*>(pipeline.get());
-				VulkanShader* shader = dynamic_cast<VulkanShader*>(vkPipeline->GetSpecification().Shader.get());
-				//vkCmdBindDescriptorSets(drawCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shader->GetPipelineLayout(), 0, 1, &shader->GetDescriptorSet(), 0, nullptr);
+				vkPipeline->WriteImageSamplers();
+				auto& descriptorSet = vkPipeline->GetPipelineDescriptorSets();
+				vkCmdBindDescriptorSets(drawCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->GetPipelineLayout(), 0, descriptorSet.size(), descriptorSet.data(), 0, nullptr);
 
 				vkCmdBindPipeline(drawCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->GetVulkanPipeline());
 
@@ -107,15 +115,14 @@ namespace pk
 
 	void VulkanRenderCommandBuffer::Flush()
 	{
-		VulkanContext* context = dynamic_cast<VulkanContext*>(Renderer::GetContext());
+		PROFILE_FUNCTION();
+
+		VulkanContext* context = VulkanContext::Get();
 		auto& device = context->GetDevice();
 
 		VkCommandBufferBeginInfo cmdBeginInfo = {};
 		cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		cmdBeginInfo.pNext = nullptr;
-
-		auto& drawCmdBuffers = context->GetSwapchain().GetCommandBuffers();
-		auto& framebuffers = context->GetSwapchain().GetFramebuffers();
 
 		for (auto renderPass : m_RenderPasses)
 		{
@@ -131,6 +138,7 @@ namespace pk
 			}
 		}
 
-		m_Queue.clear();
+ 		m_Queue.clear();
+		m_RenderPasses.clear();
 	}
 }

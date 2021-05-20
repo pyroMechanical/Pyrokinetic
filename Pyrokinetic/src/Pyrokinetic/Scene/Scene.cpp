@@ -146,7 +146,7 @@ namespace pk
 				if(camera.Primary)
 				{
 					mainCamera = &camera.Camera;
-					cameraTransform = transform.GetWorldMatrix();
+					cameraTransform = transform.World * glm::translate(glm::mat4(1.0f), transform.Translation) * glm::mat4_cast(transform.Quaternion);
 					break;
 				}
 

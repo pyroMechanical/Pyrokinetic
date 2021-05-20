@@ -29,48 +29,13 @@ namespace pk
 	void VulkanRendererAPI::Clear()
 	{
 		PROFILE_FUNCTION();
-
-		/*VkRenderPassBeginInfo rpInfo = {};
-		rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		rpInfo.pNext = nullptr;
-		rpInfo.renderPass = m_Context->GetSwapchain().GetRenderPass();
-		rpInfo.renderArea.offset.x = 0;
-		rpInfo.renderArea.offset.y = 0;
-		rpInfo.renderArea.extent = m_Context->GetSwapchain().GetExtent();
-		rpInfo.framebuffer = m_Context->framebuffers[m_Context->frameNumber % FRAME_OVERLAP];
-		rpInfo.clearValueCount = 1;
-		rpInfo.pClearValues = &m_Context->GetSwapchain().GetClearValue();
-
-		vkCmdBeginRenderPass(currentFrame.mainCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdEndRenderPass(currentFrame.mainCommandBuffer);*/
 	}
 
 	void VulkanRendererAPI::Begin()
 	{
-		/*FrameData currentFrame = m_Context->GetCurrentFrame(m_Context->frameNumber);
-
-		CHECK_VULKAN(vkResetCommandBuffer(currentFrame.mainCommandBuffer, 0));
-		VkCommandBufferBeginInfo cmdBeginInfo = {};
-		cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		cmdBeginInfo.pNext = nullptr;
-		cmdBeginInfo.pInheritanceInfo = nullptr;
-		cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		CHECK_VULKAN(vkBeginCommandBuffer(currentFrame.mainCommandBuffer, &cmdBeginInfo));*/
 	}
 
 	void VulkanRendererAPI::End()
 	{
-		/*FrameData currentFrame = m_Context->GetCurrentFrame(m_Context->frameNumber);
-
-		CHECK_VULKAN(vkEndCommandBuffer(currentFrame.mainCommandBuffer));*/
 	}
-
-	/*void VulkanRendererAPI::DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray, uint32_t indexCount)
-	{
-		PROFILE_FUNCTION();
-
-		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
-		//glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-		//glBindTexture(GL_TEXTURE_2D, 0);
-	}*/
 }

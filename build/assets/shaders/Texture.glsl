@@ -1,47 +1,51 @@
 #type vertex
 #version 450 core
 
-layout(location = 0) in vec3 a_Position;
+layout(location = 0) in vec3 Position;
 layout(location = 1) in vec4 a_Color;
 layout(location = 2) in vec2 a_TexCoord;
-layout(location = 3) in int a_TexIndex;
+layout(location = 3) in float a_TexIndex;
 layout(location = 4) in float a_TileFactor;
 
-layout(location = 0) uniform mat4 u_ViewProjection;
+layout(binding = 0) uniform Camera
+{
+	mat4 View;
+	mat4 Projection;
+};
+
 
 layout(location = 0) out vec2 v_TexCoord;
 layout(location = 1) out vec4 v_Color;
-layout(location = 2) flat out int v_TexIndex;
+layout(location = 2) out float v_TexIndex;
 layout(location = 3) out float v_TileFactor;
 
 void main()
 {
+
 	v_Color = a_Color;
 	v_TexCoord = a_TexCoord;
 	v_TexIndex = a_TexIndex;
 	v_TileFactor = a_TileFactor;
-	gl_Position =  u_ViewProjection * vec4(a_Position, 1.0);
+	gl_Position =  Projection * View * 
+	vec4(Position, 1.0);
 }
 			
-#type frag
+#type fragment
 #version 450 core
-			
-layout(location = 0) out vec4 color;
 
 layout(location = 0) in vec2 v_TexCoord;
 layout(location = 1) in vec4 v_Color;
-layout(location = 2) flat in int v_TexIndex;
+layout(location = 2) in float v_TexIndex;
 layout(location = 3) in float v_TileFactor;
 
+layout(location = 0) out vec4 color;
 
-uniform sampler2D u_Textures[32];
-
+layout(binding = 1) uniform sampler2D u_Textures[32];
 
 void main()
 {
-
 	vec4 texColor = v_Color;
-	switch(v_TexIndex)
+	switch(int(v_TexIndex))
 	{
 		case 0: texColor *= texture(u_Textures[0], v_TexCoord * v_TileFactor); break;
 		case 1: texColor *= texture(u_Textures[1], v_TexCoord * v_TileFactor); break;

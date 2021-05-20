@@ -89,19 +89,22 @@ namespace pk
 
 			if (m_SelectedEntity.HasComponent<SpriteRendererComponent>())
 			{
-
 				if (ImGui::TreeNodeEx((void*)typeid(SpriteRendererComponent).hash_code(), ImGuiTreeNodeFlags_DefaultOpen, "Sprite"))
 				{
 					auto& sprite = m_SelectedEntity.GetComponent<SpriteRendererComponent>();
-
-					Texture2D* texture = sprite.Texture.get();
+					auto& texture = sprite.Texture;
 
 					ImGui::ColorEdit4("Color", glm::value_ptr(sprite.Color));
+					
 					if (texture)
 					{
+						glm::vec2 min = texture->GetMin();
+						glm::vec2 max = texture->GetMax();
+						glm::vec2 ratio = texture->GetTextureRatio();
 						ImGui::Text("Texture:");
 						ImGui::SameLine();
-						ImGui::Image((void*)texture->GetRendererID(), ImVec2{ 64.0f, 64.0f }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+						ImGui::Image(texture->GetTexture()->GetImGuiTexture(), ImVec2{ ratio.x * 100.0f, ratio.y * 100.0f }, ImVec2{ min.x, max.y }, ImVec2{ max.x, min.y });
 					}
 					ImGui::TreePop();
 				}

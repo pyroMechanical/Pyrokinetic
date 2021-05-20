@@ -5,6 +5,20 @@
 
 namespace pk
 {
+
+	void GLAPIENTRY
+		MessageCallback(GLenum source,
+			GLenum type,
+			GLuint id,
+			GLenum severity,
+			GLsizei length,
+			const GLchar* message,
+			const void* userParam)
+	{
+		PK_CORE_WARN("OpenGL Callback: type:{0}, severity:{1}, message:{2}", type, severity, message);
+	}
+
+
 	void OpenGLRendererAPI::Init()
 	{
 		PROFILE_FUNCTION();
@@ -12,6 +26,8 @@ namespace pk
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEBUG_OUTPUT);
+		glDebugMessageCallback(MessageCallback, 0);
 		//glEnable(GL_FRAMEBUFFER_SRGB);
 	}
 

@@ -7,6 +7,7 @@ namespace pk
 {
 	VulkanPhysicalDevice::VulkanPhysicalDevice(VkSurfaceKHR surface)
 	{
+		PROFILE_FUNCTION();
 		auto vkInstance = VulkanContext::GetVkbInstance();
 
 		vkb::PhysicalDeviceSelector selector{ vkInstance };
@@ -23,6 +24,7 @@ namespace pk
 
 	VulkanDevice::VulkanDevice(const std::shared_ptr<VulkanPhysicalDevice>& physicalDevice)
 	{
+		PROFILE_FUNCTION();
 		vkb::DeviceBuilder builder{ physicalDevice->m_PhysicalDevice };
 		m_LogicalDevice = builder.build().value();
 		m_PhysicalDevice = physicalDevice;
@@ -33,11 +35,11 @@ namespace pk
 		m_GraphicsQueue = m_LogicalDevice.get_queue(vkb::QueueType::graphics).value();
 		m_ComputeQueue = m_LogicalDevice.get_queue(vkb::QueueType::compute).value();
 
-		auto graphicsPoolCreateInfo = vkinit::command_pool_create_info(m_GraphicsQueueFamily, 0);
+		auto graphicsPoolCreateInfo = vkinit::command_pool_create_info(m_GraphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
 		CHECK_VULKAN(vkCreateCommandPool(m_LogicalDevice.device, &graphicsPoolCreateInfo, nullptr, &m_GraphicsCommandPool));
 
-		auto computePoolCreateInfo = vkinit::command_pool_create_info(m_ComputeQueueFamily, 0);
+		auto computePoolCreateInfo = vkinit::command_pool_create_info(m_ComputeQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
 		CHECK_VULKAN(vkCreateCommandPool(m_LogicalDevice.device, &computePoolCreateInfo, nullptr, &m_ComputeCommandPool));
 	}
@@ -48,6 +50,7 @@ namespace pk
 
 	VulkanDevice::VulkanCommandBuffer VulkanDevice::GetCommandBuffer(bool begin, bool compute)
 	{
+		PROFILE_FUNCTION();
 		VkCommandBuffer buffer;
 
 		VkCommandPool& pool = compute ? m_ComputeCommandPool : m_GraphicsCommandPool;
@@ -61,6 +64,7 @@ namespace pk
 		{
 			VkCommandBufferBeginInfo info = {};
 			info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			info.flags = 0;
 
 			CHECK_VULKAN(vkBeginCommandBuffer(buffer, &info));
 		}
@@ -71,6 +75,7 @@ namespace pk
 
 	void VulkanDevice::EndCommandBuffer(VulkanDevice::VulkanCommandBuffer buffer, bool flush)
 	{
+		PROFILE_FUNCTION();
 		PK_CORE_ASSERT(buffer.buffer != VK_NULL_HANDLE, "Buffer does not exist!");
 
 		CHECK_VULKAN(vkEndCommandBuffer(buffer.buffer));
@@ -83,6 +88,7 @@ namespace pk
 
 	void VulkanDevice::FlushCommandBuffer(VulkanDevice::VulkanCommandBuffer buffer)
 	{
+		PROFILE_FUNCTION();
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
@@ -100,6 +106,7 @@ namespace pk
 
 		vkDestroyFence(m_LogicalDevice.device, fence, nullptr);
 
+		vkResetCommandBuffer(buffer.buffer, 0);
 		vkFreeCommandBuffers(m_LogicalDevice.device, buffer.pool, 1, &buffer.buffer);
 	}
 }

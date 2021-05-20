@@ -18,10 +18,10 @@ namespace pk
 	{
 		PROFILE_FUNCTION();
 
-		m_Texture = Texture2D::Create("assets/textures/checker.png");
+		m_Texture = SubTexture2D::CreateFromPath("assets/textures/checker.png");
 		m_Spritesheet = Texture2D::Create("assets/textures/RPGpack_sheet_2X.png");
 
-		m_StairSprite = SubTexture2D::CreateFromCoordinates(m_Spritesheet, { 1, 3 }, { 128, 128 }, { 1, 1 });
+		m_StairSprite = SubTexture2D::CreateFromCoordinates(m_Spritesheet, { 7, 5 }, { 128, 128 }, { 1, 1 });
 		m_LargeTree = SubTexture2D::CreateFromCoordinates(m_Spritesheet, { 1, 1 }, { 128, 128 }, { 1, 2 });
 
 		m_RenderPass = Renderer::GetRenderPass("SceneView");
@@ -46,6 +46,18 @@ namespace pk
 		m_TestSquare = m_ActiveScene->CreateEntity("Test Square");
 		auto& sprite = m_TestSquare.AddComponent<SpriteRendererComponent>();
 		sprite.Color = { 1.0f, 0.1f, 0.1f, 1.0f };
+
+		pk::Entity testSquare2 = m_ActiveScene->CreateEntity("Textured Square");
+		auto& sprite2 = testSquare2.AddComponent<SpriteRendererComponent>();
+		sprite2.Texture = m_Texture;
+		testSquare2.GetComponent<TransformComponent>().Translation = { 2.0f, 0.0f, 0.0f };
+
+		pk::Entity testSquare3 = m_ActiveScene->CreateEntity("Textured Square");
+		auto& sprite3 = testSquare3.AddComponent<SpriteRendererComponent>();
+		sprite3.Texture = m_StairSprite;
+		testSquare3.GetComponent<TransformComponent>().Translation = { -2.0f, 0.0f, 0.0f };
+
+
 
 		class CameraController : public ScriptableEntity
 		{

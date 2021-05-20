@@ -10,15 +10,31 @@
 namespace pk
 {
 #ifdef PK_PROFILING
+#ifndef PROFILE_BEGIN_SESSION(name, filepath)
 #define PROFILE_BEGIN_SESSION(name, filepath) ::pk::Instrumentor::Get().BeginSession(name, filepath)
+#endif
+#ifndef PROFILE_END_SESSION()
 #define PROFILE_END_SESSION() ::pk::Instrumentor::Get().EndSession()
+#endif
+#ifndef PROFILE_FUNCTION()
 #define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCSIG__)
+#endif
+#ifndef PROFILE_SCOPE(name)
+#endif
 #define PROFILE_SCOPE(name) ::pk::InstrumentationTimer timer##__LINE__(name);
 #else
+#ifndef PROFILE_BEGIN_SESSION(name, filepath)
 #define PROFILE_BEGIN_SESSION(name, filepath)
+#endif
+#ifndef PROFILE_END_SESSION()
 #define PROFILE_END_SESSION()
+#endif
+#ifndef PROFILE_FUNCTION()
 #define PROFILE_FUNCTION() 
+#endif
+#ifndef PROFILE_SCOPE(name)
 #define PROFILE_SCOPE(name)
+#endif
 #endif
     struct ProfileResult
     {

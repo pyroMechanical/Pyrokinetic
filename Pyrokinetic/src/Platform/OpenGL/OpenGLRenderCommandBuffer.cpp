@@ -51,9 +51,7 @@ namespace pk
 		m_Queue.push_back([=](OpenGLFramebuffer& framebuffer)
 			{
 				glUseProgram(glShader->GetRendererID());
-				const auto& texture = glShader->GetTexture();
-				if (texture)
-					texture->Bind();
+				glShader->BindNeededResources();
 				glBindVertexArray(glPipeline->GetVertexArrayRendererID());
 				glVertexBuffer->Bind();
 				glIndexBuffer->Bind();
