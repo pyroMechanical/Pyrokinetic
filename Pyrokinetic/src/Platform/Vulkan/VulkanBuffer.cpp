@@ -168,9 +168,9 @@ namespace pk
 
 		CHECK_VULKAN(vmaCreateBuffer(*allocator, &stagingBufferInfo, &stagingBufferAllocInfo, &stagingBuffer.buffer, &stagingBuffer.allocation, nullptr));
 
-		void* region;
+		uint8_t* region;
 
-		vmaMapMemory(*allocator, stagingBuffer.allocation, &region);
+		vmaMapMemory(*allocator, stagingBuffer.allocation, (void**)&region);
 		memcpy(region, indices, count * sizeof(uint32_t));
 		vmaUnmapMemory(*allocator, stagingBuffer.allocation);
 

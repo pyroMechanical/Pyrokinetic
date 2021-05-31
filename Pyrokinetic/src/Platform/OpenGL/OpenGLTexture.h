@@ -26,6 +26,8 @@ namespace pk
 
 		virtual void* GetImGuiTexture() override { return (void*) m_RendererID; }
 
+		virtual std::string GetPath() override { return m_Path; }
+
 		virtual bool operator == (const Texture& other) const override 
 		{ 
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID; 

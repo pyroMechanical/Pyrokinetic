@@ -23,7 +23,6 @@ namespace pk
 
 	VulkanContext::~VulkanContext()
 	{
-		m_Swapchain.DestroyFramebuffers();
 		//vmaDestroyAllocator(m_Allocator);
 	}
 
@@ -76,22 +75,25 @@ namespace pk
 
 		m_Device = std::make_shared<VulkanDevice>(m_PhysicalDevice);
 
-		m_Swapchain.CreateSwapchain(m_Device);
+
+
+		int width, height;
+		glfwGetWindowSize(m_WindowHandle, &width, &height);
+
+		VkExtent2D extent = { width, height };
+
+		m_Swapchain.CreateSwapchain(extent);
 
 		RenderPassSpecification renderPassSpec = {};
 		renderPassSpec.samples = 1;
 		renderPassSpec.clearColor = { 0.5f, 0.0f, 0.0f, 1.0f };
 		renderPassSpec.Attachments = { ImageFormat::RGBA8 };
 
+
 		auto renderPass = RenderPass::Create(renderPassSpec);
 
-		FramebufferSpecification framebufferSpec = {};
-		framebufferSpec.renderPass = renderPass;
-		framebufferSpec.width = 1280;
-		framebufferSpec.height = 720;
-		framebufferSpec.SwapchainTarget = true;
+		m_Swapchain.CreateFramebuffers(renderPass);
 
-		m_Swapchain.CreateFramebuffers(framebufferSpec);
 
 		VmaAllocatorCreateInfo allocatorInfo = {};
 		allocatorInfo.physicalDevice = m_PhysicalDevice->GetVulkanPhysicalDevice();
@@ -115,25 +117,11 @@ namespace pk
 		setInfo.pBindings = &cameraMatrixBinding;
 
 		vkCreateDescriptorSetLayout(m_Device->GetVulkanDevice(), &setInfo, nullptr, &m_GlobalDescriptorLayout);
-
-		/*std::vector<VkDescriptorPoolSize> sizes =
-		{
-			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10}
-		};
-
-		VkDescriptorPoolCreateInfo pool_info = {};
-		pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		pool_info.flags = 0;
-		pool_info.maxSets = 10;
-		pool_info.poolSizeCount = (uint32_t)sizes.data();
-		pool_info.pPoolSizes = sizes.data();
-
-		vkCreateDescriptorPool(m_Device->GetVulkanDevice(), &pool_info, nullptr, &m_DescriptorPool);*/
 	}
 
 	void VulkanContext::SetViewport(VkExtent2D extent)
 	{
-		//m_Swapchain
+		m_Swapchain.RebuildSwapchain(extent);
 	}
 
 	void VulkanContext::SwapBuffers()
@@ -168,8 +156,8 @@ namespace pk
 		pool_info.poolSizeCount = std::size(pool_sizes);
 		pool_info.pPoolSizes = pool_sizes;
 
-		VkDescriptorPool imguiPool;
-		CHECK_VULKAN(vkCreateDescriptorPool(m_Device->GetVulkanDevice(), &pool_info, nullptr, &imguiPool));
+		
+		CHECK_VULKAN(vkCreateDescriptorPool(m_Device->GetVulkanDevice(), &pool_info, nullptr, &m_ImGuiDescriptorPool));
 
 
 		InitInfo info{};
@@ -179,7 +167,7 @@ namespace pk
 		info.QueueFamily = m_Device->GetGraphicsQueueFamily();
 		info.Queue = m_Device->GetGraphicsQueue();
 		info.PipelineCache = VK_NULL_HANDLE;
-		info.DescriptorPool = imguiPool;
+		info.DescriptorPool = m_ImGuiDescriptorPool;
 		info.Subpass = 0;
 		info.MinImageCount = FRAME_OVERLAP;
 		info.ImageCount = FRAME_OVERLAP;

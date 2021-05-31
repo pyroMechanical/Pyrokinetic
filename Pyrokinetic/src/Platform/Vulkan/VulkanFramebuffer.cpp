@@ -59,6 +59,18 @@ namespace pk
 
 		m_AttachmentSpecifications = m_Spec.renderPass->GetSpecification().Attachments.Attachments;
 
+		VkDescriptorPoolSize size = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_AttachmentSpecifications.size() };
+
+		VkDescriptorPoolCreateInfo poolInfo = {};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.pNext = nullptr;
+		poolInfo.poolSizeCount = 1;
+		poolInfo.pPoolSizes = &size;
+		poolInfo.maxSets = m_AttachmentSpecifications.size();
+		poolInfo.flags = 0;
+
+		CHECK_VULKAN(vkCreateDescriptorPool(device->GetVulkanDevice(), &poolInfo, nullptr, &m_Pool));
+
 		for(auto& attachmentSpec : m_AttachmentSpecifications)
 		{
 			CreateAttachment(attachmentSpec);
@@ -184,56 +196,63 @@ namespace pk
 
 		vkCreateSampler(device->GetVulkanDevice(), &samplerInfo, nullptr, &sampler);
 
-		m_ImTextureIDs.emplace_back((void*)ImGui_ImplVulkan_AddTexture(sampler, imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL));
+		VkDescriptorSet set;
+		VkDescriptorSetAllocateInfo alloc = {};
+		alloc.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		alloc.descriptorPool = context->GetImGuiDescriptorPool();
+		alloc.descriptorSetCount = 1;
+		alloc.pSetLayouts = ImGui_ImplVulkan_GetDescriptorSetLayout();
+		CHECK_VULKAN(vkAllocateDescriptorSets(device->GetVulkanDevice(), &alloc, &set));
+
+		m_ImTextureIDs.push_back((void*)set);
+
+		VkDescriptorImageInfo info = {};
+		info.sampler = sampler;
+		info.imageView = imageView;
+		info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		VkWriteDescriptorSet write = {};
+		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		write.dstSet = set;
+		write.descriptorCount = 1;
+		write.descriptorType =  VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		write.pImageInfo = &info;
+		vkUpdateDescriptorSets(device->GetVulkanDevice(), 1, &write, 0, nullptr);
 	}
 
-	VulkanFramebuffer::VulkanFramebuffer(const FramebufferSpecification& spec, VkImage image, VkImageView imageView)
-		: m_Spec(spec)
+	void VulkanFramebuffer::Resize(const uint32_t width, const uint32_t height)
 	{
-		PROFILE_FUNCTION();
-		VkDevice device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+		VulkanContext* context = VulkanContext::Get();
+		std::shared_ptr<VulkanDevice> device = context->GetDevice();
+		VmaAllocator* allocator = context->GetAllocator();
+		m_AttachmentSpecifications.clear();
+		m_ImTextureIDs.clear();
+		DestroyFramebufferImages();
+		m_Spec.width = width;
+		m_Spec.height = height;
 
-		m_Images.emplace_back(image);
-		m_ImageViews.emplace_back(imageView);
+		vkResetDescriptorPool(device->GetVulkanDevice(), m_Pool, 0);
 
-		dynamic_cast<VulkanRenderPass*>(m_Spec.renderPass.get())->AddFramebuffer(this);
+		VulkanRenderPass* vkRenderPass = dynamic_cast<VulkanRenderPass*>(m_Spec.renderPass.get());
 
-		VulkanRenderPass* vkRenderPass = dynamic_cast<VulkanRenderPass*>(spec.renderPass.get());
+		m_AttachmentSpecifications = m_Spec.renderPass->GetSpecification().Attachments.Attachments;
 
-		VkSamplerCreateInfo samplerInfo = vkinit::image_sampler_create_info(VK_FILTER_NEAREST);
-
-		vkCreateSampler(device, &samplerInfo, nullptr, &m_Samplers.emplace_back());
+		for (auto& attachmentSpec : m_AttachmentSpecifications)
+		{
+			CreateAttachment(attachmentSpec);
+		}
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferInfo.pNext = nullptr;
 		framebufferInfo.renderPass = vkRenderPass->GetVulkanRenderPass();
-		framebufferInfo.attachmentCount = 1;
-		framebufferInfo.width = spec.width;
-		framebufferInfo.height = spec.height;
+		framebufferInfo.attachmentCount = m_ImageViews.size();
+		framebufferInfo.width = m_Spec.width;
+		framebufferInfo.height = m_Spec.height;
 		framebufferInfo.layers = 1;
+		framebufferInfo.pAttachments = m_ImageViews.data();
 
-		framebufferInfo.pAttachments = &imageView;
-		CHECK_VULKAN(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &m_Framebuffer));
-
-		VkFenceCreateInfo fenceCreateInfo = {};
-		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-		fenceCreateInfo.pNext = nullptr;
-		fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-		CHECK_VULKAN(vkCreateFence(device, &fenceCreateInfo, nullptr, &m_RenderFence));
-
-		VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-		semaphoreCreateInfo.pNext = nullptr;
-		semaphoreCreateInfo.flags = 0;
-
-		CHECK_VULKAN(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &m_RenderSemaphore));
-		CHECK_VULKAN(vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &m_PresentSemaphore));
-	}
-	void VulkanFramebuffer::Resize(const uint32_t width, const uint32_t height)
-	{
-		
-		//DestroyFramebufferImages();
+		CHECK_VULKAN(vkCreateFramebuffer(device->GetVulkanDevice(), &framebufferInfo, nullptr, &m_Framebuffer));
 	}
 
 	void VulkanFramebuffer::DestroyFramebufferImages()
@@ -254,6 +273,9 @@ namespace pk
 			for (size_t i = 0; i < m_Images.size(); i++)
 				vmaDestroyImage(*context->GetAllocator(), m_Images[i], m_ImageAllocations[i]);
 		}
+		m_ImageViews.clear();
+		m_Images.clear();
+		m_ImageAllocations.clear();
 	}
 
 	VulkanFramebuffer::~VulkanFramebuffer()

@@ -1,0 +1,64 @@
+Scene: <Scene Name>
+Entities:
+  - Entity: 68096b51-e93f-48e5-91d6-6d582a9759cd
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Translation: [0, 0, 6]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      ProjectionType: 0
+      OrthographicSize: 10
+      OrthographicNear: 0
+      OrthographicFar: 10000
+      VerticalFOV: 70
+      PerspectiveNear: 0.300000012
+      PerspectiveFar: 10000
+      InfiniteFarPlane: false
+      Primary: true
+      FixedAspectRatio: false
+  - Entity: fc9f2844-6065-466a-b57a-68c4f4c38931
+    TagComponent:
+      Tag: Red
+    TransformComponent:
+      Translation: [5.19615221, -3, 0]
+      Rotation: [0, -0, -59.9999962]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 0.764705896, 0.764705896, 1]
+      Texture: C:\dev\Pyrokinetic\build\assets\textures\pkicon.png
+    ParentComponent:
+      Children: 1
+      First: 8c8f1ea6-912a-480e-918e-0701f7ad2c37
+    ChildComponent:
+      Parent: 6829fe95-8365-40d9-be6b-1fd893c509db
+      Previous: fc9f2844-6065-466a-b57a-68c4f4c38931
+      Next: fc9f2844-6065-466a-b57a-68c4f4c38931
+  - Entity: 8c8f1ea6-912a-480e-918e-0701f7ad2c37
+    TagComponent:
+      Tag: Green
+    TransformComponent:
+      Translation: [-2.59807611, -1.5, 0]
+      Rotation: [-0, -0, 30.0000019]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.828431368, 1, 0.828431368, 1]
+      Texture: C:\dev\Pyrokinetic\build\assets\textures\pkicon.png
+    ChildComponent:
+      Parent: fc9f2844-6065-466a-b57a-68c4f4c38931
+      Previous: 8c8f1ea6-912a-480e-918e-0701f7ad2c37
+      Next: 8c8f1ea6-912a-480e-918e-0701f7ad2c37
+  - Entity: 6829fe95-8365-40d9-be6b-1fd893c509db
+    TagComponent:
+      Tag: Blue
+    TransformComponent:
+      Translation: [-3, 0, 0]
+      Rotation: [0, 0, 30]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.828431368, 0.828436613, 1, 1]
+      Texture: C:\dev\Pyrokinetic\build\assets\textures\pkicon.png
+    ParentComponent:
+      Children: 1
+      First: fc9f2844-6065-466a-b57a-68c4f4c38931

@@ -4,8 +4,6 @@
 #include <glm/glm.hpp>
 #include <spirv_cross/spirv_cross_c.h>
 
-//TODO: REMOVE THIS!
-typedef unsigned int GLenum;
 
 namespace pk
 {
@@ -40,14 +38,11 @@ namespace pk
 
 		void BindNeededResources()
 		{
-			size_t i = 0;
-			for (auto& texture : m_Textures)
+			for (size_t i = 0; i < m_Textures.size(); i++)
 			{
-					texture->Bind(i);
-					i++;
+					m_Textures[i]->Bind(i+1);
 			}
 		}
-
 
 		void UploadUniformInt(const std::string& name, const int values);
 		void UploadUniformIntArray(const std::string& name, int* values, uint32_t count);

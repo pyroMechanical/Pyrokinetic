@@ -26,7 +26,18 @@ namespace pk
 	{
 		Entity entity = Entity(m_Registry.create(), this);
 		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<IDComponent>();
 		
+		if (!name.empty()) entity.AddComponent<TagComponent>().Tag = name;
+		return entity;
+	}
+
+	Entity Scene::CreateEntity(const xg::Guid uuid, const std::string& name)
+	{
+		Entity entity = Entity(m_Registry.create(), this);
+		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<IDComponent>(uuid);
+
 		if (!name.empty()) entity.AddComponent<TagComponent>().Tag = name;
 		return entity;
 	}
@@ -59,6 +70,23 @@ namespace pk
 		m_Registry.emplace<DeleteComponent>(entity);
 	}
 
+	xg::Guid Scene::GetEntityUUID(entt::entity entity)
+	{
+		return m_Registry.get<IDComponent>(entity).UUID;
+	}
+
+	entt::entity Scene::GetEntityFromUUID(xg::Guid uuid)
+	{
+		auto view = m_Registry.view<IDComponent>();
+
+		for (auto entity : view)
+		{
+			if (uuid == GetEntityUUID(entity))
+				return entity;
+		}
+		return entt::null;
+	}
+
 	void Scene::RemoveChild(entt::entity child)
 	{
 		if (!m_Registry.all_of<ChildComponent>(child)) return;
@@ -67,12 +95,25 @@ namespace pk
 		auto& prev = m_Registry.get<ChildComponent>(childComponent.Prev);
 		auto& next = m_Registry.get<ChildComponent>(childComponent.Next);
 		--oldParent.Children;
+		TransformComponent& childTransform = m_Registry.get<TransformComponent>(child);
+		glm::mat4 comp = childTransform.GetWorldMatrix();
+		glm::vec3 scale;
+		glm::quat rotation;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+
+		auto success = glm::decompose(comp, scale, rotation, translation, skew, perspective);
+		childTransform.Translation = translation;
+		childTransform.Scale = scale;
+		childTransform.EulerAngles = glm::degrees(glm::eulerAngles(glm::conjugate(rotation)));
+		childTransform.RecalculateQuaternion();
+		childTransform.World = glm::mat4(1.0f);
 
 		if (child == oldParent.First)
 		{
 			oldParent.First = childComponent.Next;
 		}
-
 		if (oldParent.Children > 0)
 		{
 			prev.Next = childComponent.Next;
@@ -82,8 +123,9 @@ namespace pk
 		{
 			m_Registry.remove<ParentComponent>(childComponent.Parent);
 		}
-
 		m_Registry.remove<ChildComponent>(child);
+
+		Entity{ child, this }.UpdateTransform(glm::mat4(1.0f), true);
 
 	}
 
@@ -154,7 +196,7 @@ namespace pk
 
 		}
 
-		if (mainCamera) //test, would be `if (mainCamera)`
+		if (mainCamera)
 		{
 			Renderer2D::BeginScene(*mainCamera, cameraTransform);
 			auto group = m_Registry.view<SpriteRendererComponent, TransformComponent>(); //multiple groups one after the other cause problems. find out why!

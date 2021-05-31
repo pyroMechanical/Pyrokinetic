@@ -29,19 +29,14 @@ namespace pk
 
 		virtual void* GetImGuiTexture() override 
 		{ 
-			if (!m_ImTextureID) CreateImGuiImage();
-
 			return m_ImTextureID; 
 		}
+
+		virtual std::string GetPath() override { return m_Path; }
 
 		virtual bool operator == (const Texture& other) const override 
 		{
 			return  m_Path == ((VulkanTexture2D&)other).m_Path;
-		}
-
-		const void CreateImGuiImage()
-		{
-			m_ImTextureID = (void*)ImGui_ImplVulkan_AddTexture(m_Sampler, m_ImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
 
 	private:
@@ -55,6 +50,8 @@ namespace pk
 		VkImageView m_ImageView;
 		VkSampler m_Sampler;
 		VkDescriptorImageInfo m_ImageDescriptorInfo;
+
+		VkDescriptorPool m_Pool;
 
 		void* m_ImTextureID = nullptr;
 

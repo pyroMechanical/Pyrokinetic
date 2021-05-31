@@ -5,12 +5,15 @@
 #include "SceneCamera.h"
 
 #include "Pyrokinetic/Rendering/Texture.h"
+#include "Pyrokinetic/Scene/SceneCamera.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-#include <Pyrokinetic/Scene/SceneCamera.h>
+
+#include <crossguid/guid.hpp>
 
 namespace pk
 {
@@ -124,6 +127,19 @@ namespace pk
 		ChildComponent(const ChildComponent&) = default;
 		ChildComponent(entt::entity parent)
 			:Parent(parent) {}
+	};
+
+	struct IDComponent
+	{
+		xg::Guid UUID;
+
+		IDComponent()
+			:UUID(xg::newGuid()) {}
+		IDComponent(std::string id)
+			:UUID(xg::Guid(id)) {}
+		IDComponent(xg::Guid id)
+			:UUID(id) {}
+		IDComponent(const IDComponent&) = default;
 	};
 
 	struct DeleteComponent

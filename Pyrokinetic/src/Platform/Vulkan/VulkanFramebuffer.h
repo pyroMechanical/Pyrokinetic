@@ -11,7 +11,6 @@ namespace pk
 	{
 	public:
 		VulkanFramebuffer(const FramebufferSpecification& spec);
-		VulkanFramebuffer(const FramebufferSpecification& spec, VkImage image, VkImageView imageView);
 		virtual ~VulkanFramebuffer() override;
 
 		virtual void Bind() override {};
@@ -44,6 +43,8 @@ namespace pk
 		std::vector<VkSampler> m_Samplers;
 		VkSemaphore m_RenderSemaphore, m_PresentSemaphore;
 		VkFence m_RenderFence;
+
+		VkDescriptorPool m_Pool;
 
 		std::vector<void*> m_ImTextureIDs;
 		friend class VulkanSwapchain;

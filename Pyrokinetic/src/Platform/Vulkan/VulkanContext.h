@@ -17,7 +17,7 @@ struct GLFWwindow;
 			{												\
 				PK_CORE_ERROR("Vulkan Error: {0}", err);	\
 			}												\
-		}													\
+		}													
 
 namespace pk
 {
@@ -85,6 +85,8 @@ namespace pk
 		static vkb::Instance GetVkbInstance() { return m_Instance; }
 		static VkInstance GetVulkanInstance() { return m_Instance.instance; }
 
+		VkDescriptorPool GetImGuiDescriptorPool() { return m_ImGuiDescriptorPool; }
+
 		VkDescriptorSetLayout* GetDescriptorSetLayout() { return &m_GlobalDescriptorLayout; }
 
 	private:
@@ -107,5 +109,6 @@ namespace pk
 
 		VkDescriptorSetLayout m_GlobalDescriptorLayout;
 		VkDescriptorPool m_DescriptorPool;
+		VkDescriptorPool m_ImGuiDescriptorPool;
 	};
 }

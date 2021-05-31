@@ -1,0 +1,30 @@
+Scene: <Scene Name>
+Entities:
+  - Entity: 58e5195a-354b-4d62-b149-cdc4d72d0e33
+    TagComponent:
+      Tag: GameObject
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 1, 1, 1]
+      Texture: C:\dev\Pyrokinetic\build\assets\textures\checker.png
+  - Entity: cfdc11b5-965a-44f7-a550-dc8ee1c53344
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Translation: [0, 0, 1]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      ProjectionType: 0
+      OrthographicSize: 10
+      OrthographicNear: 0
+      OrthographicFar: 10000
+      VerticalFOV: 70
+      PerspectiveNear: 0.300000012
+      PerspectiveFar: 10000
+      InfiniteFarPlane: false
+      Primary: true
+      FixedAspectRatio: false

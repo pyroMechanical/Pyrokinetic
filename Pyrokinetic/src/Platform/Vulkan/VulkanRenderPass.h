@@ -10,7 +10,6 @@ namespace pk
 	{
 	public:
 		VulkanRenderPass(const RenderPassSpecification& spec);
-		VulkanRenderPass();
 		virtual ~VulkanRenderPass() override;
 
 		virtual RenderPassSpecification GetSpecification() const override { return m_Spec; }

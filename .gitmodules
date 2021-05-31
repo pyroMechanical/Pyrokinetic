@@ -40,3 +40,9 @@
 [submodule "Pyrokinetic/ext/glslang"]
 	path = Pyrokinetic/ext/glslang
 	url = https://github.com/KhronosGroup/glslang
+[submodule "Pyrokinetic/ext/yaml"]
+	path = Pyrokinetic/ext/yaml
+	url = https://github.com/jbeder/yaml-cpp
+[submodule "Pyrokinetic/ext/crossguid"]
+	path = Pyrokinetic/ext/crossguid
+	url = https://github.com/graeme-hill/crossguid

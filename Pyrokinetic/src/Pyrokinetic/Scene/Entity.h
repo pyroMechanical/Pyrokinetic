@@ -66,6 +66,10 @@ namespace pk
 
 		glm::mat4 UpdateTransform(glm::mat4& world, bool dirty);
 
+		entt::entity GetEntityID() { return m_EntityID; }
+
+		xg::Guid GetUUID() { return m_Scene->GetEntityUUID(m_EntityID); }
+
 		operator bool() const { return m_EntityID != entt::null; }
 
 		operator entt::entity() const { return m_EntityID; }

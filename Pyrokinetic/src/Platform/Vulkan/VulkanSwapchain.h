@@ -2,6 +2,7 @@
 #include "VulkanFramebuffer.h"
 #include "VulkanRenderPass.h"
 #include "VulkanDevice.h"
+#include "VkBootstrap.h"
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
@@ -13,9 +14,9 @@ namespace pk
 		VulkanSwapchain(GLFWwindow* window)
 			: m_Window(window) {}
 		void CreateSurface();
-		void CreateSwapchain(const std::shared_ptr<VulkanDevice>& device);
-		void CreateFramebuffers(const FramebufferSpecification& spec);
-		void DestroyFramebuffers();
+		void CreateSwapchain(VkExtent2D extent);
+		void CreateFramebuffers(std::shared_ptr<RenderPass> renderPass);
+		void RebuildSwapchain(VkExtent2D extent);
 		void SwapBuffers();
 
 		const VkSurfaceKHR& GetVulkanSurface() const { return m_Surface; }
@@ -25,17 +26,19 @@ namespace pk
 		VkExtent2D GetExtent() { return m_Extent; }
 		VkFormat GetSwapchainImageFormat() { return m_SwapchainImageFormat; }
 
-		VulkanRenderPass* GetRenderPass() { return m_RenderPass.get(); }
+		VkRenderPass GetRenderPass() { return m_RenderPass->GetVulkanRenderPass(); }
 		VkClearValue GetClearValue() { return m_ClearValue; }
-		VulkanFramebuffer* GetCurrentFramebuffer() { return m_Framebuffers[m_CurrentFramebuffer].get(); }
-		std::vector<std::shared_ptr<VulkanFramebuffer>>& GetFramebuffers() { return m_Framebuffers; }
+		VkFramebuffer GetCurrentFramebuffer() { return m_Framebuffers[m_CurrentFramebuffer]; }
+		std::vector<VkFramebuffer>& GetFramebuffers() { return m_Framebuffers; }
 		VulkanDevice::VulkanCommandBuffer& GetCurrentCommandBuffer() { return m_FrameCommandBuffers[m_CurrentFramebuffer]; }
 		std::vector<VulkanDevice::VulkanCommandBuffer>& GetCommandBuffers() { return m_FrameCommandBuffers; }
 
 	private:
+		void BuildSwapchain();
+	private:
 		GLFWwindow* m_Window = nullptr;
 		VkSurfaceKHR m_Surface = nullptr;
-		VkSwapchainKHR m_Swapchain;
+		vkb::Swapchain m_Swapchain;
 
 		std::shared_ptr<VulkanRenderPass> m_RenderPass = nullptr;
 		VkClearValue m_ClearValue;
@@ -44,9 +47,12 @@ namespace pk
 
 		VkFormat m_SwapchainImageFormat = VK_FORMAT_UNDEFINED;
 		uint32_t m_CurrentFramebuffer = 0;
+		std::vector<VkFramebuffer> m_Framebuffers;
+		std::vector<VkFence> m_RenderFences;
+		std::vector<VkSemaphore> m_PresentSemaphores;
+		std::vector<VkSemaphore> m_RenderSemaphores;
 		std::vector<VkImage> m_SwapchainImages;
 		std::vector<VkImageView> m_SwapchainImageViews;
-		std::vector<std::shared_ptr<VulkanFramebuffer>> m_Framebuffers;
 		std::vector<VulkanDevice::VulkanCommandBuffer> m_FrameCommandBuffers;
 	};
 }

@@ -1,5 +1,5 @@
 #type vertex
-#version 450 core
+#version 460 core
 
 layout(location = 0) in vec3 Position;
 layout(location = 1) in vec4 a_Color;
@@ -31,7 +31,7 @@ void main()
 }
 			
 #type fragment
-#version 450 core
+#version 460 core
 
 layout(location = 0) in vec2 v_TexCoord;
 layout(location = 1) in vec4 v_Color;

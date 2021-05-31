@@ -165,7 +165,7 @@ namespace pk
 	{
 		PROFILE_FUNCTION();
 
-		//if (s_Data.quadIndexCount == 0) return;
+		if (s_Data.quadIndexCount == 0) return;
 		std::ptrdiff_t size = (char*)s_Data.quadVertexBufferPtr - (char*)s_Data.quadVertexBufferData;
 		s_Data.quadVertexBuffer->Unmap(size);
 		Renderer::Submit(s_Data.quadPipeline, s_Data.quadVertexBuffer, s_Data.quadIndexBuffer, s_Data.quadIndexCount);

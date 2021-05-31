@@ -66,7 +66,16 @@ target_include_directories(Pyrokinetic PUBLIC
 	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/SPIRV-Tools/include"
 	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/SPIRV-Cross/include"
 	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/shaderc/libshaderc/include"
+	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/yaml/include"
+	"${PROJECT_SOURCE_DIR}/Pyrokinetic/ext/crossguid/include"
 )
+
+#set(target_list "" CACHE INTERNAL "target_list")
+#function(add_library name)
+#	message("Adding library ${name}")
+#	set(target_list ${target_list} ${name} CACHE INTERNAL "target_list")
+#	_add_library(${name} ${ARGN})
+#endfunction()
 
 add_subdirectory(Pyrokinetic/ext/GLFW)
 target_link_libraries(Pyrokinetic PUBLIC glfw)
@@ -84,23 +93,37 @@ target_link_libraries(Pyrokinetic PUBLIC ImPlot)
 add_subdirectory(Pyrokinetic/ext/entt)
 target_link_libraries(Pyrokinetic PUBLIC EnTT)
 
+set(SPIRV_SKIP_EXECUTABLES ON CACHE BOOL "" FORCE)
 add_subdirectory(Pyrokinetic/ext/SPIRV-Tools)
 target_link_libraries(Pyrokinetic PUBLIC SPIRV-Tools)
 
+set(ENABLE_CTEST OFF CACHE BOOL "" FORCE)
 add_subdirectory(Pyrokinetic/ext/glslang)
 target_link_libraries(Pyrokinetic PUBLIC glslang)
 
+set(SHADERC_SKIP_TESTS ON CACHE BOOL "" FORCE)
+set(SHADERC_SKIP_EXAMPLES ON CACHE BOOL "" FORCE)
 add_subdirectory(Pyrokinetic/ext/shaderc)
 target_link_libraries(Pyrokinetic PUBLIC shaderc)
 
+set(SPIRV_CROSS_SHARED ON CACHE BOOL "" FORCE)
+set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 add_subdirectory(Pyrokinetic/ext/SPIRV-Cross)
-option(SPIRV_CROSS_SHARED ON)
-target_link_libraries(Pyrokinetic PUBLIC
-			spirv-cross-c)
+target_link_libraries(Pyrokinetic PUBLIC spirv-cross-c)
+			
+add_subdirectory(Pyrokinetic/ext/yaml)
+target_link_libraries(Pyrokinetic PUBLIC yaml-cpp)
+
+set(CROSSGUID_TESTS OFF CACHE BOOL "" FORCE)
+add_subdirectory(Pyrokinetic/ext/crossguid)
+target_link_libraries(Pyrokinetic PUBLIC crossguid)
 
 target_link_libraries(Pyrokinetic PUBLIC ${Vulkan_LIBRARIES})
 target_include_directories(Pyrokinetic PUBLIC ${Vulkan_INCLUDE_DIRS})
 target_compile_options(Pyrokinetic PUBLIC ${Vulkan_CFLAGS_OTHER})
+
+#set_target_properties(${target_list} PROPERTIES FOLDER "Dependencies")
+
 
 #add_subdirectory(ext/vulkanmemoryallocator)
 #target_link_libraries(Pyrokinetic PUBLIC VMA)

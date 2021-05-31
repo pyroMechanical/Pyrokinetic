@@ -18,6 +18,8 @@ namespace pk
 	void SceneHierarchyPanel::SetContext(const std::shared_ptr<Scene>& context)
 	{
 		m_Context = context;
+		m_SelectionContext = {};
+		if (p_Properties != nullptr) p_Properties->ClearSelectedEntity();
 	}
 
 	void SceneHierarchyPanel::OnImGuiRender()

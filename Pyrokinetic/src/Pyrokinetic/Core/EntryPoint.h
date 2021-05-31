@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 	PROFILE_BEGIN_SESSION("Startup", "Profile-Shutdown.json");
 	delete app;
 	PROFILE_END_SESSION();
-	std::cin.get();
+	//std::cin.get();
 }
 
 #endif

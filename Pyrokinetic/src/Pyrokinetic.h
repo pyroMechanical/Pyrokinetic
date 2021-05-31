@@ -13,12 +13,17 @@
 
 #include "Pyrokinetic/Core/Layer.h"
 #include "Pyrokinetic/Core/Log.h"
+#include "Pyrokinetic/Core/FileBrowser.h"
 
 #include "Pyrokinetic/ImGui/ImGuiLayer.h"
 
 #include "Pyrokinetic/Scene/Scene.h"
 #include "Pyrokinetic/Scene/Entity.h"
 #include "Pyrokinetic/Scene/Components.h"
+#include "Pyrokinetic/Scene/SceneSerializer.h"
+
+#include "Pyrokinetic/Asset/Asset.h"
+#include "Pyrokinetic/Asset/AssetManager.h"
 
 #include "Pyrokinetic/Rendering/Renderer.h"
 #include "Pyrokinetic/Rendering/Renderer2D.h"

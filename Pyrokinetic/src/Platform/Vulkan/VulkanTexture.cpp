@@ -246,11 +246,53 @@ namespace pk
 		m_ImageDescriptorInfo.sampler = m_Sampler;
 		m_ImageDescriptorInfo.imageView = m_ImageView;
 		m_ImageDescriptorInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		VkDescriptorPoolSize size = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 };
+
+		VkDescriptorPoolCreateInfo poolInfo = {};
+		poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		poolInfo.pNext = nullptr;
+		poolInfo.poolSizeCount = 1;
+		poolInfo.pPoolSizes = &size;
+		poolInfo.maxSets = 1;
+		poolInfo.flags = 0;
+
+		CHECK_VULKAN(vkCreateDescriptorPool(device->GetVulkanDevice(), &poolInfo, nullptr, &m_Pool));
+
+
+		VkDescriptorSet set;
+		VkDescriptorSetAllocateInfo alloc = {};
+		alloc.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		alloc.descriptorPool = context->GetImGuiDescriptorPool();
+		alloc.descriptorSetCount = 1;
+		alloc.pSetLayouts = ImGui_ImplVulkan_GetDescriptorSetLayout();
+		CHECK_VULKAN(vkAllocateDescriptorSets(device->GetVulkanDevice(), &alloc, &set));
+
+		m_ImTextureID = (void*)set;
+
+		VkDescriptorImageInfo info = {};
+		info.sampler = m_Sampler;
+		info.imageView = m_ImageView;
+		info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+		VkWriteDescriptorSet write = {};
+		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		write.dstSet = set;
+		write.descriptorCount = 1;
+		write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		write.pImageInfo = &info;
+		vkUpdateDescriptorSets(device->GetVulkanDevice(), 1, &write, 0, nullptr);
 	}
 
 	VulkanTexture2D::~VulkanTexture2D()
 	{
 		PROFILE_FUNCTION();
+		VkDevice device = VulkanContext::Get()->GetDevice()->GetVulkanDevice();
+		if (m_Pool)
+		{
+			vkResetDescriptorPool(device, m_Pool, 0);
+			vkDestroyDescriptorPool(device, m_Pool, nullptr);
+		}
 
 		//glDeleteTextures(1, &m_RendererID);
 	}

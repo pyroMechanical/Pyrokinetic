@@ -144,6 +144,13 @@ namespace pk
 		vertexInputStateCreateInfo.vertexAttributeDescriptionCount = attributes.size();
 		vertexInputStateCreateInfo.pVertexAttributeDescriptions = attributes.data();
 
+		VkPipelineDynamicStateCreateInfo dynamicStateInfo = {};
+		std::vector<VkDynamicState> states = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+		dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+		dynamicStateInfo.pNext = nullptr;
+		dynamicStateInfo.dynamicStateCount = 2;
+		dynamicStateInfo.pDynamicStates = states.data();
+		
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.pNext = nullptr;
@@ -153,6 +160,7 @@ namespace pk
 		pipelineInfo.pInputAssemblyState = &inputAssemblyState;
 		pipelineInfo.pViewportState = &viewportState;
 		pipelineInfo.pRasterizationState = &rasterizationState;
+		pipelineInfo.pDynamicState = &dynamicStateInfo;
 		pipelineInfo.pMultisampleState = &multisamplingState;
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDepthStencilState = &depthStencil;
@@ -182,7 +190,7 @@ namespace pk
 			}
 		}
 
-		PK_CORE_WARN("Vulkan Pipeline - Updating {0} descriptor sets", writeDescriptors.size());
+		//PK_CORE_WARN("Vulkan Pipeline - Updating {0} descriptor sets", writeDescriptors.size());
 		vkUpdateDescriptorSets(device, writeDescriptors.size(), writeDescriptors.data(), 0, nullptr);
 	}
 

@@ -18,12 +18,6 @@ namespace pk
 	{
 		PROFILE_FUNCTION();
 
-		m_Texture = SubTexture2D::CreateFromPath("assets/textures/checker.png");
-		m_Spritesheet = Texture2D::Create("assets/textures/RPGpack_sheet_2X.png");
-
-		m_StairSprite = SubTexture2D::CreateFromCoordinates(m_Spritesheet, { 7, 5 }, { 128, 128 }, { 1, 1 });
-		m_LargeTree = SubTexture2D::CreateFromCoordinates(m_Spritesheet, { 1, 1 }, { 128, 128 }, { 1, 2 });
-
 		m_RenderPass = Renderer::GetRenderPass("SceneView");
 
 		FramebufferSpecification spec;
@@ -42,20 +36,6 @@ namespace pk
 		c.Primary = true;
 		c.FixedAspectRatio = false;
 		m_CameraEntity.GetComponent<TransformComponent>().Translation = { 0.0f, 0.0f, 6.0f };
-
-		m_TestSquare = m_ActiveScene->CreateEntity("Test Square");
-		auto& sprite = m_TestSquare.AddComponent<SpriteRendererComponent>();
-		sprite.Color = { 1.0f, 0.1f, 0.1f, 1.0f };
-
-		pk::Entity testSquare2 = m_ActiveScene->CreateEntity("Textured Square");
-		auto& sprite2 = testSquare2.AddComponent<SpriteRendererComponent>();
-		sprite2.Texture = m_Texture;
-		testSquare2.GetComponent<TransformComponent>().Translation = { 2.0f, 0.0f, 0.0f };
-
-		pk::Entity testSquare3 = m_ActiveScene->CreateEntity("Textured Square");
-		auto& sprite3 = testSquare3.AddComponent<SpriteRendererComponent>();
-		sprite3.Texture = m_StairSprite;
-		testSquare3.GetComponent<TransformComponent>().Translation = { -2.0f, 0.0f, 0.0f };
 
 
 
@@ -133,9 +113,41 @@ namespace pk
 				if (ImGui::BeginMenu("Open"))
 				{
 					ImGui::Text("Project");
-					ImGui::Text("Scene");
-					ImGui::Text("Asset");
+					if (ImGui::MenuItem("Scene"))
+					{
+						auto name = util::FileBrowser::Open("Pyrokinetic file (.pk)\0 *.pk\0");
+						if (!name.empty())
+						{
+							m_ActiveScene = std::make_shared<Scene>();
+							m_SceneHierarchy.SetContext(m_ActiveScene);
+							m_Properties.SetContext(m_ActiveScene);
+							SceneSerializer serializer(m_ActiveScene);
+							serializer.DeserializeText(name);
+							ResizeViewport();
+						}
+					}
+					if (ImGui::BeginMenu("Asset"))
+					{
+						if (ImGui::MenuItem("Texture"))
+						{
+							auto path = util::FileBrowser::Open("Image file (*.png, *.jpg)\0 *.png\0 *.jpg\0");
+							AssetManager::CreateAsset(path);
+						}
+						ImGui::EndMenu();
+					}
 
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Save"))
+				{
+					if (ImGui::MenuItem("Scene"))
+					{
+						auto name = util::FileBrowser::Save("Pyrokinetic file (.pk)\0 *.pk\0");
+
+						SceneSerializer serializer(m_ActiveScene);
+						serializer.SerializeText(name);
+					}
 					ImGui::EndMenu();
 				}
 
@@ -172,6 +184,7 @@ namespace pk
 		glm::vec2 viewportPanelSize = { v.x, v.y };
 		if (m_ViewportSize != viewportPanelSize && viewportPanelSize.x > 0.0f && viewportPanelSize.y > 0.0f)
 		{
+			PK_CORE_INFO("Resizing viewport: {0}, {1} to {2}, {3}", m_ViewportSize.x, m_ViewportSize.y, viewportPanelSize.x, viewportPanelSize.y);
 			m_ViewportSize = viewportPanelSize;
 		}
 
@@ -185,8 +198,6 @@ namespace pk
 		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 		ImGui::End();
-
-		ImGui::ShowDemoWindow();
 
 		Renderer2D::ResetStats();
 	}

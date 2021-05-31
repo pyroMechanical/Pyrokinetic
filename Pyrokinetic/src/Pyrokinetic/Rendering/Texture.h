@@ -1,16 +1,15 @@
 #pragma once
 
 #include "Pyrokinetic/Core/Core.h"
+#include "Pyrokinetic/Asset/Asset.h"
 #include <glm/glm.hpp>
 #include <string>
 
 namespace pk
 {
-	class Texture
+	class Texture : public Asset
 	{
 	public:
-		virtual ~Texture() = default;
-
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 
@@ -31,10 +30,10 @@ namespace pk
 		static std::shared_ptr<Texture2D> Create(uint32_t width, uint32_t height);
 		static std::shared_ptr<Texture2D> Create(const std::string& path);
 		
-		
+		virtual std::string GetPath() = 0;
 	};
 
-	class SubTexture2D
+	class SubTexture2D : public Asset
 	{
 	public:
 		SubTexture2D(const std::shared_ptr<Texture2D>& texture, const std::pair<uint8_t, uint8_t> coords, const std::pair<uint16_t, uint16_t> tileSize, const std::pair<uint8_t, uint8_t> spriteSize);

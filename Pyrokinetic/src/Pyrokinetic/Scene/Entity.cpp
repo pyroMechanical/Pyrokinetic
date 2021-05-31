@@ -6,38 +6,49 @@ namespace pk
 {
 	void Entity::AddChild(Entity child)
 	{
+		m_Scene->RemoveChild(child);
+
+
+
 		ChildComponent& childComponent = child.AddOrGetComponent<ChildComponent>();
-		
-		if (childComponent.Parent != entt::null)
-		{
-			auto& oldParent = m_Scene->m_Registry.get<ParentComponent>(childComponent.Parent);
-			auto& prev = m_Scene->m_Registry.get<ChildComponent>(childComponent.Prev);
-			auto& next = m_Scene->m_Registry.get<ChildComponent>(childComponent.Next);
-
-			/*{
-				TransformComponent& parentTransform = m_Scene->m_Registry.get<TransformComponent>(childComponent.Parent);
-				TransformComponent& childTransform = child.GetComponent<TransformComponent>();
-				childTransform
-			}*/
-
-			--oldParent.Children;
-			if (oldParent.Children > 0)
-			{
-				prev.Next = childComponent.Next;
-				next.Prev = childComponent.Prev;
-
-				if (oldParent.First == child)
-					oldParent.First = childComponent.Next;
-			}
-			else
-			{
-				m_Scene->m_Registry.remove<ParentComponent>(childComponent.Parent);
-			}
-		}
-
-		ChildComponent& c = child.GetComponent<ChildComponent>();
 
 		childComponent.Parent = m_EntityID;
+
+		TransformComponent& parentTransform = GetComponent<TransformComponent>();
+		TransformComponent& childTransform = child.GetComponent<TransformComponent>();
+
+		child.UpdateTransform(childTransform.GetWorldMatrix(), childTransform.Dirty);
+		glm::mat4 comp = glm::inverse(parentTransform.GetWorldMatrix()) * childTransform.GetWorldMatrix();
+		glm::vec3 scale;
+		glm::quat rotation;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		auto success = glm::decompose(comp, scale, rotation, translation, skew, perspective);
+		PK_CORE_INFO("Decomposition status: {0}", success);
+		childTransform.Translation = translation;
+		childTransform.Scale = scale;
+		childTransform.EulerAngles = glm::degrees(glm::eulerAngles(glm::conjugate(rotation)));
+
+		childTransform.RecalculateQuaternion();
+
+		glm::mat4 childMatrix = childTransform.GetLocalMatrix();
+
+		PK_CORE_INFO("Composition Matrix:\n [ {0}, {1}, {2}, {3} ]\n[ {4}, {5}, {6}, {7} ]\n[ {8}, {9}, {10}, {11} ]\n[ {12}, {13}, {14}, {15} ]",
+			comp[0][0], comp[1][0], comp[2][0], comp[3][0], comp[0][1], comp[1][1], comp[2][1], comp[3][1], comp[0][2], comp[1][2], comp[2][2], comp[3][2], comp[0][3], comp[1][3], comp[2][3], comp[3][3]);
+
+		PK_CORE_INFO("Local Matrix:\n [ {0}, {1}, {2}, {3} ]\n[ {4}, {5}, {6}, {7} ]\n[ {8}, {9}, {10}, {11} ]\n[ {12}, {13}, {14}, {15} ]",
+			childMatrix[0][0], childMatrix[1][0], childMatrix[2][0], childMatrix[3][0], childMatrix[0][1], childMatrix[1][1], childMatrix[2][1], childMatrix[3][1], childMatrix[0][2], childMatrix[1][2], childMatrix[2][2], childMatrix[3][2], childMatrix[0][3], childMatrix[1][3], childMatrix[2][3], childMatrix[3][3]);
+
+		childTransform.World = parentTransform.GetWorldMatrix();
+		childTransform.Dirty = true;
+
+		childTransform.RecalculateMatrix();
+
+		glm::mat4 childMatrix2 = childTransform.GetLocalMatrix();
+		PK_CORE_INFO("Fixed Local Matrix:\n [ {0}, {1}, {2}, {3} ]\n[ {4}, {5}, {6}, {7} ]\n[ {8}, {9}, {10}, {11} ]\n[ {12}, {13}, {14}, {15} ]",
+			childMatrix2[0][0], childMatrix2[1][0], childMatrix2[2][0], childMatrix2[3][0], childMatrix2[0][1], childMatrix2[1][1], childMatrix2[2][1], childMatrix2[3][1], childMatrix2[0][2], childMatrix2[1][2], childMatrix2[2][2], childMatrix2[3][2], childMatrix2[0][3], childMatrix2[1][3], childMatrix2[2][3], childMatrix2[3][3]);
+
 
 		
 		ParentComponent& parentComponent = AddOrGetComponent<ParentComponent>();

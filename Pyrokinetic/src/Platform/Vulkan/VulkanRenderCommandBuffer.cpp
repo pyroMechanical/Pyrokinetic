@@ -48,8 +48,8 @@ namespace pk
 				renderPassBeginInfo.renderPass = vkRenderPass->GetVulkanRenderPass();
 				renderPassBeginInfo.renderArea.offset.x = 0;
 				renderPassBeginInfo.renderArea.offset.y = 0;
-				renderPassBeginInfo.renderArea.extent.width = context->GetSwapchain().GetWidth();
-				renderPassBeginInfo.renderArea.extent.height = context->GetSwapchain().GetHeight();
+				renderPassBeginInfo.renderArea.extent.width = framebuffer.GetSpecification().width;
+				renderPassBeginInfo.renderArea.extent.height = framebuffer.GetSpecification().height;
 				renderPassBeginInfo.clearValueCount = 2;
 				renderPassBeginInfo.pClearValues = clearValues;
 				renderPassBeginInfo.framebuffer = framebuffer.GetVulkanFramebuffer();
@@ -79,21 +79,6 @@ namespace pk
 		m_Queue.push_back([=](const VkCommandBuffer& drawCommandBuffer, const VulkanFramebuffer& framebuffer)
 			{
 				PROFILE_FUNCTION();
-				VkViewport viewport = {};
-				viewport.x = 0;
-				viewport.y = (float)context->GetSwapchain().GetHeight();
-				viewport.width = (float)context->GetSwapchain().GetWidth();
-				viewport.height = -(float)context->GetSwapchain().GetHeight();
-				viewport.minDepth = (float)0.0f;
-				viewport.maxDepth = (float)1.0f;
-				vkCmdSetViewport(drawCommandBuffer, 0, 1, &viewport);
-
-				VkRect2D scissor = {};
-				scissor.extent.width = context->GetSwapchain().GetWidth();
-				scissor.extent.height = context->GetSwapchain().GetHeight();
-				scissor.offset.x = 0;
-				scissor.offset.y = 0;
-				vkCmdSetScissor(drawCommandBuffer, 0, 1, &scissor);
 
 				VulkanPipeline* vkPipeline = static_cast<VulkanPipeline*>(pipeline.get());
 				vkPipeline->WriteImageSamplers();
@@ -101,6 +86,23 @@ namespace pk
 				vkCmdBindDescriptorSets(drawCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->GetPipelineLayout(), 0, descriptorSet.size(), descriptorSet.data(), 0, nullptr);
 
 				vkCmdBindPipeline(drawCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->GetVulkanPipeline());
+
+				PK_CORE_INFO("Viewport Size: {0}, {1}", framebuffer.GetSpecification().width, framebuffer.GetSpecification().height);
+				VkViewport viewport = {};
+				viewport.x = 0;
+				viewport.y = 0;
+				viewport.width = (float)framebuffer.GetSpecification().width;
+				viewport.height = (float)framebuffer.GetSpecification().height;
+				viewport.minDepth = (float)0.0f;
+				viewport.maxDepth = (float)1.0f;
+				vkCmdSetViewport(drawCommandBuffer, 0, 1, &viewport);
+
+				VkRect2D scissor = {};
+				scissor.extent.width = framebuffer.GetSpecification().width;
+				scissor.extent.height = framebuffer.GetSpecification().height;
+				scissor.offset.x = 0;
+				scissor.offset.y = 0;
+				vkCmdSetScissor(drawCommandBuffer, 0, 1, &scissor);
 
 				VkDeviceSize offsets[1] = { 0 };
 				VulkanVertexBuffer* vkVertexBuffer = static_cast<VulkanVertexBuffer*>(vertexBuffer.get());

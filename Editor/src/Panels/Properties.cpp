@@ -83,6 +83,29 @@ namespace pk
 						transform.Dirty = true;
 					}
 					if (ImGui::DragFloat3("Scale", glm::value_ptr(transform.Scale), 0.05f)) transform.Dirty = true;
+
+					/*ImGui::Text("Global Transform");
+
+					if(transform.Dirty = true)
+					{
+						transform.RecalculateMatrix();
+					}
+					
+					glm::mat4 global = transform.GetWorldMatrix();
+					glm::vec3 t;
+					glm::quat r;
+					glm::vec3 s;
+					glm::vec3 sk;
+					glm::vec4 p;
+					glm::decompose(global, s, r, t, sk, p);
+					glm::vec3 ea = glm::degrees(glm::eulerAngles(glm::conjugate(r)));
+
+					ImGui::DragFloat3("Global Position", glm::value_ptr(t), 1);
+					ImGui::DragFloat3("Global Rotation", glm::value_ptr(ea), 1);
+					ImGui::DragFloat3("Global Scale", glm::value_ptr(s), 1);
+					ImGui::DragFloat3("Global Skew", glm::value_ptr(sk), 1);
+					ImGui::DragFloat4("Global Perspective", glm::value_ptr(p), 1);*/
+
 					ImGui::TreePop();
 				}
 			}
@@ -96,16 +119,38 @@ namespace pk
 
 					ImGui::ColorEdit4("Color", glm::value_ptr(sprite.Color));
 					
+					ImGui::Text("Texture:");
+					ImGui::SameLine();
+					
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{0.3f, 0.3f, 0.3f, 1.0f});
+					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.35f, 0.35f, 0.35f, 1.0f });
+					ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.4f, 0.4f, 0.4f, 1.0f });
+
+					bool pressed = false;
+
 					if (texture)
 					{
 						glm::vec2 min = texture->GetMin();
 						glm::vec2 max = texture->GetMax();
 						glm::vec2 ratio = texture->GetTextureRatio();
-						ImGui::Text("Texture:");
-						ImGui::SameLine();
 
-						ImGui::Image(texture->GetTexture()->GetImGuiTexture(), ImVec2{ ratio.x * 100.0f, ratio.y * 100.0f }, ImVec2{ min.x, max.y }, ImVec2{ max.x, min.y });
+						pressed = ImGui::ImageButton(texture->GetTexture()->GetImGuiTexture(), ImVec2{ ratio.x * 100.0f, ratio.y * 100.0f }, ImVec2{ min.x, max.y }, ImVec2{ max.x, min.y }, 5, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
 					}
+					else
+					{
+						pressed = ImGui::Button("+ Add Texture", ImVec2{ 110.0f, 110.0f });
+					}
+
+					if(pressed)
+					{
+						std::string path = util::FileBrowser::Open("Image file (*.png, *.jpg)\0*.png\0 *.jpg\0");
+						if (!path.empty())
+							sprite.Texture = std::dynamic_pointer_cast<SubTexture2D>(AssetManager::GetAsset(AssetManager::CreateAsset(path)));
+					}
+					
+					ImGui::PopStyleColor(3);
+					
 					ImGui::TreePop();
 				}
 			}
